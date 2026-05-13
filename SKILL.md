@@ -37,6 +37,8 @@ Each stage has two gates:
 
 Do not silently rewrite an approved baseline. If later evidence suggests a change, ask whether to revise the baseline and record the revision in `Approval Log`.
 
+After saving any approved baseline, tell the user the baseline path in one short sentence. If the user chooses a previous option after several challenge rounds, preserve that history in the baseline and record which historical option was selected.
+
 ### 0. Assess and Start the Dialogue
 
 Classify the task before producing structure:
@@ -130,7 +132,7 @@ Include exactly these three parts:
 - `它解决了什么问题`：the concrete pain or decision problem it addresses.
 - `跟同类技术比有什么亮点`：why it differs from adjacent approaches or existing solutions.
 
-Keep this analysis source-grounded and compact: 3-6 bullets total. Then ask the user whether this understanding is basically right or what needs correction.
+Keep the first version source-grounded and compact: 3-6 bullets total. If the user challenges the analysis or asks for deeper comparison, expand only the challenged part and preserve the revised version in the baseline. Then ask the user whether this understanding is basically right or what needs correction.
 
 After approval, save:
 
@@ -231,7 +233,9 @@ Advance the research through focused turns, one chapter at a time. Never ask the
 For each chapter:
 
 - Restate the approved chapter claim.
-- Propose that chapter's page count based on the total page budget.
+- Recalculate the remaining content-page budget before proposing the chapter's page count. State the remaining page numbers if useful.
+- Propose that chapter's page count based on the total page budget and previously approved chapter allocations.
+- Do not present a page number outside the approved budget. If the desired chapter split would exceed the budget, resolve the budget tradeoff before showing the page plan.
 - Propose only that chapter's page titles, title subtitles, analysis-summary bullets, page roles, required evidence, and boundaries.
 - Use `Page N`, `Page N+1`, etc. for actual page labels.
 - Ask the user to approve or tell you the adjustment direction before moving to the next chapter. Do not force alternatives unless the user asks.
