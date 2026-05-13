@@ -76,6 +76,28 @@ Keep each turn short:
 - When offering choices, use 2-3 options with short labels and one-line tradeoffs.
 - Do not paste the full live structure unless the user asks to review it.
 
+For content-direction decisions, do not ask with only one recommended option. Present 2-3 concrete candidate expressions, each in this shape:
+
+```text
+【A】
+表达的观点：...
+标题：...
+分析总结：
+1. 标签：...
+2. 标签：...
+3. 标签：...
+
+【B】
+表达的观点：...
+标题：...
+分析总结：
+1. 标签：...
+2. 标签：...
+3. 标签：...
+```
+
+Use this A/B/C pattern when asking the user to choose a top-level conclusion page, a chapter claim/title, or a page title/analysis-summary direction. The user should be choosing between PPT-ready expressions, not abstract themes.
+
 ### 1. Confirm SCQA and Top-Level Conclusion
 
 Confirm or infer only what is reasonably clear:
@@ -121,6 +143,8 @@ Then stress-test it:
 
 At this stage, ask the user to choose the biggest correction rather than asking for comments on every part. Example: "这 3 个章节论点是否足以支撑顶层结论？要替换哪一个？"
 
+When proposing chapter claims, present A/B/C alternatives if the storyline is not yet settled. Each alternative must include `表达的观点`, `标题`, and `分析总结` bullets for the top-level conclusion page or chapter-level expression.
+
 Stage 2 required approval: page count or page-count range, the standalone top-level conclusion page title, no more than three chapter/table-of-contents titles, chapter order, each chapter's narrative role, and the chapter claims under the top-level conclusion.
 
 After approval, save:
@@ -140,6 +164,7 @@ For each chapter:
 - Restate the approved chapter claim.
 - Propose that chapter's page count based on the total page budget.
 - Propose only that chapter's page titles, title subtitles, analysis-summary bullets, page roles, required evidence, and boundaries.
+- When there is more than one plausible page expression, give A/B/C options in the required `表达的观点 / 标题 / 分析总结` format.
 - Ask the user to approve or correct that chapter before moving to the next chapter.
 - Save a chapter baseline after approval.
 
