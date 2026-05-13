@@ -20,6 +20,7 @@ This skill is modeled as a research dialogue, not a one-shot summarizer. The dur
 - Do decide content intent: chapter logic, page titles, page roles, core claims, source evidence, source-figure usage policy, and wording boundaries.
 - Treat every factual claim as one of: `source`, `calculation`, `inference`, `user_judgment`, or `needs_verification`.
 - Never upgrade weak evidence into a fact. If a claim lacks source support, label it as inference or open question.
+- Prefer portable source locators. When source files live under the current workspace, cite workspace-relative paths such as `.tmp/pdf_xml/Aegaeon/final/Aegaeon.xml` instead of absolute machine paths.
 - Put all temporary notes, drafts, extracted inventories, and QA outputs under the host workspace `.tmp/ppt-deep-search/<task-name>/`.
 
 ## Workflow
@@ -195,6 +196,15 @@ Claim / Evidence / Implication：
 ...
 ```
 
+## Right-Size the Brief
+
+Match the brief to the requested downstream artifact:
+
+- If the user asks for a 1-page PPT, produce exactly one `Page Brief`. Treat `Chapter Logic` as the content beat sequence inside that page, not as a multi-slide chapter plan.
+- If the user asks for a short deck, produce one `Page Brief` per intended content page unless the user asks for alternatives.
+- Do not create a broad multi-chapter deck storyline when the task is a single page. Put unused angles in `Assumptions and Open Questions` or `Visual Opportunities`.
+- Keep `Recommended Deck Storyline` scoped to the requested artifact, for example "one-page storyline" for a single-slide request.
+
 ## Page Brief Density
 
 Each `### Page N:` section must contain enough material for PPT Maker to create a dense content page. As a default target:
@@ -212,6 +222,12 @@ Before handing the brief to a PPT skill, save it as Markdown and run:
 
 ```powershell
 python scripts/validate_storyline_brief.py .tmp/ppt-deep-search/<task-name>/storyline_brief.md --min-page-content-chars 220
+```
+
+For fixed-size outputs, add `--expected-pages <n>`. For example, a 1-page PPT brief should pass:
+
+```powershell
+python scripts/validate_storyline_brief.py .tmp/ppt-deep-search/<task-name>/storyline_brief.md --min-page-content-chars 220 --expected-pages 1
 ```
 
 The QA script checks required output headings, stable page fields, banned visual-rendering fields, per-page information density, claim/evidence/implication presence, evidence source discipline, source usage policy, and open-question sections. Treat script failures as blockers.

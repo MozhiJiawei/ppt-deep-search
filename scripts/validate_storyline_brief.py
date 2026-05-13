@@ -138,7 +138,13 @@ def extract_pages(text: str) -> list[PageSection]:
     return pages
 
 
-def validate(text: str, min_page_content_chars: int) -> list[str]:
+def validate(
+    text: str,
+    min_page_content_chars: int,
+    expected_pages: int | None = None,
+    allow_absolute_paths: bool = False,
+) -> list[str]:
+    text = text.lstrip("\ufeff")
     errors: list[str] = []
 
     for heading in REQUIRED_HEADINGS:
@@ -157,6 +163,8 @@ def validate(text: str, min_page_content_chars: int) -> list[str]:
     pages = extract_pages(text)
     if not pages:
         errors.append("No page briefs found. Expected headings like: ### Page 1: 页面标题")
+    elif expected_pages is not None and len(pages) != expected_pages:
+        errors.append(f"Expected exactly {expected_pages} page brief(s), found {len(pages)}")
 
     for page in pages:
         for field in PAGE_FIELDS:
@@ -202,6 +210,17 @@ def validate(text: str, min_page_content_chars: int) -> list[str]:
     numeric_claims = re.findall(r"(?<![A-Za-z0-9])\d+(?:\.\d+)?\s*(?:%|倍|x|X|年|月|日|ms|s|GB|MB|TOPS|tokens?)?", text)
     if numeric_claims and not any(marker in text for marker in ["Figure", "Table", "Source Locator", "原文", "用户判断", "needs_verification"]):
         errors.append("Numeric claims appear without visible source locators or verification markers")
+
+    if not allow_absolute_paths:
+        absolute_paths = sorted(set(re.findall(r"[A-Za-z]:\\[^\s|,\)\]]+", text)))
+        if absolute_paths:
+            shown = ", ".join(absolute_paths[:3])
+            if len(absolute_paths) > 3:
+                shown += ", ..."
+            errors.append(
+                "Absolute local paths found; use workspace-relative source locators or pass "
+                f"--allow-absolute-paths if unavoidable: {shown}"
+            )
 
     return errors
 
@@ -290,11 +309,18 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Validate a PPT Deep Search Storyline Brief.")
     parser.add_argument("brief", nargs="?", help="Path to Storyline Brief Markdown.")
     parser.add_argument("--min-page-content-chars", type=int, default=220, help="Minimum counted content characters per Page Brief.")
+    parser.add_argument("--expected-pages", type=int, help="Require an exact number of Page Brief sections.")
+    parser.add_argument("--allow-absolute-paths", action="store_true", help="Allow absolute local paths in source locators.")
     parser.add_argument("--self-test", action="store_true", help="Run validator against an embedded valid brief.")
     args = parser.parse_args()
 
     if args.self_test:
-        errors = validate(SELF_TEST_BRIEF, args.min_page_content_chars)
+        errors = validate(
+            SELF_TEST_BRIEF,
+            args.min_page_content_chars,
+            expected_pages=args.expected_pages,
+            allow_absolute_paths=args.allow_absolute_paths,
+        )
         if errors:
             print("[ERROR] Self-test failed:")
             for error in errors:
@@ -312,7 +338,12 @@ def main() -> int:
         return 1
 
     text = path.read_text(encoding="utf-8")
-    errors = validate(text, args.min_page_content_chars)
+    errors = validate(
+        text,
+        args.min_page_content_chars,
+        expected_pages=args.expected_pages,
+        allow_absolute_paths=args.allow_absolute_paths,
+    )
     if errors:
         print(f"[ERROR] Storyline Brief QA failed ({len(errors)} issue(s)):")
         for error in errors:
