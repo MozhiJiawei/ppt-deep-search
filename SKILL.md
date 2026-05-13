@@ -11,6 +11,7 @@ This skill is modeled as a research dialogue, not a one-shot summarizer. The dur
 
 ## Operating Rules
 
+- Use Chinese for all user-facing interaction by default, including questions, options, stage summaries, approval prompts, and final handoff notes. Keep source titles, figure/table labels, code paths, URLs, model names, metrics, and technical terms in their original language when that improves traceability.
 - Work human-in-the-loop by default. Do not skip straight to the final Storyline Brief unless the user explicitly asks for a one-pass draft or the research frame is already fully specified.
 - Ask one key question at a time when research direction, target reader, thesis strength, or evidence boundary is unclear. One turn should resolve one decision.
 - Ask what the user is already thinking before offering a polished AI framework. Use the user's judgment as a first-class input, not as an afterthought.
