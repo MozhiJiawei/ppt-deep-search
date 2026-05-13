@@ -357,6 +357,12 @@ Claim / Evidence / Implication：
 - 最后给读者一个落地判断：如果团队只需要一次性问答，记忆层收益有限；如果任务跨多轮、多工具、多目标，结构化记忆才可能成为基础设施，而不是提示词技巧。
 - 如果原论文对工程落地讲得不够，可以补充检索记忆、长期任务 Agent、RAG 记忆管理或向量库治理的官方文档/论文作为 supplemental research，用来解释为什么“可检索、可更新、可评估”比“把历史塞进上下文”更适合团队治理。
 - 页面正文还可以给出反例：短任务、一次性问答或低风险客服场景可能只需要上下文摘要，不需要完整记忆资产层；这个反例帮助 PPT Maker 写出采用边界，而不是把 MIA 包装成万能基础设施。
+- 页面还应给出至少一种可落地的证据组织方式：例如左侧用 Figure 2 展示记忆模块如何接入任务循环，右侧用三段正文解释“输入历史如何进入记忆、任务执行时如何检索、任务结束后如何更新或淘汰”。这样 PPT Maker 可以把抽象观点转成可读的版面内容。
+- 如果要给技术负责人看，可以进一步补充实施检查项：记忆对象如何切分，检索命中如何评估，错误记忆如何回滚，哪些数据需要权限控制，哪些记忆只适合 session 级保存。这些内容不改变核心观点，但能把“记忆层是基础设施”支撑成可讨论的工程判断。
+- 还可以提示下游不要把 Figure 2 当作唯一证据：图适合证明机制存在，正文仍要解释为什么该机制相对长上下文更可治理。否则页面会变成“放一张图 + 三句总结”，无法支撑 PPT 内容区。
+- 对正文组织来说，可以给出一条清晰推理链：长程任务产生跨轮经验，跨轮经验如果只留在上下文里会随窗口、摘要和噪声流失；记忆层把经验变成可管理对象后，团队才可能评估命中率、淘汰错误信息、复用成功路径，并把失败经验沉淀到后续任务中。
+- 该页还可以提示一个反向风险：记忆层不是越多越好，错误记忆、过期偏好和权限不清的数据都会污染后续任务。因此把记忆称为基础设施时，必须同时讲治理能力，包括记录来源、更新时间、适用范围、删除条件和审计方式。
+- 如果 PPT Maker 需要形成左右分栏，左侧可放 Figure 2 的机制图，右侧正文可按“问题：上下文堆叠不可治理；机制：记忆对象可检索可更新；边界：错误记忆需要治理”三段展开。这样页面能支撑读者判断，而不是只展示论文截图。
 边界提醒：
 - 不能说 MIA 已证明所有 Agent 场景有效，只能说在论文给定 benchmark 和设置下体现了长程任务收益。
 信息密度说明：本页提供问题定义、证据依据、工程含义和边界，足以支持一页内容页。
@@ -403,7 +409,7 @@ Claim / Evidence / Implication：
 def main() -> int:
     parser = argparse.ArgumentParser(description="Validate a PPT Deep Search Storyline Brief.")
     parser.add_argument("brief", nargs="?", help="Path to Storyline Brief Markdown.")
-    parser.add_argument("--min-page-content-chars", type=int, default=900, help="Minimum counted content characters per Page Brief.")
+    parser.add_argument("--min-page-content-chars", type=int, default=1400, help="Minimum counted content characters per Page Brief.")
     parser.add_argument("--expected-pages", type=int, help="Require an exact number of Page Brief sections.")
     parser.add_argument("--forbid-absolute-paths", action="store_true", help="Fail when absolute local paths appear in source locators.")
     parser.add_argument("--self-test", action="store_true", help="Run validator against an embedded valid brief.")

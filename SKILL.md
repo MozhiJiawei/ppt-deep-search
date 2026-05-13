@@ -482,7 +482,7 @@ Match the brief to the requested downstream artifact:
 
 Each `### Page N:` section must contain enough material for PPT Maker to create a dense content page. As a default target:
 
-- At least 900 counted content characters per page brief, excluding headings and field labels.
+- At least 1400 counted content characters per page brief, excluding headings and field labels. A strong technical or decision page usually lands around 1800-2400 counted characters.
 - A `页面标题`, `标题说明`, and `分析总结` section. `分析总结` must contain 1-3 directly usable Chinese label bullets such as `粒度升级：...`.
 - At least one `Claim / Evidence / Implication` item.
 - A `支撑的章节论点` field that links the page to either the standalone top-level summary page or one approved chapter claim.
@@ -497,13 +497,13 @@ Do not pad with vague filler just to pass the length check. If a page is thin, a
 Before handing the brief to a PPT skill, save it as Markdown and run:
 
 ```powershell
-python scripts/validate_storyline_brief.py .tmp/ppt-deep-search/<task-name>/storyline_brief.md --min-page-content-chars 900
+python scripts/validate_storyline_brief.py .tmp/ppt-deep-search/<task-name>/storyline_brief.md --min-page-content-chars 1400
 ```
 
 For fixed-size outputs, add `--expected-pages <n>`. For example, a 1-page PPT brief should pass:
 
 ```powershell
-python scripts/validate_storyline_brief.py .tmp/ppt-deep-search/<task-name>/storyline_brief.md --min-page-content-chars 900 --expected-pages 1
+python scripts/validate_storyline_brief.py .tmp/ppt-deep-search/<task-name>/storyline_brief.md --min-page-content-chars 1400 --expected-pages 1
 ```
 
 The QA script checks required output headings, stable page fields, banned visual-rendering fields, per-page information density, claim/evidence/implication presence, evidence source discipline, source usage policy, and open-question sections. Treat script failures as blockers.
