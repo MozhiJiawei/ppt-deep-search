@@ -4,7 +4,7 @@ This doctrine is the highest-level guidance for `ppt-deep-search`. Follow it bef
 
 ## Core Belief
 
-A Storyline Brief is not a summary of source material. It is a pyramid of decisions that helps a reader accept one top-level summary.
+A PPT Content Brief is not a summary of source material. It is a pyramid-shaped content package that helps a reader accept one top-level summary. Internal evidence and approvals belong in a separate Research Audit.
 
 The deck should answer the reader's governing question first, express that answer as a standalone top-level summary page, then support it with a small number of necessary arguments, page-level evidence, and implications.
 
@@ -104,6 +104,6 @@ The user must approve pyramid decisions from top to bottom:
 6. Chapter 1 page decomposition.
 7. Chapter 2 page decomposition.
 8. Chapter 3 page decomposition, if present.
-9. Final Storyline Brief.
+9. Final PPT Content Brief plus Research Audit.
 
 Never skip ahead. Never ask the user to approve every chapter's page plan at once.

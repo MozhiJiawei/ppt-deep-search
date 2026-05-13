@@ -1,4 +1,4 @@
 interface:
   display_name: "PPT Deep Search"
   short_description: "Human-in-the-loop research brief for PPT planning"
-  default_prompt: "Use $ppt-deep-search to research source material and produce a Storyline Brief before generating a PPT."
+  default_prompt: "Use $ppt-deep-search to research source material and produce a PPT Content Brief plus Research Audit before generating a PPT."

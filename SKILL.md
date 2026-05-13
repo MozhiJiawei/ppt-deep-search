@@ -1,28 +1,28 @@
 ---
 name: ppt-deep-search
-description: Human-in-the-loop deep research and storyline planning for PPT generation. Use when Codex must turn papers, webpages, Markdown, repository analysis, PDFs, notes, or raw user material into a structured Storyline Brief before a downstream PPT skill creates slides. Use for research framing, reader cognitive path design, pyramid-outline construction, claim/evidence/implication mapping, source-figure usage policy, slide/page role candidates, and anti-hallucination evidence review. Do not use for PPTX visual rendering, layout templates, font/style decisions, export, or visual QA.
+description: Human-in-the-loop deep research and storyline planning for PPT generation. Use when Codex must turn papers, webpages, Markdown, repository analysis, PDFs, notes, or raw user material into a PPT-ready Content Brief plus a separate Research Audit before a downstream PPT skill creates slides. Use for research framing, reader cognitive path design, pyramid-outline construction, page title/subtitle/summary approval, claim/evidence/implication auditing, source-figure usage policy, and anti-hallucination review. Do not use for PPTX visual rendering, layout templates, font/style decisions, export, or visual QA.
 ---
 
 # PPT Deep Search
 
-Build a source-grounded Storyline Brief before PPT production. Act as content editor and research partner: frame the question, challenge the thesis, organize evidence, expose uncertainty, and hand a semi-structured Markdown brief to the downstream PPT skill.
+Build a source-grounded PPT Content Brief before PPT production. Act as content editor and research partner: frame the question, challenge the thesis, organize evidence, expose uncertainty, and hand PPT-ready structured Markdown to the downstream PPT skill.
 
-This skill is modeled as a research dialogue, not a one-shot summarizer. The durable output is the Storyline Brief, but the main work is helping the user make content decisions before the downstream PPT skill renders slides.
+This skill is modeled as a research dialogue, not a one-shot summarizer. The durable handoff has two files: `ppt_content_brief.md` for downstream PPT generation, and `research_audit.md` for internal evidence, boundaries, and approvals.
 
 Before doing any storyline work, read `references/pyramid-principle.md` and follow it as the highest-level doctrine. If any workflow detail conflicts with that doctrine, the doctrine wins.
 
-For the downstream file contract and QA-checked fields, see `references/storyline-brief-format.md`. Load it when explaining the Storyline Brief format, updating validators, or integrating this skill with a PPT generation skill.
+For the downstream file contract and QA-checked fields, see `references/ppt-content-brief-format.md`. Load `references/research-audit-format.md` when writing or validating the internal audit file.
 
 ## Operating Rules
 
 - Use Chinese for all user-facing interaction by default, including questions, options, stage summaries, approval prompts, and final handoff notes. Keep source titles, figure/table labels, code paths, URLs, model names, metrics, and technical terms in their original language when that improves traceability.
-- Work human-in-the-loop by default. Do not skip straight to the final Storyline Brief unless the user explicitly asks for a one-pass draft or the research frame is already fully specified.
+- Work human-in-the-loop by default. Do not skip straight to the final PPT Content Brief unless the user explicitly asks for a one-pass draft or the research frame is already fully specified.
 - Ask one key question at a time when research direction, target reader, thesis strength, or evidence boundary is unclear. One turn should resolve one decision.
 - Ask what the user is already thinking before offering a polished AI framework. Use the user's judgment as a first-class input, not as an afterthought.
 - Prefer single-select options at major forks, with a free-form escape hatch. Use open prose questions only when options would bias the answer or the user needs to explain context.
-- Keep a live research structure after each round: research frame, thesis, pyramid outline, evidence map, open questions, and page candidates.
+- Keep a live research structure after each round: research frame, thesis, pyramid outline, evidence map, open questions, and page candidates. Keep this internal structure out of the final PPT content file.
 - Do not make visual-rendering decisions. Avoid fields such as `visual_anchor.kind`, `template`, `contentLayout`, renderer names, column layout, font size, color, card structure, and visual-anchor implementation details.
-- Do decide content intent: chapter logic, page titles, page roles, core claims, source evidence, source-figure usage policy, and wording boundaries.
+- Do decide content intent: chapter logic, page titles, page roles, core claims, source evidence, source-figure usage policy, and wording boundaries. Put role/evidence/boundary audit details in `research_audit.md`, not in `ppt_content_brief.md`.
 - Treat every factual claim as one of: `source`, `calculation`, `inference`, `user_judgment`, or `needs_verification`.
 - Never upgrade weak evidence into a fact. If a claim lacks source support, label it as inference or open question.
 - If the approved viewpoint needs more support than the provided source material contains, use external research such as web search, official docs, papers, repository docs, or reputable technical articles to gather more context. Mark those materials as supplemental evidence and explain how they support, qualify, or challenge the approved viewpoint.
@@ -47,7 +47,7 @@ After saving any approved baseline, tell the user the baseline path in one short
 
 Classify the task before producing structure:
 
-- **Lightweight**: the user already has a topic, reader, and expected deck use. Ask at most one clarifying question, then draft a compact Storyline Brief.
+- **Lightweight**: the user already has a topic, reader, and expected deck use. Ask at most one clarifying question, then draft a compact PPT Content Brief plus Research Audit.
 - **Standard**: the user has source material and a PPT goal, but reader, thesis, or evidence boundaries need shaping. Run the full dialogue.
 - **Deep**: the topic is strategic, ambiguous, source-heavy, or likely to change a reader's high-stakes judgment. Spend more time on assumptions, counterevidence, and boundaries before page candidates.
 
@@ -275,7 +275,7 @@ After all chapter viewpoint layers are approved, autonomously generate content l
 .tmp/ppt-deep-search/<task-name>/baselines/03-page-plan.md
 ```
 
-Only after this consolidated page-plan baseline exists may the agent write the final Storyline Brief.
+Only after this consolidated page-plan baseline exists may the agent write the final handoff files.
 
 ### 3.2 Fill Content With Source-Grounded Material
 
@@ -292,7 +292,7 @@ External research should support the approved viewpoint, not create a new one. I
 
 ### 3.5 Confirm Downstream Hard Constraints
 
-Before writing the final Storyline Brief to disk, explicitly ask the user to approve every hard constraint that the downstream PPT skill must follow.
+Before writing the final handoff files to disk, explicitly ask the user to approve every hard constraint that the downstream PPT skill must follow.
 
 The required approval bundle is:
 
@@ -312,11 +312,11 @@ The required approval bundle is:
 - Claims that must be preserved.
 - Boundary reminders that the downstream PPT skill must not weaken.
 
-Before final Storyline Brief writing, confirm that every page went through this order: viewpoint layer approval first, then AI-generated content-layer expansion. If any page's content was drafted before its title, title subtitle, and analysis-summary bullets were approved, pause and ask the user to approve or revise the viewpoint layer before finalizing that page.
+Before final handoff writing, confirm that every page went through this order: viewpoint layer approval first, then AI-generated content-layer expansion. If any page's content was drafted before its title, title subtitle, and analysis-summary bullets were approved, pause and ask the user to approve or revise the viewpoint layer before finalizing that page.
 
 Do not ask the user to review dense content page by page unless the content would change an approved viewpoint or introduce a new major claim. The user owns logic; the agent owns source-grounded content generation.
 
-Present the bundle compactly and ask for approval or corrections. Do not save the final `storyline_brief.md` until the user approves this bundle, unless the user explicitly asks for an unapproved draft. If producing an unapproved draft, mark it clearly in `Research Frame` and `Assumptions and Open Questions`.
+Present the bundle compactly and ask for approval or corrections. Do not save the final `ppt_content_brief.md` and `research_audit.md` until the user approves this bundle, unless the user explicitly asks for an unapproved draft. If producing an unapproved draft, mark that status in `research_audit.md`.
 
 Approval prompt pattern:
 
@@ -337,7 +337,7 @@ Approval prompt pattern:
 - 主证据图：...
 - 不能说满的边界：...
 
-是否批准我按这组约束写入 Storyline Brief？你可以直接改其中任一项。
+是否批准我按这组约束写入 PPT Content Brief 和 Research Audit？你可以直接改其中任一项。
 ```
 
 ### 4. Build the Evidence Map
@@ -360,155 +360,82 @@ Before finalizing, run a skeptic pass:
 - Which conclusion should be softened with a boundary?
 - Which missing evidence should be escalated to the user instead of silently invented?
 
-### 5. Write the Storyline Brief
+### 5. Write the Handoff Files
 
-Write the final Storyline Brief only when the user explicitly says to proceed, the conversation has resolved the main forks, or a deadline requires a first draft. Use this exact Markdown skeleton:
+Write the final handoff only when the user explicitly says to proceed, the conversation has resolved the main forks, or a deadline requires a first draft.
+
+Write `ppt_content_brief.md` as the only downstream PPT copy source. It must contain only PPT-ready structured text:
 
 ```markdown
-# Storyline Brief
+# PPT Content Brief
 
-## Research Frame
-研究问题：
+## Deck Metadata
+主题：
 目标读者：
-读者当前判断：
-希望改变的判断：
+页数口径：
 核心结论：
-材料范围：
-证据边界：
+内容来源：
+关联审计文件：research_audit.md
 
-## Source Understanding
-它是什么：
-它解决了什么问题：
-跟同类技术比有什么亮点：
+## Table of Contents
+01 小标题：...
+说明：...
 
-## Executive Thesis
-...
-
-## Reader Cognitive Path
-1. ...
-2. ...
-3. ...
-
-## Pyramid Outline
-0. 顶层总结页：...
-   页面标题：
-   标题说明：
-   分析总结：
-1. 章节论点：...
-   二级支撑：
-   - ...
-   证据状态：
-   - ...
-   边界：
-   - ...
-
-## Chapter Logic
-1. 目录小标题：...
-   目录说明：...
-   章节论点：...
-   章节角色：建立问题 / 解释机制 / 证明效果 / 对比方案 / 提炼启示 / 行动建议
-   本章必须讲清：...
-   关键证据：...
-
-## Page Briefs
+## Page Content
 
 ### Page 1: 页面标题
-页面角色：frame / claim / mechanism / evidence / comparison / implication / synthesis
-支撑的章节论点：顶层总结页 / 章节论点 1 / 章节论点 2 / 章节论点 3
 页面标题：...
 标题说明：...
 分析总结：
 - 标签：可直接放入 PPT 的中文短句。
-Claim / Evidence / Implication：
-- Claim：...
-  Evidence：primary source / supplemental research / inference / user_judgment / needs_verification...
-  Implication：...
+正文内容：
+- 可直接展开成 PPT 正文的机制、数据、对比、例子、推理链或限制条件。
+- 每条都要比标题和分析总结更具体，说明“为什么这样判断”或“下游页面该写什么”。
 参考图片：
 - ...
-支撑信息：
-- 正文素材：可直接展开成 PPT 正文的机制、数据、对比、例子、推理链或限制条件。
-- 正文素材：每条都要比标题和分析总结更具体，说明“为什么这样判断”或“下游页面该写什么”。
-- 正文素材：优先给 source-grounded 细节；不确定的推论要标注为 inference / needs_verification。
-边界提醒：
-- ...
-信息密度说明：本页为 PPT Maker 提供足够正文素材，避免只给一句结论。
-
-## Claim Evidence Implication Table
-| ID | Claim | Evidence | Evidence Type | Strength | Implication | Boundary |
-| --- | --- | --- | --- | --- | --- | --- |
-| C1 | ... | ... | source/inference/user_judgment/needs_verification | strong/medium/weak/missing | ... | ... |
-
-## Evidence Map
-| Evidence ID | Source Locator | Supports Claim | Usage Policy | Must Preserve | Misread Risk |
-| --- | --- | --- | --- | --- | --- |
-| E1 | ... | C1 | original / summarize / background / discard | ... | ... |
-
-## Source Usage Policy
-- Must use original:
-- May summarize or rebuild:
-- Background only:
-- Supplemental research:
-- Discard:
-
-## Visual Opportunities
-- ...
-
-## Assumptions and Open Questions
-- Assumption:
-- Open question:
-
-## Recommended Deck Storyline
-...
-
-## Approval Log
-| Stage | Approved Constraint | User Approval Summary | Baseline File |
-| --- | --- | --- | --- |
-| 1 | Audience and belief change | ... | .tmp/ppt-deep-search/<task-name>/baselines/01-audience.md |
-| 1.5 | Source understanding: what it is, solved problem, distinctive亮点 | ... | .tmp/ppt-deep-search/<task-name>/baselines/01-source-understanding.md |
-| 1.6 | SCQA, big logic, top-level summary page | ... | .tmp/ppt-deep-search/<task-name>/baselines/01-audience-thesis.md |
-| 2 | Page count and counting convention | ... | .tmp/ppt-deep-search/<task-name>/baselines/02-page-count.md |
-| 2.5 | Table-of-contents small titles, descriptions, order, chapter claims | ... | .tmp/ppt-deep-search/<task-name>/baselines/02-table-of-contents.md |
-| 3 | Chapter-by-chapter page titles, title subtitles, analysis summaries, page roles, source usage, boundaries | ... | .tmp/ppt-deep-search/<task-name>/baselines/03-page-plan.md |
+备注：
+- 可选。只放 PPT 可用的脚注、讲者备注或谨慎表述。
 ```
+
+Write `research_audit.md` separately. Use `references/research-audit-format.md` as the contract. Put Research Frame, Source Understanding, Pyramid Outline, Chapter Logic, page roles, supported chapter claims, Claim/Evidence/Implication, Evidence Map, Source Usage Policy, Visual Opportunities, Assumptions/Open Questions, and Approval Log there.
+
+Do not put `Claim`, `Evidence`, `Implication`, source locator tables, approval history, `needs_verification`, `inference`, `user_judgment`, or `边界提醒` into `ppt_content_brief.md`. If a caveat matters for the slide, rewrite it as a concise `备注`.
 
 ## Right-Size the Brief
 
 Match the brief to the requested downstream artifact:
 
-- If the user asks for a 1-page PPT, produce exactly one `Page Brief`. Treat `Chapter Logic` as the content beat sequence inside that page, not as a multi-slide chapter plan.
-- If the user asks for a short deck, produce one `Page Brief` per intended content page unless the user asks for alternatives.
+- If the user asks for a 1-page PPT, produce exactly one `Page Content` block. Treat `Chapter Logic` as the content beat sequence inside that page, not as a multi-slide chapter plan.
+- If the user asks for a short deck, produce one `Page Content` block per intended content page unless the user asks for alternatives.
 - Do not create a broad multi-chapter deck storyline when the task is a single page. Put unused angles in `Assumptions and Open Questions` or `Visual Opportunities`.
 - Keep `Recommended Deck Storyline` scoped to the requested artifact, for example "one-page storyline" for a single-slide request.
 
-## Page Brief Density
+## PPT Content Density
 
-Each `### Page N:` section must contain enough material for PPT Maker to create a dense content page. As a default target:
+Each `### Page N:` section in `ppt_content_brief.md` must contain enough material for PPT Maker to create a dense content page. As a default target:
 
-- At least 1400 counted content characters per page brief, excluding headings and field labels. A strong technical or decision page usually lands around 1800-2400 counted characters.
+- At least 900 counted content characters per page, excluding headings and field labels. A strong technical or decision page usually lands around 1200-1800 counted characters.
 - A `页面标题`, `标题说明`, and `分析总结` section. `分析总结` must contain 1-3 directly usable Chinese label bullets such as `粒度升级：...`.
-- At least one `Claim / Evidence / Implication` item.
-- A `支撑的章节论点` field that links the page to either the standalone top-level summary page or one approved chapter claim.
-- At least one source locator, user-judgment marker, or `needs_verification` marker in `Evidence`.
-- A `支撑信息` section that reads like a deep-research material pack, not a list of more conclusions. Use it to provide the concrete body content a slide can consume: mechanisms, source facts, quantitative context, comparison points, causal chains, caveats, and suggested reading order.
-- At least one `边界提醒` item unless the page is a cover/contents candidate.
+- A `正文内容` section that reads like a PPT body material pack, not a list of more conclusions. Use it to provide the concrete body content a slide can consume: mechanisms, source facts, quantitative context, comparison points, causal chains, caveats rewritten for slides, and suggested reading order.
+- A `参考图片` section that names the image/chart/screenshot/diagram candidate without prescribing layout.
 
-Do not pad with vague filler just to pass the length check. If a page is thin, add source-grounded mechanisms, comparisons, constraints, implications, examples, or reading guidance. When the original source package is insufficient, do targeted external research and mark it as supplemental. The goal is that a downstream PPT Maker can fill title, analysis-summary band, body text, captions, and evidence notes without inventing missing substance.
+Do not pad with vague filler just to pass the length check. If a page is thin, add source-grounded mechanisms, comparisons, constraints, implications, examples, or reading guidance. When the original source package is insufficient, do targeted external research and record the supplemental trail in `research_audit.md`, not in the PPT content file.
 
 ## QA
 
-Before handing the brief to a PPT skill, save it as Markdown and run:
+Before handing the brief to a PPT skill, save `ppt_content_brief.md` and run:
 
 ```powershell
-python scripts/validate_storyline_brief.py .tmp/ppt-deep-search/<task-name>/storyline_brief.md --min-page-content-chars 1400
+python scripts/validate_ppt_content_brief.py .tmp/ppt-deep-search/<task-name>/ppt_content_brief.md --min-page-content-chars 900
 ```
 
 For fixed-size outputs, add `--expected-pages <n>`. For example, a 1-page PPT brief should pass:
 
 ```powershell
-python scripts/validate_storyline_brief.py .tmp/ppt-deep-search/<task-name>/storyline_brief.md --min-page-content-chars 1400 --expected-pages 1
+python scripts/validate_ppt_content_brief.py .tmp/ppt-deep-search/<task-name>/ppt_content_brief.md --min-page-content-chars 900 --expected-pages 1
 ```
 
-The QA script checks required output headings, stable page fields, banned visual-rendering fields, per-page information density, claim/evidence/implication presence, evidence source discipline, source usage policy, and open-question sections. Treat script failures as blockers.
+The QA script checks required downstream headings, stable PPT page fields, banned internal audit fields, banned visual-rendering fields, direct PPT usability, and per-page content density. Treat script failures as blockers. Keep source evidence QA in `research_audit.md`.
 
 For dependency checks in this skill repository, run:
 

@@ -20,7 +20,7 @@ def main() -> int:
     root = Path(__file__).resolve().parent
     required = [
         root / "SKILL.md",
-        root / "scripts" / "validate_storyline_brief.py",
+        root / "scripts" / "validate_ppt_content_brief.py",
         root / "agents" / "openai.yaml",
     ]
     missing = [str(path.relative_to(root)) for path in required if not path.exists()]
