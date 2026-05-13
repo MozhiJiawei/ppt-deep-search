@@ -25,6 +25,15 @@ This skill is modeled as a research dialogue, not a one-shot summarizer. The dur
 
 ## Workflow
 
+Follow the pyramid principle: resolve the top-level audience and thesis first, then the deck/page scale and chapter decomposition, then the page-level decomposition inside each chapter. Do not decompose pages before the higher-level logic is confirmed.
+
+Each stage has two gates:
+
+1. User approval gate: ask the user to approve or correct the stage output.
+2. Baseline persistence gate: after approval, save that stage output under `.tmp/ppt-deep-search/<task-name>/baselines/` and treat it as the baseline for later stages.
+
+Do not silently rewrite an approved baseline. If later evidence suggests a change, ask whether to revise the baseline and record the revision in `Approval Log`.
+
 ### 0. Assess and Start the Dialogue
 
 Classify the task before producing structure:
@@ -77,6 +86,16 @@ Confirm or infer only what is reasonably clear:
 
 If these are unclear, ask the single question that most changes the storyline. Otherwise proceed with stated assumptions and mark them in the brief.
 
+Stage 1 required approval: target audience, reader's current belief, desired belief change, big logic, and top-level thesis.
+
+After approval, save:
+
+```text
+.tmp/ppt-deep-search/<task-name>/baselines/01-audience-thesis.md
+```
+
+This file becomes the baseline for all later page-count, chapter, and page-title decisions.
+
 ### 2. Build the Initial Pyramid
 
 Draft an initial pyramid only after the user has had a chance to correct the research frame. Present it as a candidate, not as the answer:
@@ -97,6 +116,16 @@ Then stress-test it:
 
 At this stage, ask the user to choose the biggest correction rather than asking for comments on every part. Example: "Which part should we change first: thesis, reader path, argument order, or evidence boundary?"
 
+Stage 2 required approval: page count or page-count range, chapter/table-of-contents titles, chapter order, each chapter's narrative role, and the first-level arguments under the top thesis.
+
+After approval, save:
+
+```text
+.tmp/ppt-deep-search/<task-name>/baselines/02-deck-structure.md
+```
+
+Do not create page titles until this baseline exists.
+
 ### 3. Deepen One Fork at a Time
 
 Advance the research through focused turns. Examples:
@@ -116,6 +145,16 @@ Use this loop:
 4. Update the live structure: thesis, pyramid, evidence map, page candidates, assumptions, or open questions.
 5. Move to the next highest-impact unresolved decision.
 
+Stage 3 required approval: each chapter's page decomposition, every page title, every page's core viewpoint, every page role, required source figures/tables/screenshots, and page-level boundaries.
+
+After approval, save:
+
+```text
+.tmp/ppt-deep-search/<task-name>/baselines/03-page-plan.md
+```
+
+Only after this page-plan baseline exists may the agent write the final Storyline Brief.
+
 ### 3.5 Confirm Downstream Hard Constraints
 
 Before writing the final Storyline Brief to disk, explicitly ask the user to approve every hard constraint that the downstream PPT skill must follow.
@@ -123,6 +162,8 @@ Before writing the final Storyline Brief to disk, explicitly ask the user to app
 The required approval bundle is:
 
 - Page count or page-count range.
+- Target audience and desired reader belief change.
+- Top-level thesis and big logic.
 - Chapter/table-of-contents titles and their order.
 - Chapter logic, or for a 1-page output, the page's internal content beat sequence.
 - Every page title.
@@ -138,6 +179,9 @@ Approval prompt pattern:
 
 ```text
 落盘前请确认这组下游硬约束：
+- 听众：...
+- 顶层观点：...
+- 大逻辑：...
 - 页数：...
 - 章节目录标题：...
 - Page 1 标题：...
@@ -249,6 +293,13 @@ Claim / Evidence / Implication：
 
 ## Recommended Deck Storyline
 ...
+
+## Approval Log
+| Stage | Approved Constraint | User Approval Summary | Baseline File |
+| --- | --- | --- | --- |
+| 1 | Audience, belief change, big logic, top-level thesis | ... | .tmp/ppt-deep-search/<task-name>/baselines/01-audience-thesis.md |
+| 2 | Page count, chapter titles/order, chapter roles | ... | .tmp/ppt-deep-search/<task-name>/baselines/02-deck-structure.md |
+| 3 | Page titles, core viewpoints, page roles, source usage, boundaries | ... | .tmp/ppt-deep-search/<task-name>/baselines/03-page-plan.md |
 ```
 
 ## Right-Size the Brief

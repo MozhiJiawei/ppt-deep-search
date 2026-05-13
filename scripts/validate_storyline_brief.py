@@ -24,6 +24,7 @@ REQUIRED_HEADINGS = [
     "## Visual Opportunities",
     "## Assumptions and Open Questions",
     "## Recommended Deck Storyline",
+    "## Approval Log",
 ]
 
 RESEARCH_FRAME_FIELDS = [
@@ -207,6 +208,11 @@ def validate(
     if not re.search(r"(Assumption|假设|Open question|未决|待验证)", open_questions, flags=re.I):
         errors.append("Assumptions and Open Questions must contain assumptions or open questions")
 
+    approval_log = extract_section(text, "## Approval Log")
+    for required in ["Audience", "Page count", "Page titles", "Baseline File"]:
+        if required not in approval_log:
+            errors.append(f"Approval Log missing required approval evidence: {required}")
+
     numeric_claims = re.findall(r"(?<![A-Za-z0-9])\d+(?:\.\d+)?\s*(?:%|倍|x|X|年|月|日|ms|s|GB|MB|TOPS|tokens?)?", text)
     if numeric_claims and not any(marker in text for marker in ["Figure", "Table", "Source Locator", "原文", "用户判断", "needs_verification"]):
         errors.append("Numeric claims appear without visible source locators or verification markers")
@@ -302,6 +308,13 @@ Claim / Evidence / Implication：
 
 ## Recommended Deck Storyline
 先问题重构，再机制解释，再证据证明，最后落地边界。
+
+## Approval Log
+| Stage | Approved Constraint | User Approval Summary | Baseline File |
+| --- | --- | --- | --- |
+| 1 | Audience, belief change, big logic, top-level thesis | 用户确认目标读者为技术负责人，顶层观点为记忆层是基础设施。 | .tmp/ppt-deep-search/demo/baselines/01-audience-thesis.md |
+| 2 | Page count, chapter titles/order, chapter roles | 用户确认做 1 页，页内节奏为问题、机制、证据、边界。 | .tmp/ppt-deep-search/demo/baselines/02-deck-structure.md |
+| 3 | Page titles, core viewpoints, page roles, source usage, boundaries | 用户确认 Page 1 标题、核心观点、Figure 2 原样使用和不可外推边界。 | .tmp/ppt-deep-search/demo/baselines/03-page-plan.md |
 """
 
 
