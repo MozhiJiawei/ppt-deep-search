@@ -28,7 +28,7 @@ Before doing any storyline work, read `references/pyramid-principle.md` and foll
 
 ## Workflow
 
-Follow the pyramid principle doctrine in `references/pyramid-principle.md`: resolve SCQA and the top-level conclusion first, make that top-level conclusion its own page, then confirm page count, then create concise table-of-contents entries, then decompose one chapter at a time. Do not generate a table of contents before page count is approved, and do not decompose pages before the table of contents is approved.
+Follow the pyramid principle doctrine in `references/pyramid-principle.md`: confirm the audience first, analyze the source material in plain language, resolve SCQA and the top-level summary page, confirm page count, create concise table-of-contents entries, then decompose one chapter at a time. Do not generate a table of contents before page count is approved, and do not decompose pages before the table of contents is approved.
 
 Each stage has two gates:
 
@@ -76,7 +76,9 @@ Keep each turn short:
 - When offering choices, use 2-3 options with short labels and one-line tradeoffs.
 - Do not paste the full live structure unless the user asks to review it.
 
-For content-direction decisions, do not ask with only one recommended option. Present 2-3 concrete candidate expressions, each in this shape:
+Use A/B/C options only for audience selection and the top-level summary page expression. Do not force A/B/C for chapter planning or page planning; guide with a concise proposal, then let the user ask for changes.
+
+For the top-level summary page expression, present 2-3 concrete candidate expressions in this shape:
 
 ```text
 【A】
@@ -96,24 +98,56 @@ For content-direction decisions, do not ask with only one recommended option. Pr
 3. 标签：...
 ```
 
-Use this A/B/C pattern when asking the user to choose a top-level conclusion page, a chapter claim/title, or a page title/analysis-summary direction. The user should be choosing between PPT-ready expressions, not abstract themes.
+The user should be choosing between PPT-ready top-level summary expressions, not abstract themes. When discussing chapters or content pages, do not force options. Give your best proposal and ask the user what to adjust.
 
-Reserve A/B/C for alternative choices only. Do not use `【A】` and `【B】` to label two pages that will both appear in the deck. When proposing multiple pages inside one chapter, label them with their actual page numbers, such as `Page 3` and `Page 4`.
-
-### 1. Confirm SCQA and Top-Level Conclusion
+### 1. Confirm Audience
 
 Confirm or infer only what is reasonably clear:
 
-- Situation, complication, governing question, and answer
 - Target reader
 - Reader's likely current belief
 - Desired belief change
 - Final use: PPT, decision, learning, proposal, external material, or other
 - Source set and known gaps
 
-If these are unclear, ask the single question that most changes the storyline. Otherwise proceed with stated assumptions and mark them in the brief.
+Use A/B/C options for audience selection when the audience is not already clear. Audience options should include target reader, current belief, desired belief change, and final use.
 
-Stage 1 required approval: target audience, reader's current belief, desired belief change, SCQA, and top-level conclusion.
+Stage 1 required approval: target audience, reader's current belief, desired belief change, final use, and source set.
+
+After approval, save:
+
+```text
+.tmp/ppt-deep-search/<task-name>/baselines/01-audience.md
+```
+
+### 1.5 Source Understanding Analysis
+
+After the audience is approved and before discussing the top-level summary page, output a concise source-understanding analysis in Chinese. This is not a final brief; it gives the human a basis for judgment and follow-up questions.
+
+Include exactly these three parts:
+
+- `它是什么`：the object/system/paper/tool in plain language.
+- `它解决了什么问题`：the concrete pain or decision problem it addresses.
+- `跟同类技术比有什么亮点`：why it differs from adjacent approaches or existing solutions.
+
+Keep this analysis source-grounded and compact: 3-6 bullets total. Then ask the user whether this understanding is basically right or what needs correction.
+
+After approval, save:
+
+```text
+.tmp/ppt-deep-search/<task-name>/baselines/01-source-understanding.md
+```
+
+### 1.6 Confirm SCQA and Top-Level Summary Page
+
+Confirm:
+
+- Situation, complication, governing question, and answer
+- The top-level summary page expression: page title, title subtitle, and analysis-summary bullets
+
+Use A/B/C options for this top-level summary page expression. Do not use A/B/C after this stage unless the user explicitly asks for alternatives.
+
+Stage 1.6 required approval: SCQA and top-level summary page.
 
 After approval, save:
 
@@ -123,7 +157,7 @@ After approval, save:
 
 This file becomes the baseline for all later page-count, chapter, and page-title decisions.
 
-The approved top-level conclusion must become its own page in the final page plan. Do not merge it into a later evidence or mechanism page.
+The approved top-level summary page must become its own page in the final page plan. Do not merge it into a later evidence or mechanism page.
 
 ### 2. Confirm Page Count
 
@@ -169,7 +203,7 @@ Use this exact shape:
 Rules:
 
 - The table of contents must have at most three content chapters unless the user explicitly requests more.
-- The top-level conclusion page is not necessarily a table-of-contents entry; it may be the opening summary page.
+- The top-level summary page is not necessarily a table-of-contents entry; it may be the opening summary page.
 - Each `小标题` must be short enough to fit the page's top-left chapter indicator.
 - Each `说明` should be one concise sentence explaining what that chapter proves.
 - Do not use `表达的观点 / 标题 / 分析总结` for the table of contents.
@@ -199,15 +233,14 @@ For each chapter:
 - Restate the approved chapter claim.
 - Propose that chapter's page count based on the total page budget.
 - Propose only that chapter's page titles, title subtitles, analysis-summary bullets, page roles, required evidence, and boundaries.
-- When there is more than one plausible page expression, give A/B/C options in the required `表达的观点 / 标题 / 分析总结` format.
-- When listing a chapter's actual page plan, use `Page N`, `Page N+1`, etc. A/B/C is for alternatives, not page numbering.
-- Ask the user to approve or correct that chapter before moving to the next chapter.
+- Use `Page N`, `Page N+1`, etc. for actual page labels.
+- Ask the user to approve or tell you the adjustment direction before moving to the next chapter. Do not force alternatives unless the user asks.
 - Save a chapter baseline after approval.
 
 Use this loop:
 
 1. State the current decision in one sentence.
-2. Offer 2-3 plausible directions or ask one open question.
+2. Offer one concise recommended proposal, or ask one open question if the chapter logic is still unclear.
 3. Capture the user's choice or correction.
 4. Update the live structure: thesis, pyramid, evidence map, approved chapter page plan, assumptions, or open questions.
 5. Move to the next highest-impact unresolved decision.
@@ -237,6 +270,7 @@ The required approval bundle is:
 - Page count or page-count range.
 - Page-count convention: total pages vs content pages, including/excluding cover and contents.
 - Target audience and desired reader belief change.
+- Approved source-understanding analysis: what it is, what problem it solves, and what is distinctive versus similar approaches.
 - SCQA, top-level thesis, and big logic.
 - Table-of-contents small titles, descriptions, order, and represented chapter claims.
 - Chapter logic, or for a 1-page output, the page's internal content beat sequence.
@@ -255,8 +289,9 @@ Approval prompt pattern:
 ```text
 落盘前请确认这组下游硬约束：
 - 听众：...
+- 原始信息理解：它是什么 / 解决什么问题 / 跟同类技术比的亮点
 - SCQA：...
-- 顶层观点：...
+- 顶层总结页：标题 / 标题说明 / 分析总结
 - 大逻辑：...
 - 页数：...
 - 页数口径：总页数 / 正文内容页；是否包含封面和目录页
@@ -307,6 +342,11 @@ Write the final Storyline Brief only when the user explicitly says to proceed, t
 材料范围：
 证据边界：
 
+## Source Understanding
+它是什么：
+它解决了什么问题：
+跟同类技术比有什么亮点：
+
 ## Executive Thesis
 ...
 
@@ -316,7 +356,7 @@ Write the final Storyline Brief only when the user explicitly says to proceed, t
 3. ...
 
 ## Pyramid Outline
-0. 顶层观点页：...
+0. 顶层总结页：...
    页面标题：
    标题说明：
    分析总结：
@@ -340,7 +380,7 @@ Write the final Storyline Brief only when the user explicitly says to proceed, t
 
 ### Page 1: 页面标题
 页面角色：frame / claim / mechanism / evidence / comparison / implication / synthesis
-支撑的章节论点：顶层观点页 / 章节论点 1 / 章节论点 2 / 章节论点 3
+支撑的章节论点：顶层总结页 / 章节论点 1 / 章节论点 2 / 章节论点 3
 页面标题：...
 标题说明：...
 分析总结：
@@ -388,7 +428,9 @@ Claim / Evidence / Implication：
 ## Approval Log
 | Stage | Approved Constraint | User Approval Summary | Baseline File |
 | --- | --- | --- | --- |
-| 1 | Audience, belief change, big logic, top-level thesis | ... | .tmp/ppt-deep-search/<task-name>/baselines/01-audience-thesis.md |
+| 1 | Audience and belief change | ... | .tmp/ppt-deep-search/<task-name>/baselines/01-audience.md |
+| 1.5 | Source understanding: what it is, solved problem, distinctive亮点 | ... | .tmp/ppt-deep-search/<task-name>/baselines/01-source-understanding.md |
+| 1.6 | SCQA, big logic, top-level summary page | ... | .tmp/ppt-deep-search/<task-name>/baselines/01-audience-thesis.md |
 | 2 | Page count and counting convention | ... | .tmp/ppt-deep-search/<task-name>/baselines/02-page-count.md |
 | 2.5 | Table-of-contents small titles, descriptions, order, chapter claims | ... | .tmp/ppt-deep-search/<task-name>/baselines/02-table-of-contents.md |
 | 3 | Chapter-by-chapter page titles, title subtitles, analysis summaries, page roles, source usage, boundaries | ... | .tmp/ppt-deep-search/<task-name>/baselines/03-page-plan.md |
@@ -410,7 +452,7 @@ Each `### Page N:` section must contain enough material for PPT Maker to create 
 - At least 220 counted content characters per page brief, excluding headings and field labels.
 - A `页面标题`, `标题说明`, and `分析总结` section. `分析总结` must contain 1-3 directly usable Chinese label bullets such as `粒度升级：...`.
 - At least one `Claim / Evidence / Implication` item.
-- A `支撑的章节论点` field that links the page to either the standalone top-level conclusion page or one approved chapter claim.
+- A `支撑的章节论点` field that links the page to either the standalone top-level summary page or one approved chapter claim.
 - At least one source locator, user-judgment marker, or `needs_verification` marker in `Evidence`.
 - At least three `支撑信息` bullets or equivalent source-grounded detail lines, so PPT Maker has enough body material beyond viewpoint statements.
 - At least one `边界提醒` item unless the page is a cover/contents candidate.
