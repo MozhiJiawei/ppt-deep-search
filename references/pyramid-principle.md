@@ -24,21 +24,28 @@ The deck should answer the reader's governing question first, then support that 
    - Do not mix problem statements, mechanisms, evidence, implications, and caveats as sibling chapters.
    - If the top-level conclusion is supported by "why this matters," "why this works," and "why this is credible," make those the sibling claims.
 
-4. **Use at most three chapter claims**
+4. **Separate page scale, table of contents, and content pages**
+   - Page count is a separate decision gate. Do not generate table-of-contents entries until page count is approved.
+   - Table-of-contents entries are navigation labels, not content pages.
+   - Each table-of-contents entry must contain a concise title and one short explanation.
+   - Do not use the A/B/C `表达的观点 / 标题 / 分析总结` pattern for table-of-contents entries.
+   - Use A/B/C only for the top-level conclusion page and content-page expression choices.
+
+5. **Use at most three chapter claims**
    - A human reader should be able to hold the storyline in working memory.
    - More than three chapters usually means the agent is covering source material instead of structuring an argument.
    - For small decks, use one or two chapters. For larger decks, use three.
 
-5. **Decompose one chapter at a time**
+6. **Decompose one chapter at a time**
    - Do not present all chapter page breakdowns in one turn.
    - Ask the user to confirm one chapter's internal page logic before moving to the next chapter.
    - Each chapter baseline becomes a constraint for later pages.
 
-6. **Pages are not source-section slices**
+7. **Pages are not source-section slices**
    - A page is a unit of persuasion: one page title, one title subtitle, 1-3 analysis-summary bullets, one role, enough supporting facts, and explicit boundaries.
    - Source figures and tables are evidence for page claims, not page reasons by themselves.
 
-7. **SCQA frames the need for the pyramid**
+8. **SCQA frames the need for the pyramid**
    - Situation: what stable context does the reader already accept?
    - Complication: what changes or breaks their current judgment?
    - Question: what governing question must the deck answer?
@@ -87,10 +94,11 @@ The weak examples are topics. They do not explain why the top-level conclusion i
 The user must approve pyramid decisions from top to bottom:
 
 1. SCQA and top-level conclusion.
-2. Page count and chapter claims.
-3. Chapter 1 page decomposition.
-4. Chapter 2 page decomposition.
-5. Chapter 3 page decomposition, if present.
-6. Final Storyline Brief.
+2. Page count only.
+3. Table-of-contents entries: concise title plus short explanation.
+4. Chapter 1 page decomposition.
+5. Chapter 2 page decomposition.
+6. Chapter 3 page decomposition, if present.
+7. Final Storyline Brief.
 
 Never skip ahead. Never ask the user to approve every chapter's page plan at once.

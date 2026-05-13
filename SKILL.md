@@ -28,7 +28,7 @@ Before doing any storyline work, read `references/pyramid-principle.md` and foll
 
 ## Workflow
 
-Follow the pyramid principle doctrine in `references/pyramid-principle.md`: resolve SCQA and the top-level conclusion first, make that top-level conclusion its own page, then choose at most three chapter claims, then decompose one chapter at a time. Do not decompose pages before the higher-level logic is confirmed.
+Follow the pyramid principle doctrine in `references/pyramid-principle.md`: resolve SCQA and the top-level conclusion first, make that top-level conclusion its own page, then confirm page count, then create concise table-of-contents entries, then decompose one chapter at a time. Do not generate a table of contents before page count is approved, and do not decompose pages before the table of contents is approved.
 
 Each stage has two gates:
 
@@ -123,31 +123,55 @@ This file becomes the baseline for all later page-count, chapter, and page-title
 
 The approved top-level conclusion must become its own page in the final page plan. Do not merge it into a later evidence or mechanism page.
 
-### 2. Confirm Page Scale and Chapter Claims
+### 2. Confirm Page Count
 
-Draft the first pyramid layer only after the user approves Stage 1. Present it as a candidate, not as the answer:
+After the user approves Stage 1, ask for page count or page-count range as its own decision. Do not propose table-of-contents entries yet.
 
-- Top-level conclusion page
-- 1-3 chapter claims, based on page count
-- Chapter/table-of-contents titles derived from those claims
-- Evidence currently available
-- Evidence gaps
-- Boundaries and uncertainty
+Offer 2-3 page-count options with tradeoffs, for example:
 
-Then stress-test it:
+- 5 pages: decision brief, fastest route to business judgment.
+- 7 pages: balanced investment judgment, enough room for problem, mechanism, and proof.
+- 9 pages: technical decision deck, more space for implementation and boundaries.
 
-- Does the top thesis answer the research question?
-- Are first-level arguments mutually distinct and collectively sufficient?
-- Is the stance too academic, commercial, technical, conservative, or speculative for the reader?
-- Which argument would a skeptical reader attack first?
-
-At this stage, ask the user to choose the biggest correction rather than asking for comments on every part. Example: "这 3 个章节论点是否足以支撑顶层结论？要替换哪一个？"
-
-When proposing chapter claims, present A/B/C alternatives if the storyline is not yet settled. Each alternative must include `表达的观点`, `标题`, and `分析总结` bullets for the top-level conclusion page or chapter-level expression.
-
-Stage 2 required approval: page count or page-count range, the standalone top-level conclusion page title, no more than three chapter/table-of-contents titles, chapter order, each chapter's narrative role, and the chapter claims under the top-level conclusion.
+Stage 2 required approval: page count or page-count range only.
 
 After approval, save:
+
+```text
+.tmp/ppt-deep-search/<task-name>/baselines/02-page-count.md
+```
+
+### 2.5 Confirm Table of Contents
+
+Only after page count is approved, propose the table of contents. The table of contents is a navigation contract, not a content-page plan.
+
+Use this exact shape:
+
+```text
+01 小标题：...
+说明：...
+
+02 小标题：...
+说明：...
+```
+
+Rules:
+
+- The table of contents must have at most three content chapters unless the user explicitly requests more.
+- The top-level conclusion page is not necessarily a table-of-contents entry; it may be the opening summary page.
+- Each `小标题` must be short enough to fit the page's top-left chapter indicator.
+- Each `说明` should be one concise sentence explaining what that chapter proves.
+- Do not use `表达的观点 / 标题 / 分析总结` for the table of contents.
+
+Stage 2.5 required approval: table-of-contents small titles, descriptions, order, and the chapter claim each entry represents.
+
+After approval, save:
+
+```text
+.tmp/ppt-deep-search/<task-name>/baselines/02-table-of-contents.md
+```
+
+Then consolidate page count and table of contents into:
 
 ```text
 .tmp/ppt-deep-search/<task-name>/baselines/02-deck-structure.md
@@ -201,7 +225,7 @@ The required approval bundle is:
 - Page count or page-count range.
 - Target audience and desired reader belief change.
 - SCQA, top-level thesis, and big logic.
-- Chapter/table-of-contents titles and their order.
+- Table-of-contents small titles, descriptions, order, and represented chapter claims.
 - Chapter logic, or for a 1-page output, the page's internal content beat sequence.
 - Every page title.
 - Every page's title subtitle.
@@ -222,7 +246,8 @@ Approval prompt pattern:
 - 顶层观点：...
 - 大逻辑：...
 - 页数：...
-- 章节目录标题：...
+- 目录：
+  - 01 小标题：... / 说明：...
 - Page 1 标题：...
 - Page 1 标题说明：...
 - Page 1 分析总结：...
@@ -290,7 +315,8 @@ Write the final Storyline Brief only when the user explicitly says to proceed, t
    - ...
 
 ## Chapter Logic
-1. 章节名：...
+1. 目录小标题：...
+   目录说明：...
    章节论点：...
    章节角色：建立问题 / 解释机制 / 证明效果 / 对比方案 / 提炼启示 / 行动建议
    本章必须讲清：...
@@ -349,7 +375,8 @@ Claim / Evidence / Implication：
 | Stage | Approved Constraint | User Approval Summary | Baseline File |
 | --- | --- | --- | --- |
 | 1 | Audience, belief change, big logic, top-level thesis | ... | .tmp/ppt-deep-search/<task-name>/baselines/01-audience-thesis.md |
-| 2 | Page count, chapter titles/order, chapter roles | ... | .tmp/ppt-deep-search/<task-name>/baselines/02-deck-structure.md |
+| 2 | Page count | ... | .tmp/ppt-deep-search/<task-name>/baselines/02-page-count.md |
+| 2.5 | Table-of-contents small titles, descriptions, order, chapter claims | ... | .tmp/ppt-deep-search/<task-name>/baselines/02-table-of-contents.md |
 | 3 | Chapter-by-chapter page titles, title subtitles, analysis summaries, page roles, source usage, boundaries | ... | .tmp/ppt-deep-search/<task-name>/baselines/03-page-plan.md |
 ```
 
