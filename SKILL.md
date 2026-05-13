@@ -243,9 +243,11 @@ For each chapter:
 - Do not present a page number outside the approved budget. If the desired chapter split would exceed the budget, resolve the budget tradeoff before showing the page plan.
 - First propose only the viewpoint layer for that chapter's pages: page title, title subtitle, analysis-summary bullets, page role, and the chapter claim each page supports.
 - Do not write dense supporting content yet. Wait until the user explicitly approves each page's title, title subtitle, and analysis-summary bullets.
-- After the viewpoint layer is approved, expand the content layer for those pages: Claim / Evidence / Implication, reference-image strategy, supporting information, and boundaries. The content layer must support the approved viewpoint; it must not introduce a new unapproved viewpoint.
+- After the viewpoint layer is approved, expand the content layer autonomously: Claim / Evidence / Implication, reference-image strategy, supporting information, and boundaries. The human does not need to guide or approve dense content page by page.
+- The content layer must support the approved viewpoint; it must not introduce a new unapproved viewpoint.
+- Return to the user before finalizing content only if evidence contradicts the approved viewpoint, the content would materially change the title/subtitle/analysis-summary, or supplemental research changes the argument direction.
 - Use `Page N`, `Page N+1`, etc. for actual page labels.
-- Ask the user to approve or tell you the adjustment direction before moving from viewpoint layer to content layer, and again before moving to the next chapter. Do not force alternatives unless the user asks.
+- Ask the user to approve or tell you the adjustment direction before moving from one chapter's viewpoint layer to the next chapter's viewpoint layer. Do not force alternatives unless the user asks.
 - If the user revises a page title, title subtitle, or analysis-summary bullet, restate the full updated viewpoint layer before saving it as approved. Do not save a baseline that only records the changed fragment.
 - Save a chapter baseline after approval.
 
@@ -257,7 +259,7 @@ Use this loop:
 4. Update the live structure: thesis, pyramid, evidence map, approved chapter page plan, assumptions, or open questions.
 5. Move to the next highest-impact unresolved decision.
 
-Stage 3 required approval: each chapter's page decomposition, every page title, every page title subtitle, every page's analysis-summary bullets, every page role, required source figures/tables/screenshots, and page-level boundaries. The title, subtitle, and analysis-summary bullets must be approved before the agent writes detailed supporting content for that page.
+Stage 3 required approval: each chapter's page decomposition, every page title, every page title subtitle, every page's analysis-summary bullets, every page role, and critical page-level boundaries. The title, subtitle, and analysis-summary bullets must be approved before the agent writes detailed supporting content for that page. After viewpoint approval, the agent should generate dense supporting content independently.
 
 After each chapter is approved, save:
 
@@ -265,7 +267,7 @@ After each chapter is approved, save:
 .tmp/ppt-deep-search/<task-name>/baselines/03-chapter-<n>-page-plan.md
 ```
 
-After all chapter page plans are approved, consolidate them into:
+After all chapter viewpoint layers are approved, autonomously generate content layers for every approved page, then consolidate viewpoint and content layers into:
 
 ```text
 .tmp/ppt-deep-search/<task-name>/baselines/03-page-plan.md
@@ -308,7 +310,9 @@ The required approval bundle is:
 - Claims that must be preserved.
 - Boundary reminders that the downstream PPT skill must not weaken.
 
-Before final Storyline Brief writing, confirm that every page went through this order: viewpoint layer approval first, then content-layer expansion. If any page's content was drafted before its title, title subtitle, and analysis-summary bullets were approved, pause and ask the user to approve or revise the viewpoint layer before finalizing that page.
+Before final Storyline Brief writing, confirm that every page went through this order: viewpoint layer approval first, then AI-generated content-layer expansion. If any page's content was drafted before its title, title subtitle, and analysis-summary bullets were approved, pause and ask the user to approve or revise the viewpoint layer before finalizing that page.
+
+Do not ask the user to review dense content page by page unless the content would change an approved viewpoint or introduce a new major claim. The user owns logic; the agent owns source-grounded content generation.
 
 Present the bundle compactly and ask for approval or corrections. Do not save the final `storyline_brief.md` until the user approves this bundle, unless the user explicitly asks for an unapproved draft. If producing an unapproved draft, mark it clearly in `Research Frame` and `Assumptions and Open Questions`.
 
