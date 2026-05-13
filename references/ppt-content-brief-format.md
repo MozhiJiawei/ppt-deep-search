@@ -19,6 +19,7 @@ The PPT generation skill should consume `ppt_content_brief.md` first. It may ins
 
 - `# PPT Content Brief`
 - `## Deck Metadata`
+- `## Summary Page`
 - `## Table of Contents`
 - `## Page Content`
 
@@ -55,6 +56,22 @@ Rules:
 - `说明` must be one concise sentence suitable for the contents page.
 - Do not include `Claim`, `Evidence`, source locators, approval notes, or boundary analysis in the contents section.
 
+## Summary Page Contract
+
+`## Summary Page` is the standalone top-level conclusion page. It must appear before `## Table of Contents` so the downstream PPT maker sees the deck's answer before the navigation structure.
+
+The summary page must include:
+
+- `页码`: the actual PPT page number of the summary page.
+- `页面标题`: direct slide title.
+- `标题说明`: subtitle or title explanation.
+- `分析总结`: 1-3 Chinese short labeled statements that can go directly on the slide.
+- `正文内容`: concise support material for the summary page.
+- `参考图片`: image, chart, screenshot, diagram, or visual evidence instruction.
+- `备注`: optional speaker note or non-obtrusive caveat.
+
+The summary page is not a chapter content page. It should express the deck's top-level conclusion and preview the logic that the following chapters will prove.
+
 ## Page Content Contract
 
 Each slide content block must use this heading pattern:
@@ -67,6 +84,7 @@ Each slide content block must use this heading pattern:
 
 Each page must include only these fields:
 
+- `所属章节`: the exact `小标题` from `## Table of Contents` that this page supports.
 - `页面标题`: direct slide title.
 - `标题说明`: subtitle or title explanation.
 - `分析总结`: 1-3 Chinese short labeled statements that can go directly on the slide.
@@ -78,6 +96,7 @@ Do not include internal fields such as `页面角色`, `支撑的章节论点`, 
 
 ## Page Field Meanings
 
+- `所属章节`: use to map the page to a table-of-contents item. It must exactly match one `小标题`.
 - `页面标题`: use as slide title.
 - `标题说明`: use as subtitle or lead sentence.
 - `分析总结`: use as the high-visibility summary band. Each bullet must be `标签：短句`.
@@ -87,7 +106,7 @@ Do not include internal fields such as `页面角色`, `支撑的章节论点`, 
 
 ## Density Rules
 
-The QA hard minimum is `900` counted content characters per page, counted mainly from `分析总结`, `正文内容`, `参考图片`, and `备注`. A strong technical or decision page usually lands around `1200-1800` counted characters.
+The QA hard minimum is `500` counted content characters for `## Summary Page` and `900` counted content characters per chapter content page, counted mainly from `分析总结`, `正文内容`, `参考图片`, and `备注`. A strong technical or decision content page usually lands around `1200-1800` counted characters.
 
 The lower threshold exists because internal evidence and audit text no longer live inside the final PPT content file. Do not pad. Good density comes from:
 
@@ -168,9 +187,12 @@ A PPT generation skill should validate:
 - `ppt_content_brief.md` has only the required downstream headings.
 - `Deck Metadata` has required fields.
 - `Table of Contents` uses short title plus one-sentence explanation.
+- `Summary Page` exists before `Page Content` and contains PPT-ready title, subtitle, analysis summary, body content, visual reference, and notes.
 - Each page has all required page fields.
+- Each content page has `所属章节`, and it matches one table-of-contents `小标题`.
 - `分析总结` has 1-3 directly usable Chinese labeled statements.
 - Each page meets the content-density threshold.
+- Expected page count for QA means chapter content pages under `## Page Content`; it excludes the standalone summary page and table-of-contents page.
 - Banned internal/audit tokens do not appear.
 - Banned rendering/layout tokens do not appear.
 - `关联审计文件` points to a `research_audit.md` file for verification if needed.

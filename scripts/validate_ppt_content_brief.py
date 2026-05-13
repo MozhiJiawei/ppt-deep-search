@@ -12,6 +12,7 @@ from pathlib import Path
 REQUIRED_HEADINGS = [
     "# PPT Content Brief",
     "## Deck Metadata",
+    "## Summary Page",
     "## Table of Contents",
     "## Page Content",
 ]
@@ -26,6 +27,7 @@ DECK_METADATA_FIELDS = [
 ]
 
 PAGE_FIELDS = [
+    "所属章节",
     "页面标题",
     "标题说明",
     "分析总结",
@@ -87,7 +89,7 @@ def line_number_for_offset(text: str, offset: int) -> int:
 
 def content_char_count(text: str) -> int:
     cleaned_lines = []
-    field_pattern = r"^(页面标题|标题说明|分析总结|正文内容|参考图片|备注)[:：]\s*"
+    field_pattern = r"^(页码|所属章节|页面标题|标题说明|分析总结|正文内容|参考图片|备注)[:：]\s*"
     for line in text.splitlines():
         stripped = line.strip()
         if not stripped or stripped.startswith("#"):
@@ -126,6 +128,52 @@ def extract_pages(text: str) -> list[PageSection]:
     return pages
 
 
+def toc_titles(text: str) -> list[str]:
+    toc = extract_section(text, "## Table of Contents")
+    return re.findall(r"^\d{2}\s+小标题[：:]\s*(\S.+?)\s*$", toc, flags=re.MULTILINE)
+
+
+def extract_field(body: str, field: str) -> str:
+    match = re.search(rf"^{re.escape(field)}[：:]\s*(.+?)\s*$", body, flags=re.MULTILINE)
+    return match.group(1).strip() if match else ""
+
+
+def validate_summary_block(text: str, min_summary_content_chars: int) -> list[str]:
+    errors: list[str] = []
+    summary = extract_section(text, "## Summary Page")
+    if not summary.strip():
+        return ["Summary Page section is empty"]
+
+    for field in ["页码", "页面标题", "标题说明", "分析总结", "正文内容", "参考图片"]:
+        if field not in summary:
+            errors.append(f"Summary Page missing field: {field}")
+
+    if not re.search(r"^页码[：:]\s*(?:Page\s*)?\d+\s*$", summary, flags=re.MULTILINE):
+        errors.append("Summary Page must include an actual page number in 页码")
+
+    summary_match = re.search(
+        r"分析总结[：:]?\s*\n(?P<body>.*?)(?:\n(?:正文内容|参考图片|备注)[：:]|\Z)",
+        summary,
+        flags=re.S,
+    )
+    if not summary_match:
+        errors.append("Summary Page missing analysis summary block")
+    else:
+        summary_items = re.findall(
+            r"^\s*-\s*([^：:\n]{2,12})[：:]\s*\S+",
+            summary_match.group("body"),
+            flags=re.MULTILINE,
+        )
+        if not 1 <= len(summary_items) <= 3:
+            errors.append("Summary Page analysis summary must contain 1-3 labeled bullets")
+
+    density = content_char_count(summary)
+    if density < min_summary_content_chars:
+        errors.append(f"Summary Page content density too low: {density} < {min_summary_content_chars} counted characters")
+
+    return errors
+
+
 def validate(
     text: str,
     min_page_content_chars: int,
@@ -153,20 +201,36 @@ def validate(
     if "说明" not in toc:
         errors.append("Table of Contents items must include concise 说明 lines")
 
+    summary_index = text.find("## Summary Page")
+    toc_index = text.find("## Table of Contents")
+    page_index = text.find("## Page Content")
+    if not (summary_index != -1 and toc_index != -1 and page_index != -1 and summary_index < toc_index < page_index):
+        errors.append("PPT Content Brief must be ordered as Summary Page, Table of Contents, then Page Content")
+
+    errors.extend(validate_summary_block(text, min_summary_content_chars=max(500, min_page_content_chars // 2)))
+
     for banned in BANNED_INTERNAL_FIELDS + BANNED_RENDERING_FIELDS:
         if banned.lower() in text.lower():
             errors.append(f"Banned internal/layout token found in PPT Content Brief: {banned}")
 
     pages = extract_pages(text)
-    if not pages:
+    if not pages and (expected_pages is None or expected_pages > 0):
         errors.append("No page content blocks found. Expected headings like: ### Page 1: 页面标题")
     elif expected_pages is not None and len(pages) != expected_pages:
         errors.append(f"Expected exactly {expected_pages} page content block(s), found {len(pages)}")
+
+    allowed_chapters = toc_titles(text)
 
     for page in pages:
         for field in PAGE_FIELDS:
             if field not in page.body:
                 errors.append(f"{page.title} (line {page.start_line}) missing field: {field}")
+
+        chapter = extract_field(page.body, "所属章节")
+        if chapter and allowed_chapters and chapter not in allowed_chapters:
+            errors.append(
+                f"{page.title} (line {page.start_line}) 所属章节 must match a Table of Contents 小标题: {chapter}"
+            )
 
         density = content_char_count(page.body)
         if density < min_page_content_chars:
@@ -221,6 +285,23 @@ SELF_TEST_BRIEF = """# PPT Content Brief
 内容来源：论文正文、Figure 2、Table 1、用户补充判断
 关联审计文件：research_audit.md
 
+## Summary Page
+页码：Page 1
+页面标题：长程任务需要可治理的记忆层
+标题说明：MIA 的价值在于把记忆从上下文堆叠升级为可检索、可更新、可评估的认知资产。
+分析总结：
+- 结构升级：长程任务需要把历史经验沉淀成可治理资产。
+- 机制价值：记忆层让经验能够被检索、更新、淘汰和审计。
+- 采用判断：跨多轮、多工具、多目标任务最值得优先评估记忆层。
+正文内容：
+- 这一页作为顶层总结页，应先回答技术负责人最关心的问题：为什么这不是又一种提示词技巧，而是长程任务基础设施的一部分。核心表达是，长程任务会不断产生跨轮经验，如果这些经验只存在于上下文窗口或临时摘要中，就会随任务轮次增加而变得难以管理。
+- PPT 正文可以围绕三层逻辑展开：第一，上下文堆叠只能让模型看见更多历史，不能决定哪些历史值得保留；第二，结构化记忆把历史经验转化为可检索、可更新、可评估的对象；第三，团队只有能治理记忆对象，才可能在长程任务里持续复用成功路径并降低错误经验污染。
+- 对读者来说，顶层判断不是“所有 Agent 都需要记忆层”，而是“当任务跨多轮、多工具、多目标，且历史经验会影响后续决策时，记忆层才从功能增强变成基础设施能力”。这个判断为后续章节留下清晰问题：为什么上下文不够、记忆机制怎么工作、落地时如何治理风险。
+参考图片：
+- 可用任务循环图表达“任务执行 -> 经验沉淀 -> 记忆检索 -> 结果更新”的主线。
+备注：
+- 不把记忆层包装成所有 Agent 场景的默认答案，保持技术评审语气。
+
 ## Table of Contents
 01 小标题：问题重构
 说明：把读者从上下文长度问题带到经验资产治理问题。
@@ -228,6 +309,7 @@ SELF_TEST_BRIEF = """# PPT Content Brief
 ## Page Content
 
 ### Page 1: 长程任务瓶颈来自经验不可管理
+所属章节：问题重构
 页面标题：长程任务瓶颈来自经验不可管理
 标题说明：Agent 在多轮任务中真正缺失的是可沉淀、可检索、可更新的经验结构，而不只是更长上下文。
 分析总结：
@@ -254,7 +336,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Validate a PPT Deep Search PPT Content Brief.")
     parser.add_argument("brief", nargs="?", help="Path to PPT Content Brief Markdown.")
     parser.add_argument("--min-page-content-chars", type=int, default=900, help="Minimum counted content characters per page.")
-    parser.add_argument("--expected-pages", type=int, help="Require an exact number of Page Content sections.")
+    parser.add_argument("--expected-pages", type=int, help="Require an exact number of chapter Page Content sections, excluding Summary Page and Table of Contents.")
     parser.add_argument("--allow-absolute-paths", action="store_true", help="Allow local absolute paths in the PPT content brief.")
     parser.add_argument("--self-test", action="store_true", help="Run validator against an embedded valid brief.")
     args = parser.parse_args()
