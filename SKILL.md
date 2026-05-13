@@ -190,6 +190,8 @@ After approval, save:
 .tmp/ppt-deep-search/<task-name>/baselines/02-page-count.md
 ```
 
+Also create a page-number map in the baseline. If cover and contents are included, preserve actual PPT page numbers, for example: `Page 1: cover`, `Page 2: contents`, `Page 3: top-level summary`, `Page 4-N: content pages`. Later page briefs must use these actual PPT page numbers, not a restarted content-page index.
+
 ### 2.5 Confirm Table of Contents
 
 Only after page count is approved, propose the table of contents. The table of contents is a navigation contract, not a content-page plan.
@@ -237,12 +239,14 @@ For each chapter:
 - Restate the approved chapter claim.
 - Recalculate the remaining content-page budget before proposing the chapter's page count. State the remaining page numbers if useful.
 - Propose that chapter's page count based on the total page budget and previously approved chapter allocations.
+- Use the approved page-number map from Stage 2. If the deck includes cover and contents, do not restart content page numbering at `Page 1`.
 - Do not present a page number outside the approved budget. If the desired chapter split would exceed the budget, resolve the budget tradeoff before showing the page plan.
 - First propose only the viewpoint layer for that chapter's pages: page title, title subtitle, analysis-summary bullets, page role, and the chapter claim each page supports.
 - Do not write dense supporting content yet. Wait until the user explicitly approves each page's title, title subtitle, and analysis-summary bullets.
 - After the viewpoint layer is approved, expand the content layer for those pages: Claim / Evidence / Implication, reference-image strategy, supporting information, and boundaries. The content layer must support the approved viewpoint; it must not introduce a new unapproved viewpoint.
 - Use `Page N`, `Page N+1`, etc. for actual page labels.
 - Ask the user to approve or tell you the adjustment direction before moving from viewpoint layer to content layer, and again before moving to the next chapter. Do not force alternatives unless the user asks.
+- If the user revises a page title, title subtitle, or analysis-summary bullet, restate the full updated viewpoint layer before saving it as approved. Do not save a baseline that only records the changed fragment.
 - Save a chapter baseline after approval.
 
 Use this loop:
