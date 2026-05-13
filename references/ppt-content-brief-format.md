@@ -106,7 +106,7 @@ Do not include internal fields such as `页面角色`, `支撑的章节论点`, 
 
 ## Density Rules
 
-The QA hard minimum is `500` counted content characters for `## Summary Page` and `900` counted content characters per chapter content page, counted mainly from `分析总结`, `正文内容`, `参考图片`, and `备注`. A strong technical or decision content page usually lands around `1200-1800` counted characters.
+The QA hard minimum is `1200` counted content characters for `## Summary Page` and `900` counted content characters per chapter content page, counted mainly from `分析总结`, `正文内容`, `参考图片`, and `备注`. The summary page is the highest-density page in the deck: it should compress the top-level conclusion, chapter logic, decision implications, key numbers or mechanisms, visual cue, and boundary wording into one PPT-ready page. A strong technical or decision content page usually lands around `1200-1800` counted characters.
 
 The lower threshold exists because internal evidence and audit text no longer live inside the final PPT content file. Do not pad. Good density comes from:
 

@@ -428,7 +428,7 @@ Match the brief to the requested downstream artifact:
 
 `## Summary Page` and each `### Page N:` section in `ppt_content_brief.md` must contain enough material for PPT Maker to create a dense page. As a default target:
 
-- At least 500 counted content characters for `## Summary Page` and at least 900 counted content characters per chapter content page, excluding headings and field labels. A strong technical or decision content page usually lands around 1200-1800 counted characters.
+- At least 1200 counted content characters for `## Summary Page` and at least 900 counted content characters per chapter content page, excluding headings and field labels. The summary page should be the highest-density page: compress the top-level conclusion, chapter logic, decision implications, key numbers or mechanisms, visual cue, and boundary wording into one PPT-ready page. A strong technical or decision content page usually lands around 1200-1800 counted characters.
 - Every content page must include `所属章节`, and that value must exactly match one `小标题` in `## Table of Contents`. The summary page is separate and does not need `所属章节`.
 - A `页面标题`, `标题说明`, and `分析总结` section. `分析总结` must contain 1-3 directly usable Chinese label bullets such as `粒度升级：...`.
 - A `正文内容` section that reads like a PPT body material pack, not a list of more conclusions. Use it to provide the concrete body content a slide can consume: mechanisms, source facts, quantitative context, comparison points, causal chains, caveats rewritten for slides, and suggested reading order.
@@ -441,13 +441,13 @@ Do not pad with vague filler just to pass the length check. If a page is thin, a
 Before handing the brief to a PPT skill, save `ppt_content_brief.md` and run:
 
 ```powershell
-python scripts/validate_ppt_content_brief.py .tmp/ppt-deep-search/<task-name>/ppt_content_brief.md --min-page-content-chars 900
+python scripts/validate_ppt_content_brief.py .tmp/ppt-deep-search/<task-name>/ppt_content_brief.md --min-page-content-chars 900 --min-summary-content-chars 1200
 ```
 
 For fixed-size outputs, add `--expected-pages <n>` for chapter content pages only; do not count the standalone summary page or table-of-contents page. For example, a 1-page PPT with only the summary page should use `--expected-pages 0`, while a 7-page deck with Page 3 summary and Page 4-7 chapter content should use `--expected-pages 4`.
 
 ```powershell
-python scripts/validate_ppt_content_brief.py .tmp/ppt-deep-search/<task-name>/ppt_content_brief.md --min-page-content-chars 900 --expected-pages 4
+python scripts/validate_ppt_content_brief.py .tmp/ppt-deep-search/<task-name>/ppt_content_brief.md --min-page-content-chars 900 --min-summary-content-chars 1200 --expected-pages 4
 ```
 
 The QA script checks required downstream headings, stable PPT page fields, banned internal audit fields, banned visual-rendering fields, direct PPT usability, and per-page content density. Treat script failures as blockers. Keep source evidence QA in `research_audit.md`.

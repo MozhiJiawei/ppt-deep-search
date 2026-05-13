@@ -177,6 +177,7 @@ def validate_summary_block(text: str, min_summary_content_chars: int) -> list[st
 def validate(
     text: str,
     min_page_content_chars: int,
+    min_summary_content_chars: int,
     expected_pages: int | None = None,
     allow_absolute_paths: bool = False,
 ) -> list[str]:
@@ -207,7 +208,7 @@ def validate(
     if not (summary_index != -1 and toc_index != -1 and page_index != -1 and summary_index < toc_index < page_index):
         errors.append("PPT Content Brief must be ordered as Summary Page, Table of Contents, then Page Content")
 
-    errors.extend(validate_summary_block(text, min_summary_content_chars=max(500, min_page_content_chars // 2)))
+    errors.extend(validate_summary_block(text, min_summary_content_chars=min_summary_content_chars))
 
     for banned in BANNED_INTERNAL_FIELDS + BANNED_RENDERING_FIELDS:
         if banned.lower() in text.lower():
@@ -297,6 +298,13 @@ SELF_TEST_BRIEF = """# PPT Content Brief
 - 这一页作为顶层总结页，应先回答技术负责人最关心的问题：为什么这不是又一种提示词技巧，而是长程任务基础设施的一部分。核心表达是，长程任务会不断产生跨轮经验，如果这些经验只存在于上下文窗口或临时摘要中，就会随任务轮次增加而变得难以管理。
 - PPT 正文可以围绕三层逻辑展开：第一，上下文堆叠只能让模型看见更多历史，不能决定哪些历史值得保留；第二，结构化记忆把历史经验转化为可检索、可更新、可评估的对象；第三，团队只有能治理记忆对象，才可能在长程任务里持续复用成功路径并降低错误经验污染。
 - 对读者来说，顶层判断不是“所有 Agent 都需要记忆层”，而是“当任务跨多轮、多工具、多目标，且历史经验会影响后续决策时，记忆层才从功能增强变成基础设施能力”。这个判断为后续章节留下清晰问题：为什么上下文不够、记忆机制怎么工作、落地时如何治理风险。
+- 高密总结页还应该给 PPT Maker 足够的页面材料：可以把信息组织为“当前做法的问题、记忆层的机制、架构判断、采用边界”四块。当前做法的问题是长程任务中的经验会被上下文窗口、摘要策略和人工复制粘贴切碎；记忆层的机制是把经验变成有来源、有更新时间、有适用范围的对象；架构判断是记忆是否可治理决定它能否进入生产工作流；采用边界是短任务、一次性问答和低风险闲聊通常不需要完整记忆基础设施。
+- 这一页的正文还要能支撑图文排版：左侧可以放任务循环或记忆生命周期图，右侧用三条高密标签句总结“为什么需要、怎么实现、何时采用”，底部用一行谨慎备注说明不外推到所有 Agent 场景。这样下游 PPT Agent 不需要读取内部审计文件，也能直接写出完整总结页。
+- 总结页可以加入更具体的决策语言：如果团队的 Agent 任务需要跨会话延续、复用工具经验、保留用户长期偏好或沉淀失败教训，就应该评估记忆层；如果任务只是一次性问答，简单上下文摘要通常更轻。这个判断能帮助技术负责人把“记忆能力”从功能清单转成路线选择。
+- 还可以给出一条可执行的采用路径：先在高价值长程任务中试点，定义记忆对象、更新时间、删除条件和访问权限，再观察任务完成率、错误记忆污染、人工修正成本和隐私合规压力。这样总结页不只是观点页，也能直接承接后续章节的机制、治理和落地讨论。
+- 为避免页面空泛，正文应保留至少一个反向提醒：记忆层不是越多越好，错误记忆、过期偏好和权限不清的数据都会污染后续决策。真正值得投入的不是“让 Agent 记住更多”，而是让 Agent 知道哪些经验应该被保留、何时应该被调用、何时必须被删除。
+- 这一页最终要让读者带走一个完整判断：记忆层的价值不在存储本身，而在把跨轮经验变成可管理、可复用、可纠错的工程资产。
+- 因此总结页的信息密度应高于普通章节页，承担结论、结构、判断和行动入口四个任务。
 参考图片：
 - 可用任务循环图表达“任务执行 -> 经验沉淀 -> 记忆检索 -> 结果更新”的主线。
 备注：
@@ -336,6 +344,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Validate a PPT Deep Search PPT Content Brief.")
     parser.add_argument("brief", nargs="?", help="Path to PPT Content Brief Markdown.")
     parser.add_argument("--min-page-content-chars", type=int, default=900, help="Minimum counted content characters per page.")
+    parser.add_argument("--min-summary-content-chars", type=int, default=1200, help="Minimum counted content characters for Summary Page.")
     parser.add_argument("--expected-pages", type=int, help="Require an exact number of chapter Page Content sections, excluding Summary Page and Table of Contents.")
     parser.add_argument("--allow-absolute-paths", action="store_true", help="Allow local absolute paths in the PPT content brief.")
     parser.add_argument("--self-test", action="store_true", help="Run validator against an embedded valid brief.")
@@ -345,6 +354,7 @@ def main() -> int:
         errors = validate(
             SELF_TEST_BRIEF,
             args.min_page_content_chars,
+            args.min_summary_content_chars,
             expected_pages=args.expected_pages,
             allow_absolute_paths=args.allow_absolute_paths,
         )
@@ -368,6 +378,7 @@ def main() -> int:
     errors = validate(
         text,
         args.min_page_content_chars,
+        args.min_summary_content_chars,
         expected_pages=args.expected_pages,
         allow_absolute_paths=args.allow_absolute_paths,
     )
@@ -381,6 +392,7 @@ def main() -> int:
     print("[OK] PPT Content Brief QA passed.")
     print(f"[OK] Page content blocks checked: {len(pages)}")
     print(f"[OK] Minimum page content density: {args.min_page_content_chars}")
+    print(f"[OK] Minimum summary content density: {args.min_summary_content_chars}")
     return 0
 
 
