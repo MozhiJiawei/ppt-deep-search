@@ -139,7 +139,7 @@ For each chapter:
 
 - Restate the approved chapter claim.
 - Propose that chapter's page count based on the total page budget.
-- Propose only that chapter's page titles, core viewpoints, page roles, required evidence, and boundaries.
+- Propose only that chapter's page titles, title subtitles, analysis-summary bullets, page roles, required evidence, and boundaries.
 - Ask the user to approve or correct that chapter before moving to the next chapter.
 - Save a chapter baseline after approval.
 
@@ -151,7 +151,7 @@ Use this loop:
 4. Update the live structure: thesis, pyramid, evidence map, approved chapter page plan, assumptions, or open questions.
 5. Move to the next highest-impact unresolved decision.
 
-Stage 3 required approval: each chapter's page decomposition, every page title, every page's core viewpoint, every page role, required source figures/tables/screenshots, and page-level boundaries.
+Stage 3 required approval: each chapter's page decomposition, every page title, every page title subtitle, every page's analysis-summary bullets, every page role, required source figures/tables/screenshots, and page-level boundaries.
 
 After each chapter is approved, save:
 
@@ -179,7 +179,8 @@ The required approval bundle is:
 - Chapter/table-of-contents titles and their order.
 - Chapter logic, or for a 1-page output, the page's internal content beat sequence.
 - Every page title.
-- Every page's core viewpoint.
+- Every page's title subtitle.
+- Every page's `分析总结` bullets.
 - Every page role.
 - Required source figures/tables/screenshots and their usage policy: original, summarize/rebuild, background only, or discard.
 - Claims that must be preserved.
@@ -198,7 +199,8 @@ Approval prompt pattern:
 - 页数：...
 - 章节目录标题：...
 - Page 1 标题：...
-- Page 1 核心观点：...
+- Page 1 标题说明：...
+- Page 1 分析总结：...
 - 主证据图：...
 - 不能说满的边界：...
 
@@ -252,7 +254,8 @@ Write the final Storyline Brief only when the user explicitly says to proceed, t
 ## Pyramid Outline
 0. 顶层观点页：...
    页面标题：
-   核心观点：
+   标题说明：
+   分析总结：
 1. 章节论点：...
    二级支撑：
    - ...
@@ -273,7 +276,10 @@ Write the final Storyline Brief only when the user explicitly says to proceed, t
 ### Page 1: 页面标题
 页面角色：frame / claim / mechanism / evidence / comparison / implication / synthesis
 支撑的章节论点：顶层观点页 / 章节论点 1 / 章节论点 2 / 章节论点 3
-核心观点：...
+页面标题：...
+标题说明：...
+分析总结：
+- 标签：可直接放入 PPT 的中文短句。
 Claim / Evidence / Implication：
 - Claim：...
   Evidence：...
@@ -281,6 +287,8 @@ Claim / Evidence / Implication：
 参考图片：
 - ...
 支撑信息：
+- ...
+- ...
 - ...
 边界提醒：
 - ...
@@ -317,7 +325,7 @@ Claim / Evidence / Implication：
 | --- | --- | --- | --- |
 | 1 | Audience, belief change, big logic, top-level thesis | ... | .tmp/ppt-deep-search/<task-name>/baselines/01-audience-thesis.md |
 | 2 | Page count, chapter titles/order, chapter roles | ... | .tmp/ppt-deep-search/<task-name>/baselines/02-deck-structure.md |
-| 3 | Chapter-by-chapter page titles, core viewpoints, page roles, source usage, boundaries | ... | .tmp/ppt-deep-search/<task-name>/baselines/03-page-plan.md |
+| 3 | Chapter-by-chapter page titles, title subtitles, analysis summaries, page roles, source usage, boundaries | ... | .tmp/ppt-deep-search/<task-name>/baselines/03-page-plan.md |
 ```
 
 ## Right-Size the Brief
@@ -334,9 +342,11 @@ Match the brief to the requested downstream artifact:
 Each `### Page N:` section must contain enough material for PPT Maker to create a dense content page. As a default target:
 
 - At least 220 counted content characters per page brief, excluding headings and field labels.
+- A `页面标题`, `标题说明`, and `分析总结` section. `分析总结` must contain 1-3 directly usable Chinese label bullets such as `粒度升级：...`.
 - At least one `Claim / Evidence / Implication` item.
 - A `支撑的章节论点` field that links the page to either the standalone top-level conclusion page or one approved chapter claim.
 - At least one source locator, user-judgment marker, or `needs_verification` marker in `Evidence`.
+- At least three `支撑信息` bullets or equivalent source-grounded detail lines, so PPT Maker has enough body material beyond viewpoint statements.
 - At least one `边界提醒` item unless the page is a cover/contents candidate.
 
 Increase the threshold for technical or evidence-heavy decks. Do not pad with vague filler; add source-grounded mechanisms, comparisons, constraints, implications, or reading guidance.

@@ -35,7 +35,7 @@ The deck should answer the reader's governing question first, then support that 
    - Each chapter baseline becomes a constraint for later pages.
 
 6. **Pages are not source-section slices**
-   - A page is a unit of persuasion: one core viewpoint, one role, a few supporting facts, and explicit boundaries.
+   - A page is a unit of persuasion: one page title, one title subtitle, 1-3 analysis-summary bullets, one role, enough supporting facts, and explicit boundaries.
    - Source figures and tables are evidence for page claims, not page reasons by themselves.
 
 7. **SCQA frames the need for the pyramid**
