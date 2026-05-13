@@ -28,7 +28,7 @@ For the downstream file contract and QA-checked fields, see `references/ppt-cont
 - If the approved viewpoint needs more support than the provided source material contains, use external research such as web search, official docs, papers, repository docs, or reputable technical articles to gather more context. Mark those materials as supplemental evidence and explain how they support, qualify, or challenge the approved viewpoint.
 - Do not let external research replace the approved viewpoint or blur source boundaries. Separate `primary source`, `supplemental research`, `inference`, and `user_judgment` in the evidence map.
 - Absolute local source paths are acceptable in `research_audit.md` because this workflow runs on the same machine. Do not put local absolute paths in `ppt_content_brief.md`; use source names there and keep exact locators in the audit file.
-- Put all temporary notes, drafts, extracted inventories, and QA outputs under the host workspace `.tmp/ppt-deep-search/<task-name>/`. If legacy `storyline_brief.md` files exist in the task directory, delete them before final handoff. Do not keep compatibility copies. The only current final handoff files are `ppt_content_brief.md` and `research_audit.md`.
+- Put all temporary notes, drafts, extracted inventories, and QA outputs under the host workspace `.tmp/ppt-deep-search/<task-name>/`. The only final handoff files are `ppt_content_brief.md` and `research_audit.md`.
 
 ## Workflow
 
