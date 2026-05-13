@@ -23,6 +23,8 @@ Before doing any storyline work, read `references/pyramid-principle.md` and foll
 - Do decide content intent: chapter logic, page titles, page roles, core claims, source evidence, source-figure usage policy, and wording boundaries.
 - Treat every factual claim as one of: `source`, `calculation`, `inference`, `user_judgment`, or `needs_verification`.
 - Never upgrade weak evidence into a fact. If a claim lacks source support, label it as inference or open question.
+- If the approved viewpoint needs more support than the provided source material contains, use external research such as web search, official docs, papers, repository docs, or reputable technical articles to gather more context. Mark those materials as supplemental evidence and explain how they support, qualify, or challenge the approved viewpoint.
+- Do not let external research replace the approved viewpoint or blur source boundaries. Separate `primary source`, `supplemental research`, `inference`, and `user_judgment` in the evidence map.
 - Absolute local source paths are acceptable when the workflow runs on the same machine. Prefer readable locators, and do not rewrite paths if absolute paths make the downstream handoff clearer.
 - Put all temporary notes, drafts, extracted inventories, and QA outputs under the host workspace `.tmp/ppt-deep-search/<task-name>/`.
 
@@ -267,6 +269,19 @@ After all chapter page plans are approved, consolidate them into:
 
 Only after this consolidated page-plan baseline exists may the agent write the final Storyline Brief.
 
+### 3.2 Fill Content With Source-Grounded Material
+
+After the viewpoint layer is approved, fill each page with enough concrete material for the downstream PPT Maker to write body text without inventing substance.
+
+Use this order:
+
+1. First use the provided source material: paper sections, figures, tables, extracted XML, notes, repository docs, or user-provided artifacts.
+2. If the source material is too thin to support the approved viewpoint, say so briefly and run targeted external research. Prefer official docs, original papers, project repositories, standards, benchmarks, vendor posts, or other primary/high-quality sources.
+3. Use supplemental research to add context, comparisons, examples, definitions, adjacent approaches, adoption constraints, or counterpoints.
+4. Label every supplemental item clearly in `Evidence`, `Evidence Map`, or `Source Usage Policy` so downstream readers know it did not come from the original source package.
+
+External research should support the approved viewpoint, not create a new one. If research changes the viewpoint materially, return to the user for approval before writing the content layer.
+
 ### 3.5 Confirm Downstream Hard Constraints
 
 Before writing the final Storyline Brief to disk, explicitly ask the user to approve every hard constraint that the downstream PPT skill must follow.
@@ -285,6 +300,7 @@ The required approval bundle is:
 - Every page's `分析总结` bullets.
 - Every page role.
 - Required source figures/tables/screenshots and their usage policy: original, summarize/rebuild, background only, or discard.
+- Supplemental research sources, if used, and whether they are primary source, official docs, paper, repository, technical article, or needs verification.
 - Claims that must be preserved.
 - Boundary reminders that the downstream PPT skill must not weaken.
 
@@ -395,7 +411,7 @@ Write the final Storyline Brief only when the user explicitly says to proceed, t
 - 标签：可直接放入 PPT 的中文短句。
 Claim / Evidence / Implication：
 - Claim：...
-  Evidence：...
+  Evidence：primary source / supplemental research / inference / user_judgment / needs_verification...
   Implication：...
 参考图片：
 - ...
@@ -421,6 +437,7 @@ Claim / Evidence / Implication：
 - Must use original:
 - May summarize or rebuild:
 - Background only:
+- Supplemental research:
 - Discard:
 
 ## Visual Opportunities
@@ -457,7 +474,7 @@ Match the brief to the requested downstream artifact:
 
 Each `### Page N:` section must contain enough material for PPT Maker to create a dense content page. As a default target:
 
-- At least 600 counted content characters per page brief, excluding headings and field labels.
+- At least 900 counted content characters per page brief, excluding headings and field labels.
 - A `页面标题`, `标题说明`, and `分析总结` section. `分析总结` must contain 1-3 directly usable Chinese label bullets such as `粒度升级：...`.
 - At least one `Claim / Evidence / Implication` item.
 - A `支撑的章节论点` field that links the page to either the standalone top-level summary page or one approved chapter claim.
@@ -465,20 +482,20 @@ Each `### Page N:` section must contain enough material for PPT Maker to create 
 - A `支撑信息` section that reads like a deep-research material pack, not a list of more conclusions. Use it to provide the concrete body content a slide can consume: mechanisms, source facts, quantitative context, comparison points, causal chains, caveats, and suggested reading order.
 - At least one `边界提醒` item unless the page is a cover/contents candidate.
 
-Do not pad with vague filler just to pass the length check. If a page is thin, add source-grounded mechanisms, comparisons, constraints, implications, examples, or reading guidance. The goal is that a downstream PPT Maker can fill title, analysis-summary band, body text, captions, and evidence notes without inventing missing substance.
+Do not pad with vague filler just to pass the length check. If a page is thin, add source-grounded mechanisms, comparisons, constraints, implications, examples, or reading guidance. When the original source package is insufficient, do targeted external research and mark it as supplemental. The goal is that a downstream PPT Maker can fill title, analysis-summary band, body text, captions, and evidence notes without inventing missing substance.
 
 ## QA
 
 Before handing the brief to a PPT skill, save it as Markdown and run:
 
 ```powershell
-python scripts/validate_storyline_brief.py .tmp/ppt-deep-search/<task-name>/storyline_brief.md --min-page-content-chars 600
+python scripts/validate_storyline_brief.py .tmp/ppt-deep-search/<task-name>/storyline_brief.md --min-page-content-chars 900
 ```
 
 For fixed-size outputs, add `--expected-pages <n>`. For example, a 1-page PPT brief should pass:
 
 ```powershell
-python scripts/validate_storyline_brief.py .tmp/ppt-deep-search/<task-name>/storyline_brief.md --min-page-content-chars 600 --expected-pages 1
+python scripts/validate_storyline_brief.py .tmp/ppt-deep-search/<task-name>/storyline_brief.md --min-page-content-chars 900 --expected-pages 1
 ```
 
 The QA script checks required output headings, stable page fields, banned visual-rendering fields, per-page information density, claim/evidence/implication presence, evidence source discipline, source usage policy, and open-question sections. Treat script failures as blockers.

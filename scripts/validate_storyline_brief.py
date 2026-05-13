@@ -81,6 +81,8 @@ EVIDENCE_MARKERS = [
     "inference",
     "user_judgment",
     "needs_verification",
+    "supplemental",
+    "primary source",
     "Figure",
     "Table",
     "图",
@@ -97,7 +99,7 @@ EVIDENCE_MARKERS = [
     "待验证",
 ]
 
-USAGE_POLICIES = ["original", "summarize", "background", "discard", "原样", "摘要", "背景", "舍弃"]
+USAGE_POLICIES = ["original", "summarize", "background", "supplemental", "discard", "原样", "摘要", "背景", "补充", "舍弃"]
 
 
 @dataclass
@@ -353,6 +355,8 @@ Claim / Evidence / Implication：
 - 正文可以先解释为什么长上下文不是长期解法：随着任务轮次增加，历史信息会变成高噪声输入，模型需要反复在旧对话、工具结果和新目标之间做筛选，成本和误检风险都会上升。
 - 然后补充 MIA 的具体内容价值：把历史经验拆成可检索、可更新、可评估的记忆对象，PPT Maker 可以据此写出“经验沉淀、按需调用、持续修正”三段正文。
 - 最后给读者一个落地判断：如果团队只需要一次性问答，记忆层收益有限；如果任务跨多轮、多工具、多目标，结构化记忆才可能成为基础设施，而不是提示词技巧。
+- 如果原论文对工程落地讲得不够，可以补充检索记忆、长期任务 Agent、RAG 记忆管理或向量库治理的官方文档/论文作为 supplemental research，用来解释为什么“可检索、可更新、可评估”比“把历史塞进上下文”更适合团队治理。
+- 页面正文还可以给出反例：短任务、一次性问答或低风险客服场景可能只需要上下文摘要，不需要完整记忆资产层；这个反例帮助 PPT Maker 写出采用边界，而不是把 MIA 包装成万能基础设施。
 边界提醒：
 - 不能说 MIA 已证明所有 Agent 场景有效，只能说在论文给定 benchmark 和设置下体现了长程任务收益。
 信息密度说明：本页提供问题定义、证据依据、工程含义和边界，足以支持一页内容页。
@@ -371,6 +375,7 @@ Claim / Evidence / Implication：
 - Must use original: Figure 2。
 - May summarize or rebuild: Table 1。
 - Background only: 引言中的泛化表述。
+- Supplemental research: 若原文不足，可补充长期任务 Agent、RAG 记忆治理、向量检索评估等高质量来源，但必须标为 supplemental。
 - Discard: 与主线无关的实现细节。
 
 ## Visual Opportunities
@@ -398,7 +403,7 @@ Claim / Evidence / Implication：
 def main() -> int:
     parser = argparse.ArgumentParser(description="Validate a PPT Deep Search Storyline Brief.")
     parser.add_argument("brief", nargs="?", help="Path to Storyline Brief Markdown.")
-    parser.add_argument("--min-page-content-chars", type=int, default=600, help="Minimum counted content characters per Page Brief.")
+    parser.add_argument("--min-page-content-chars", type=int, default=900, help="Minimum counted content characters per Page Brief.")
     parser.add_argument("--expected-pages", type=int, help="Require an exact number of Page Brief sections.")
     parser.add_argument("--forbid-absolute-paths", action="store_true", help="Fail when absolute local paths appear in source locators.")
     parser.add_argument("--self-test", action="store_true", help="Run validator against an embedded valid brief.")
