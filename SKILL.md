@@ -9,6 +9,8 @@ Build a source-grounded Storyline Brief before PPT production. Act as content ed
 
 This skill is modeled as a research dialogue, not a one-shot summarizer. The durable output is the Storyline Brief, but the main work is helping the user make content decisions before the downstream PPT skill renders slides.
 
+Before doing any storyline work, read `references/pyramid-principle.md` and follow it as the highest-level doctrine. If any workflow detail conflicts with that doctrine, the doctrine wins.
+
 ## Operating Rules
 
 - Use Chinese for all user-facing interaction by default, including questions, options, stage summaries, approval prompts, and final handoff notes. Keep source titles, figure/table labels, code paths, URLs, model names, metrics, and technical terms in their original language when that improves traceability.
@@ -26,7 +28,7 @@ This skill is modeled as a research dialogue, not a one-shot summarizer. The dur
 
 ## Workflow
 
-Follow the pyramid principle: resolve the top-level audience and thesis first, then the deck/page scale and chapter decomposition, then the page-level decomposition inside each chapter. Do not decompose pages before the higher-level logic is confirmed.
+Follow the pyramid principle doctrine in `references/pyramid-principle.md`: resolve SCQA and the top-level conclusion first, make that top-level conclusion its own page, then choose at most three chapter claims, then decompose one chapter at a time. Do not decompose pages before the higher-level logic is confirmed.
 
 Each stage has two gates:
 
@@ -74,11 +76,11 @@ Keep each turn short:
 - When offering choices, use 2-3 options with short labels and one-line tradeoffs.
 - Do not paste the full live structure unless the user asks to review it.
 
-### 1. Frame the Research
+### 1. Confirm SCQA and Top-Level Conclusion
 
 Confirm or infer only what is reasonably clear:
 
-- Research question
+- Situation, complication, governing question, and answer
 - Target reader
 - Reader's likely current belief
 - Desired belief change
@@ -87,7 +89,7 @@ Confirm or infer only what is reasonably clear:
 
 If these are unclear, ask the single question that most changes the storyline. Otherwise proceed with stated assumptions and mark them in the brief.
 
-Stage 1 required approval: target audience, reader's current belief, desired belief change, big logic, and top-level thesis.
+Stage 1 required approval: target audience, reader's current belief, desired belief change, SCQA, and top-level conclusion.
 
 After approval, save:
 
@@ -97,13 +99,15 @@ After approval, save:
 
 This file becomes the baseline for all later page-count, chapter, and page-title decisions.
 
-### 2. Build the Initial Pyramid
+The approved top-level conclusion must become its own page in the final page plan. Do not merge it into a later evidence or mechanism page.
 
-Draft an initial pyramid only after the user has had a chance to correct the research frame. Present it as a candidate, not as the answer:
+### 2. Confirm Page Scale and Chapter Claims
 
-- Executive thesis
-- 3-5 first-level arguments
-- Second-level supports under each argument
+Draft the first pyramid layer only after the user approves Stage 1. Present it as a candidate, not as the answer:
+
+- Top-level conclusion page
+- 1-3 chapter claims, based on page count
+- Chapter/table-of-contents titles derived from those claims
 - Evidence currently available
 - Evidence gaps
 - Boundaries and uncertainty
@@ -115,9 +119,9 @@ Then stress-test it:
 - Is the stance too academic, commercial, technical, conservative, or speculative for the reader?
 - Which argument would a skeptical reader attack first?
 
-At this stage, ask the user to choose the biggest correction rather than asking for comments on every part. Example: "Which part should we change first: thesis, reader path, argument order, or evidence boundary?"
+At this stage, ask the user to choose the biggest correction rather than asking for comments on every part. Example: "这 3 个章节论点是否足以支撑顶层结论？要替换哪一个？"
 
-Stage 2 required approval: page count or page-count range, chapter/table-of-contents titles, chapter order, each chapter's narrative role, and the first-level arguments under the top thesis.
+Stage 2 required approval: page count or page-count range, the standalone top-level conclusion page title, no more than three chapter/table-of-contents titles, chapter order, each chapter's narrative role, and the chapter claims under the top-level conclusion.
 
 After approval, save:
 
@@ -125,36 +129,43 @@ After approval, save:
 .tmp/ppt-deep-search/<task-name>/baselines/02-deck-structure.md
 ```
 
-Do not create page titles until this baseline exists.
+Do not create chapter-internal page titles until this baseline exists.
 
-### 3. Deepen One Fork at a Time
+### 3. Decompose One Chapter at a Time
 
-Advance the research through focused turns. Examples:
+Advance the research through focused turns, one chapter at a time. Never ask the user to approve all chapter page decompositions in one message.
 
-- Should the story emphasize mechanism innovation or deployment value?
-- Is this claim sufficiently sourced, or should it become a hypothesis?
-- Should the reader be persuaded as a technical owner or as a business decision maker?
-- Is the conclusion too strong without a boundary condition?
+For each chapter:
 
-After each decision, update the research structure instead of only continuing the chat.
+- Restate the approved chapter claim.
+- Propose that chapter's page count based on the total page budget.
+- Propose only that chapter's page titles, core viewpoints, page roles, required evidence, and boundaries.
+- Ask the user to approve or correct that chapter before moving to the next chapter.
+- Save a chapter baseline after approval.
 
 Use this loop:
 
 1. State the current decision in one sentence.
 2. Offer 2-3 plausible directions or ask one open question.
 3. Capture the user's choice or correction.
-4. Update the live structure: thesis, pyramid, evidence map, page candidates, assumptions, or open questions.
+4. Update the live structure: thesis, pyramid, evidence map, approved chapter page plan, assumptions, or open questions.
 5. Move to the next highest-impact unresolved decision.
 
 Stage 3 required approval: each chapter's page decomposition, every page title, every page's core viewpoint, every page role, required source figures/tables/screenshots, and page-level boundaries.
 
-After approval, save:
+After each chapter is approved, save:
+
+```text
+.tmp/ppt-deep-search/<task-name>/baselines/03-chapter-<n>-page-plan.md
+```
+
+After all chapter page plans are approved, consolidate them into:
 
 ```text
 .tmp/ppt-deep-search/<task-name>/baselines/03-page-plan.md
 ```
 
-Only after this page-plan baseline exists may the agent write the final Storyline Brief.
+Only after this consolidated page-plan baseline exists may the agent write the final Storyline Brief.
 
 ### 3.5 Confirm Downstream Hard Constraints
 
@@ -164,7 +175,7 @@ The required approval bundle is:
 
 - Page count or page-count range.
 - Target audience and desired reader belief change.
-- Top-level thesis and big logic.
+- SCQA, top-level thesis, and big logic.
 - Chapter/table-of-contents titles and their order.
 - Chapter logic, or for a 1-page output, the page's internal content beat sequence.
 - Every page title.
@@ -181,6 +192,7 @@ Approval prompt pattern:
 ```text
 落盘前请确认这组下游硬约束：
 - 听众：...
+- SCQA：...
 - 顶层观点：...
 - 大逻辑：...
 - 页数：...
@@ -238,7 +250,10 @@ Write the final Storyline Brief only when the user explicitly says to proceed, t
 3. ...
 
 ## Pyramid Outline
-1. 一级论点：...
+0. 顶层观点页：...
+   页面标题：
+   核心观点：
+1. 章节论点：...
    二级支撑：
    - ...
    证据状态：
@@ -248,6 +263,7 @@ Write the final Storyline Brief only when the user explicitly says to proceed, t
 
 ## Chapter Logic
 1. 章节名：...
+   章节论点：...
    章节角色：建立问题 / 解释机制 / 证明效果 / 对比方案 / 提炼启示 / 行动建议
    本章必须讲清：...
    关键证据：...
@@ -256,6 +272,7 @@ Write the final Storyline Brief only when the user explicitly says to proceed, t
 
 ### Page 1: 页面标题
 页面角色：frame / claim / mechanism / evidence / comparison / implication / synthesis
+支撑的章节论点：顶层观点页 / 章节论点 1 / 章节论点 2 / 章节论点 3
 核心观点：...
 Claim / Evidence / Implication：
 - Claim：...
@@ -300,7 +317,7 @@ Claim / Evidence / Implication：
 | --- | --- | --- | --- |
 | 1 | Audience, belief change, big logic, top-level thesis | ... | .tmp/ppt-deep-search/<task-name>/baselines/01-audience-thesis.md |
 | 2 | Page count, chapter titles/order, chapter roles | ... | .tmp/ppt-deep-search/<task-name>/baselines/02-deck-structure.md |
-| 3 | Page titles, core viewpoints, page roles, source usage, boundaries | ... | .tmp/ppt-deep-search/<task-name>/baselines/03-page-plan.md |
+| 3 | Chapter-by-chapter page titles, core viewpoints, page roles, source usage, boundaries | ... | .tmp/ppt-deep-search/<task-name>/baselines/03-page-plan.md |
 ```
 
 ## Right-Size the Brief
@@ -318,6 +335,7 @@ Each `### Page N:` section must contain enough material for PPT Maker to create 
 
 - At least 220 counted content characters per page brief, excluding headings and field labels.
 - At least one `Claim / Evidence / Implication` item.
+- A `支撑的章节论点` field that links the page to either the standalone top-level conclusion page or one approved chapter claim.
 - At least one source locator, user-judgment marker, or `needs_verification` marker in `Evidence`.
 - At least one `边界提醒` item unless the page is a cover/contents candidate.
 
