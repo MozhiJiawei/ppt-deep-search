@@ -130,7 +130,7 @@ def validate(
     text: str,
     min_page_content_chars: int,
     expected_pages: int | None = None,
-    forbid_absolute_paths: bool = False,
+    allow_absolute_paths: bool = False,
 ) -> list[str]:
     text = text.lstrip("\ufeff")
     errors: list[str] = []
@@ -196,16 +196,17 @@ def validate(
         if body_chars < max(500, min_page_content_chars // 2):
             errors.append(f"{page.title} (line {page.start_line}) 正文内容 is too thin for PPT body material")
 
-    if forbid_absolute_paths:
-        absolute_paths = sorted(set(re.findall(r"[A-Za-z]:\\[^\s|,\)\]]+", text)))
-        if absolute_paths:
-            shown = ", ".join(absolute_paths[:3])
-            if len(absolute_paths) > 3:
-                shown += ", ..."
-            errors.append(
-                "Absolute local paths found; use portable locators or omit "
-                f"--forbid-absolute-paths when local-only paths are acceptable: {shown}"
-            )
+    absolute_paths = sorted(
+        set(re.findall(r"[A-Za-z]:\\[^\r\n|,\)\]]+|(?:/mnt|/home|/Users)/[^\r\n|,\)\]]+", text))
+    )
+    if absolute_paths and not allow_absolute_paths:
+        shown = ", ".join(absolute_paths[:3])
+        if len(absolute_paths) > 3:
+            shown += ", ..."
+        errors.append(
+            "Absolute local paths found in PPT Content Brief; put exact source paths in research_audit.md instead: "
+            f"{shown}"
+        )
 
     return errors
 
@@ -254,7 +255,7 @@ def main() -> int:
     parser.add_argument("brief", nargs="?", help="Path to PPT Content Brief Markdown.")
     parser.add_argument("--min-page-content-chars", type=int, default=900, help="Minimum counted content characters per page.")
     parser.add_argument("--expected-pages", type=int, help="Require an exact number of Page Content sections.")
-    parser.add_argument("--forbid-absolute-paths", action="store_true", help="Fail when absolute local paths appear.")
+    parser.add_argument("--allow-absolute-paths", action="store_true", help="Allow local absolute paths in the PPT content brief.")
     parser.add_argument("--self-test", action="store_true", help="Run validator against an embedded valid brief.")
     args = parser.parse_args()
 
@@ -263,7 +264,7 @@ def main() -> int:
             SELF_TEST_BRIEF,
             args.min_page_content_chars,
             expected_pages=args.expected_pages,
-            forbid_absolute_paths=args.forbid_absolute_paths,
+            allow_absolute_paths=args.allow_absolute_paths,
         )
         if errors:
             print("[ERROR] Self-test failed:")
@@ -286,7 +287,7 @@ def main() -> int:
         text,
         args.min_page_content_chars,
         expected_pages=args.expected_pages,
-        forbid_absolute_paths=args.forbid_absolute_paths,
+        allow_absolute_paths=args.allow_absolute_paths,
     )
     if errors:
         print(f"[ERROR] PPT Content Brief QA failed ({len(errors)} issue(s)):")

@@ -27,8 +27,8 @@ For the downstream file contract and QA-checked fields, see `references/ppt-cont
 - Never upgrade weak evidence into a fact. If a claim lacks source support, label it as inference or open question.
 - If the approved viewpoint needs more support than the provided source material contains, use external research such as web search, official docs, papers, repository docs, or reputable technical articles to gather more context. Mark those materials as supplemental evidence and explain how they support, qualify, or challenge the approved viewpoint.
 - Do not let external research replace the approved viewpoint or blur source boundaries. Separate `primary source`, `supplemental research`, `inference`, and `user_judgment` in the evidence map.
-- Absolute local source paths are acceptable when the workflow runs on the same machine. Prefer readable locators, and do not rewrite paths if absolute paths make the downstream handoff clearer.
-- Put all temporary notes, drafts, extracted inventories, and QA outputs under the host workspace `.tmp/ppt-deep-search/<task-name>/`.
+- Absolute local source paths are acceptable in `research_audit.md` because this workflow runs on the same machine. Do not put local absolute paths in `ppt_content_brief.md`; use source names there and keep exact locators in the audit file.
+- Put all temporary notes, drafts, extracted inventories, and QA outputs under the host workspace `.tmp/ppt-deep-search/<task-name>/`. If that task directory already contains previous final artifacts, create a fresh run directory such as `.tmp/ppt-deep-search/<task-name>-<yyyymmdd-hhmmss>/` and use it consistently. Do not leave or update legacy `storyline_brief.md` files; the only current final handoff files are `ppt_content_brief.md` and `research_audit.md`.
 
 ## Workflow
 
@@ -399,7 +399,7 @@ Write `ppt_content_brief.md` as the only downstream PPT copy source. It must con
 
 Write `research_audit.md` separately. Use `references/research-audit-format.md` as the contract. Put Research Frame, Source Understanding, Pyramid Outline, Chapter Logic, page roles, supported chapter claims, Claim/Evidence/Implication, Evidence Map, Source Usage Policy, Visual Opportunities, Assumptions/Open Questions, and Approval Log there.
 
-Do not put `Claim`, `Evidence`, `Implication`, source locator tables, approval history, `needs_verification`, `inference`, `user_judgment`, or `边界提醒` into `ppt_content_brief.md`. If a caveat matters for the slide, rewrite it as a concise `备注`.
+Do not put `Claim`, `Evidence`, `Implication`, source locator tables, approval history, local absolute source paths, `needs_verification`, `inference`, `user_judgment`, or `边界提醒` into `ppt_content_brief.md`. If a caveat matters for the slide, rewrite it as a concise `备注`. Put exact local paths and source locators in `research_audit.md`.
 
 ## Right-Size the Brief
 

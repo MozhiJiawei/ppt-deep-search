@@ -35,7 +35,7 @@ Missing headings are hard QA failures.
 - `内容来源`
 - `关联审计文件`
 
-These fields are for downstream orientation. Keep them compact and PPT-relevant. Do not put source analysis, evidence discussion, or approval history here.
+These fields are for downstream orientation. Keep them compact and PPT-relevant. Do not put source analysis, evidence discussion, approval history, or local absolute paths here. Use source names such as `Aegaeon paper package` and put exact file paths in `research_audit.md`.
 
 ## Table Of Contents Contract
 
@@ -123,6 +123,11 @@ Banned internal/audit tokens:
 - `证据状态`
 - `误读风险`
 
+Banned local path pattern:
+
+- Windows absolute paths such as `D:\...`
+- Unix absolute source paths such as `/mnt/...` or `/home/...`
+
 Banned rendering/layout tokens:
 
 - `visual_anchor.kind`
@@ -169,5 +174,6 @@ A PPT generation skill should validate:
 - Banned internal/audit tokens do not appear.
 - Banned rendering/layout tokens do not appear.
 - `关联审计文件` points to a `research_audit.md` file for verification if needed.
+- No local absolute paths appear in `ppt_content_brief.md`; exact paths belong in `research_audit.md`.
 
 When validation fails, ask for a revised content brief instead of silently using internal audit text as slide copy.
