@@ -7,9 +7,14 @@ description: Human-in-the-loop deep research and storyline planning for PPT gene
 
 Build a source-grounded Storyline Brief before PPT production. Act as content editor and research partner: frame the question, challenge the thesis, organize evidence, expose uncertainty, and hand a semi-structured Markdown brief to the downstream PPT skill.
 
+This skill is modeled as a research dialogue, not a one-shot summarizer. The durable output is the Storyline Brief, but the main work is helping the user make content decisions before the downstream PPT skill renders slides.
+
 ## Operating Rules
 
-- Work human-in-the-loop by default. Ask one key question at a time when research direction, target reader, thesis strength, or evidence boundary is unclear.
+- Work human-in-the-loop by default. Do not skip straight to the final Storyline Brief unless the user explicitly asks for a one-pass draft or the research frame is already fully specified.
+- Ask one key question at a time when research direction, target reader, thesis strength, or evidence boundary is unclear. One turn should resolve one decision.
+- Ask what the user is already thinking before offering a polished AI framework. Use the user's judgment as a first-class input, not as an afterthought.
+- Prefer single-select options at major forks, with a free-form escape hatch. Use open prose questions only when options would bias the answer or the user needs to explain context.
 - Keep a live research structure after each round: research frame, thesis, pyramid outline, evidence map, open questions, and page candidates.
 - Do not make visual-rendering decisions. Avoid fields such as `visual_anchor.kind`, `template`, `contentLayout`, renderer names, column layout, font size, color, card structure, and visual-anchor implementation details.
 - Do decide content intent: chapter logic, page titles, page roles, core claims, source evidence, source-figure usage policy, and wording boundaries.
@@ -18,6 +23,22 @@ Build a source-grounded Storyline Brief before PPT production. Act as content ed
 - Put all temporary notes, drafts, extracted inventories, and QA outputs under the host workspace `.tmp/ppt-deep-search/<task-name>/`.
 
 ## Workflow
+
+### 0. Assess and Start the Dialogue
+
+Classify the task before producing structure:
+
+- **Lightweight**: the user already has a topic, reader, and expected deck use. Ask at most one clarifying question, then draft a compact Storyline Brief.
+- **Standard**: the user has source material and a PPT goal, but reader, thesis, or evidence boundaries need shaping. Run the full dialogue.
+- **Deep**: the topic is strategic, ambiguous, source-heavy, or likely to change a reader's high-stakes judgment. Spend more time on assumptions, counterevidence, and boundaries before page candidates.
+
+Opening move:
+
+- If the user has not stated the research question or target reader, ask only for the missing item that most affects the storyline.
+- If the user has stated both, summarize the current frame in 2-4 bullets and ask whether the frame is right before expanding.
+- If the user provided a strong opinion, reflect it back and ask what would count as convincing evidence.
+
+Do not ask the user to fill a long form. Turn form-like fields into a short sequence of decisions.
 
 ### 1. Frame the Research
 
@@ -34,7 +55,7 @@ If these are unclear, ask the single question that most changes the storyline. O
 
 ### 2. Build the Initial Pyramid
 
-Draft a pyramid structure:
+Draft an initial pyramid only after the user has had a chance to correct the research frame. Present it as a candidate, not as the answer:
 
 - Executive thesis
 - 3-5 first-level arguments
@@ -50,6 +71,8 @@ Then stress-test it:
 - Is the stance too academic, commercial, technical, conservative, or speculative for the reader?
 - Which argument would a skeptical reader attack first?
 
+At this stage, ask the user to choose the biggest correction rather than asking for comments on every part. Example: "Which part should we change first: thesis, reader path, argument order, or evidence boundary?"
+
 ### 3. Deepen One Fork at a Time
 
 Advance the research through focused turns. Examples:
@@ -60,6 +83,14 @@ Advance the research through focused turns. Examples:
 - Is the conclusion too strong without a boundary condition?
 
 After each decision, update the research structure instead of only continuing the chat.
+
+Use this loop:
+
+1. State the current decision in one sentence.
+2. Offer 2-3 plausible directions or ask one open question.
+3. Capture the user's choice or correction.
+4. Update the live structure: thesis, pyramid, evidence map, page candidates, assumptions, or open questions.
+5. Move to the next highest-impact unresolved decision.
 
 ### 4. Build the Evidence Map
 
@@ -73,9 +104,17 @@ For every major claim, record:
 
 Anti-hallucination rule: numeric values, benchmark wins, dates, rankings, comparisons, and causal claims require explicit source locators. If the source locator is absent, move the statement to `Open Questions` or mark it `needs_verification`.
 
+Before finalizing, run a skeptic pass:
+
+- What claim would a knowledgeable reader dispute?
+- Which slide candidate depends on inference rather than source?
+- Which source figure could be misread if placed without context?
+- Which conclusion should be softened with a boundary?
+- Which missing evidence should be escalated to the user instead of silently invented?
+
 ### 5. Write the Storyline Brief
 
-Use this exact Markdown skeleton for final output:
+Write the final Storyline Brief only when the user explicitly says to proceed, the conversation has resolved the main forks, or a deadline requires a first draft. Use this exact Markdown skeleton:
 
 ```markdown
 # Storyline Brief
