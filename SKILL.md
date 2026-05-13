@@ -236,9 +236,11 @@ For each chapter:
 - Recalculate the remaining content-page budget before proposing the chapter's page count. State the remaining page numbers if useful.
 - Propose that chapter's page count based on the total page budget and previously approved chapter allocations.
 - Do not present a page number outside the approved budget. If the desired chapter split would exceed the budget, resolve the budget tradeoff before showing the page plan.
-- Propose only that chapter's page titles, title subtitles, analysis-summary bullets, page roles, required evidence, and boundaries.
+- First propose only the viewpoint layer for that chapter's pages: page title, title subtitle, analysis-summary bullets, page role, and the chapter claim each page supports.
+- Do not write dense supporting content yet. Wait until the user explicitly approves each page's title, title subtitle, and analysis-summary bullets.
+- After the viewpoint layer is approved, expand the content layer for those pages: Claim / Evidence / Implication, reference-image strategy, supporting information, and boundaries. The content layer must support the approved viewpoint; it must not introduce a new unapproved viewpoint.
 - Use `Page N`, `Page N+1`, etc. for actual page labels.
-- Ask the user to approve or tell you the adjustment direction before moving to the next chapter. Do not force alternatives unless the user asks.
+- Ask the user to approve or tell you the adjustment direction before moving from viewpoint layer to content layer, and again before moving to the next chapter. Do not force alternatives unless the user asks.
 - Save a chapter baseline after approval.
 
 Use this loop:
@@ -249,7 +251,7 @@ Use this loop:
 4. Update the live structure: thesis, pyramid, evidence map, approved chapter page plan, assumptions, or open questions.
 5. Move to the next highest-impact unresolved decision.
 
-Stage 3 required approval: each chapter's page decomposition, every page title, every page title subtitle, every page's analysis-summary bullets, every page role, required source figures/tables/screenshots, and page-level boundaries.
+Stage 3 required approval: each chapter's page decomposition, every page title, every page title subtitle, every page's analysis-summary bullets, every page role, required source figures/tables/screenshots, and page-level boundaries. The title, subtitle, and analysis-summary bullets must be approved before the agent writes detailed supporting content for that page.
 
 After each chapter is approved, save:
 
@@ -285,6 +287,8 @@ The required approval bundle is:
 - Required source figures/tables/screenshots and their usage policy: original, summarize/rebuild, background only, or discard.
 - Claims that must be preserved.
 - Boundary reminders that the downstream PPT skill must not weaken.
+
+Before final Storyline Brief writing, confirm that every page went through this order: viewpoint layer approval first, then content-layer expansion. If any page's content was drafted before its title, title subtitle, and analysis-summary bullets were approved, pause and ask the user to approve or revise the viewpoint layer before finalizing that page.
 
 Present the bundle compactly and ask for approval or corrections. Do not save the final `storyline_brief.md` until the user approves this bundle, unless the user explicitly asks for an unapproved draft. If producing an unapproved draft, mark it clearly in `Research Frame` and `Assumptions and Open Questions`.
 
@@ -396,9 +400,9 @@ Claim / Evidence / Implication：
 参考图片：
 - ...
 支撑信息：
-- ...
-- ...
-- ...
+- 正文素材：可直接展开成 PPT 正文的机制、数据、对比、例子、推理链或限制条件。
+- 正文素材：每条都要比标题和分析总结更具体，说明“为什么这样判断”或“下游页面该写什么”。
+- 正文素材：优先给 source-grounded 细节；不确定的推论要标注为 inference / needs_verification。
 边界提醒：
 - ...
 信息密度说明：本页为 PPT Maker 提供足够正文素材，避免只给一句结论。
@@ -453,28 +457,28 @@ Match the brief to the requested downstream artifact:
 
 Each `### Page N:` section must contain enough material for PPT Maker to create a dense content page. As a default target:
 
-- At least 220 counted content characters per page brief, excluding headings and field labels.
+- At least 600 counted content characters per page brief, excluding headings and field labels.
 - A `页面标题`, `标题说明`, and `分析总结` section. `分析总结` must contain 1-3 directly usable Chinese label bullets such as `粒度升级：...`.
 - At least one `Claim / Evidence / Implication` item.
 - A `支撑的章节论点` field that links the page to either the standalone top-level summary page or one approved chapter claim.
 - At least one source locator, user-judgment marker, or `needs_verification` marker in `Evidence`.
-- At least three `支撑信息` bullets or equivalent source-grounded detail lines, so PPT Maker has enough body material beyond viewpoint statements.
+- A `支撑信息` section that reads like a deep-research material pack, not a list of more conclusions. Use it to provide the concrete body content a slide can consume: mechanisms, source facts, quantitative context, comparison points, causal chains, caveats, and suggested reading order.
 - At least one `边界提醒` item unless the page is a cover/contents candidate.
 
-Increase the threshold for technical or evidence-heavy decks. Do not pad with vague filler; add source-grounded mechanisms, comparisons, constraints, implications, or reading guidance.
+Do not pad with vague filler just to pass the length check. If a page is thin, add source-grounded mechanisms, comparisons, constraints, implications, examples, or reading guidance. The goal is that a downstream PPT Maker can fill title, analysis-summary band, body text, captions, and evidence notes without inventing missing substance.
 
 ## QA
 
 Before handing the brief to a PPT skill, save it as Markdown and run:
 
 ```powershell
-python scripts/validate_storyline_brief.py .tmp/ppt-deep-search/<task-name>/storyline_brief.md --min-page-content-chars 220
+python scripts/validate_storyline_brief.py .tmp/ppt-deep-search/<task-name>/storyline_brief.md --min-page-content-chars 600
 ```
 
 For fixed-size outputs, add `--expected-pages <n>`. For example, a 1-page PPT brief should pass:
 
 ```powershell
-python scripts/validate_storyline_brief.py .tmp/ppt-deep-search/<task-name>/storyline_brief.md --min-page-content-chars 220 --expected-pages 1
+python scripts/validate_storyline_brief.py .tmp/ppt-deep-search/<task-name>/storyline_brief.md --min-page-content-chars 600 --expected-pages 1
 ```
 
 The QA script checks required output headings, stable page fields, banned visual-rendering fields, per-page information density, claim/evidence/implication presence, evidence source discipline, source usage policy, and open-question sections. Treat script failures as blockers.
