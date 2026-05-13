@@ -11,6 +11,8 @@ This skill is modeled as a research dialogue, not a one-shot summarizer. The dur
 
 Before doing any storyline work, read `references/pyramid-principle.md` and follow it as the highest-level doctrine. If any workflow detail conflicts with that doctrine, the doctrine wins.
 
+For the downstream file contract and QA-checked fields, see `references/storyline-brief-format.md`. Load it when explaining the Storyline Brief format, updating validators, or integrating this skill with a PPT generation skill.
+
 ## Operating Rules
 
 - Use Chinese for all user-facing interaction by default, including questions, options, stage summaries, approval prompts, and final handoff notes. Keep source titles, figure/table labels, code paths, URLs, model names, metrics, and technical terms in their original language when that improves traceability.
