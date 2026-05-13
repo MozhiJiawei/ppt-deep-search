@@ -1,0 +1,184 @@
+---
+name: ppt-deep-search
+description: Human-in-the-loop deep research and storyline planning for PPT generation. Use when Codex must turn papers, webpages, Markdown, repository analysis, PDFs, notes, or raw user material into a structured Storyline Brief before a downstream PPT skill creates slides. Use for research framing, reader cognitive path design, pyramid-outline construction, claim/evidence/implication mapping, source-figure usage policy, slide/page role candidates, and anti-hallucination evidence review. Do not use for PPTX visual rendering, layout templates, font/style decisions, export, or visual QA.
+---
+
+# PPT Deep Search
+
+Build a source-grounded Storyline Brief before PPT production. Act as content editor and research partner: frame the question, challenge the thesis, organize evidence, expose uncertainty, and hand a semi-structured Markdown brief to the downstream PPT skill.
+
+## Operating Rules
+
+- Work human-in-the-loop by default. Ask one key question at a time when research direction, target reader, thesis strength, or evidence boundary is unclear.
+- Keep a live research structure after each round: research frame, thesis, pyramid outline, evidence map, open questions, and page candidates.
+- Do not make visual-rendering decisions. Avoid fields such as `visual_anchor.kind`, `template`, `contentLayout`, renderer names, column layout, font size, color, card structure, and visual-anchor implementation details.
+- Do decide content intent: chapter logic, page titles, page roles, core claims, source evidence, source-figure usage policy, and wording boundaries.
+- Treat every factual claim as one of: `source`, `calculation`, `inference`, `user_judgment`, or `needs_verification`.
+- Never upgrade weak evidence into a fact. If a claim lacks source support, label it as inference or open question.
+- Put all temporary notes, drafts, extracted inventories, and QA outputs under the host workspace `.tmp/ppt-deep-search/<task-name>/`.
+
+## Workflow
+
+### 1. Frame the Research
+
+Confirm or infer only what is reasonably clear:
+
+- Research question
+- Target reader
+- Reader's likely current belief
+- Desired belief change
+- Final use: PPT, decision, learning, proposal, external material, or other
+- Source set and known gaps
+
+If these are unclear, ask the single question that most changes the storyline. Otherwise proceed with stated assumptions and mark them in the brief.
+
+### 2. Build the Initial Pyramid
+
+Draft a pyramid structure:
+
+- Executive thesis
+- 3-5 first-level arguments
+- Second-level supports under each argument
+- Evidence currently available
+- Evidence gaps
+- Boundaries and uncertainty
+
+Then stress-test it:
+
+- Does the top thesis answer the research question?
+- Are first-level arguments mutually distinct and collectively sufficient?
+- Is the stance too academic, commercial, technical, conservative, or speculative for the reader?
+- Which argument would a skeptical reader attack first?
+
+### 3. Deepen One Fork at a Time
+
+Advance the research through focused turns. Examples:
+
+- Should the story emphasize mechanism innovation or deployment value?
+- Is this claim sufficiently sourced, or should it become a hypothesis?
+- Should the reader be persuaded as a technical owner or as a business decision maker?
+- Is the conclusion too strong without a boundary condition?
+
+After each decision, update the research structure instead of only continuing the chat.
+
+### 4. Build the Evidence Map
+
+For every major claim, record:
+
+- Evidence source and locator: file path, URL, section, figure/table number, quote snippet, or user statement.
+- Evidence type: direct source, calculated, inferred, user judgment, or needs verification.
+- Strength: strong, medium, weak, or missing.
+- Counterevidence, boundary, or uncertainty.
+- PPT relevance: must use as source figure, may summarize/rebuild, background only, or discard.
+
+Anti-hallucination rule: numeric values, benchmark wins, dates, rankings, comparisons, and causal claims require explicit source locators. If the source locator is absent, move the statement to `Open Questions` or mark it `needs_verification`.
+
+### 5. Write the Storyline Brief
+
+Use this exact Markdown skeleton for final output:
+
+```markdown
+# Storyline Brief
+
+## Research Frame
+研究问题：
+目标读者：
+读者当前判断：
+希望改变的判断：
+核心结论：
+材料范围：
+证据边界：
+
+## Executive Thesis
+...
+
+## Reader Cognitive Path
+1. ...
+2. ...
+3. ...
+
+## Pyramid Outline
+1. 一级论点：...
+   二级支撑：
+   - ...
+   证据状态：
+   - ...
+   边界：
+   - ...
+
+## Chapter Logic
+1. 章节名：...
+   章节角色：建立问题 / 解释机制 / 证明效果 / 对比方案 / 提炼启示 / 行动建议
+   本章必须讲清：...
+   关键证据：...
+
+## Page Briefs
+
+### Page 1: 页面标题
+页面角色：frame / claim / mechanism / evidence / comparison / implication / synthesis
+核心观点：...
+Claim / Evidence / Implication：
+- Claim：...
+  Evidence：...
+  Implication：...
+参考图片：
+- ...
+支撑信息：
+- ...
+边界提醒：
+- ...
+信息密度说明：本页为 PPT Maker 提供足够正文素材，避免只给一句结论。
+
+## Claim Evidence Implication Table
+| ID | Claim | Evidence | Evidence Type | Strength | Implication | Boundary |
+| --- | --- | --- | --- | --- | --- | --- |
+| C1 | ... | ... | source/inference/user_judgment/needs_verification | strong/medium/weak/missing | ... | ... |
+
+## Evidence Map
+| Evidence ID | Source Locator | Supports Claim | Usage Policy | Must Preserve | Misread Risk |
+| --- | --- | --- | --- | --- | --- |
+| E1 | ... | C1 | original / summarize / background / discard | ... | ... |
+
+## Source Usage Policy
+- Must use original:
+- May summarize or rebuild:
+- Background only:
+- Discard:
+
+## Visual Opportunities
+- ...
+
+## Assumptions and Open Questions
+- Assumption:
+- Open question:
+
+## Recommended Deck Storyline
+...
+```
+
+## Page Brief Density
+
+Each `### Page N:` section must contain enough material for PPT Maker to create a dense content page. As a default target:
+
+- At least 220 counted content characters per page brief, excluding headings and field labels.
+- At least one `Claim / Evidence / Implication` item.
+- At least one source locator, user-judgment marker, or `needs_verification` marker in `Evidence`.
+- At least one `边界提醒` item unless the page is a cover/contents candidate.
+
+Increase the threshold for technical or evidence-heavy decks. Do not pad with vague filler; add source-grounded mechanisms, comparisons, constraints, implications, or reading guidance.
+
+## QA
+
+Before handing the brief to a PPT skill, save it as Markdown and run:
+
+```powershell
+python scripts/validate_storyline_brief.py .tmp/ppt-deep-search/<task-name>/storyline_brief.md --min-page-content-chars 220
+```
+
+The QA script checks required output headings, stable page fields, banned visual-rendering fields, per-page information density, claim/evidence/implication presence, evidence source discipline, source usage policy, and open-question sections. Treat script failures as blockers.
+
+For dependency checks in this skill repository, run:
+
+```powershell
+python verify_dependencies.py
+```

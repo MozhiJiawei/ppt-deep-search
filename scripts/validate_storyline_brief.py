@@ -1,0 +1,330 @@
+#!/usr/bin/env python3
+"""Validate a PPT Deep Search Storyline Brief Markdown file."""
+
+from __future__ import annotations
+
+import argparse
+import re
+import sys
+from dataclasses import dataclass
+from pathlib import Path
+
+
+REQUIRED_HEADINGS = [
+    "# Storyline Brief",
+    "## Research Frame",
+    "## Executive Thesis",
+    "## Reader Cognitive Path",
+    "## Pyramid Outline",
+    "## Chapter Logic",
+    "## Page Briefs",
+    "## Claim Evidence Implication Table",
+    "## Evidence Map",
+    "## Source Usage Policy",
+    "## Visual Opportunities",
+    "## Assumptions and Open Questions",
+    "## Recommended Deck Storyline",
+]
+
+RESEARCH_FRAME_FIELDS = [
+    "研究问题",
+    "目标读者",
+    "读者当前判断",
+    "希望改变的判断",
+    "核心结论",
+    "材料范围",
+    "证据边界",
+]
+
+PAGE_FIELDS = [
+    "页面角色",
+    "核心观点",
+    "Claim / Evidence / Implication",
+    "参考图片",
+    "支撑信息",
+    "边界提醒",
+]
+
+BANNED_RENDERING_FIELDS = [
+    "visual_anchor.kind",
+    "visual_anchor_renderer",
+    "contentLayout",
+    "renderer",
+    "expected_renderer",
+    "visual_strategy",
+    "template:",
+    "字号",
+    "字体",
+    "配色",
+    "几栏",
+    "两栏",
+    "三栏",
+    "四栏",
+]
+
+EVIDENCE_MARKERS = [
+    "source",
+    "calculation",
+    "inference",
+    "user_judgment",
+    "needs_verification",
+    "Figure",
+    "Table",
+    "图",
+    "表",
+    "http://",
+    "https://",
+    ".pdf",
+    ".md",
+    ".xml",
+    ".html",
+    "用户判断",
+    "原文",
+    "推论",
+    "待验证",
+]
+
+USAGE_POLICIES = ["original", "summarize", "background", "discard", "原样", "摘要", "背景", "舍弃"]
+
+
+@dataclass
+class PageSection:
+    title: str
+    body: str
+    start_line: int
+
+
+def line_number_for_offset(text: str, offset: int) -> int:
+    return text.count("\n", 0, offset) + 1
+
+
+def content_char_count(text: str) -> int:
+    cleaned_lines = []
+    for line in text.splitlines():
+        stripped = line.strip()
+        if not stripped or stripped.startswith("#"):
+            continue
+        stripped = re.sub(r"^[\-\*\d\.\s]+", "", stripped)
+        stripped = re.sub(r"^(页面角色|核心观点|Claim|Evidence|Implication|参考图片|支撑信息|边界提醒|信息密度说明)[:：]\s*", "", stripped)
+        cleaned_lines.append(stripped)
+    cleaned = "\n".join(cleaned_lines)
+    return len(re.findall(r"[\w\u4e00-\u9fff]", cleaned, flags=re.UNICODE))
+
+
+def extract_section(text: str, heading: str) -> str:
+    pattern = re.compile(rf"^{re.escape(heading)}\s*$", re.MULTILINE)
+    match = pattern.search(text)
+    if not match:
+        return ""
+    next_heading = re.search(r"^##\s+", text[match.end() :], re.MULTILINE)
+    end = match.end() + next_heading.start() if next_heading else len(text)
+    return text[match.end() : end]
+
+
+def extract_pages(text: str) -> list[PageSection]:
+    page_area = extract_section(text, "## Page Briefs")
+    base_offset = text.find(page_area) if page_area else -1
+    if not page_area:
+        return []
+
+    matches = list(re.finditer(r"^###\s+Page\s+\d+\s*:\s+.+$", page_area, re.MULTILINE))
+    pages: list[PageSection] = []
+    for index, match in enumerate(matches):
+        end = matches[index + 1].start() if index + 1 < len(matches) else len(page_area)
+        title = match.group(0).strip()
+        body = page_area[match.end() : end]
+        start_line = line_number_for_offset(text, base_offset + match.start())
+        pages.append(PageSection(title=title, body=body, start_line=start_line))
+    return pages
+
+
+def validate(text: str, min_page_content_chars: int) -> list[str]:
+    errors: list[str] = []
+
+    for heading in REQUIRED_HEADINGS:
+        if not re.search(rf"^{re.escape(heading)}\s*$", text, flags=re.MULTILINE):
+            errors.append(f"Missing required heading: {heading}")
+
+    research_frame = extract_section(text, "## Research Frame")
+    for field in RESEARCH_FRAME_FIELDS:
+        if not re.search(rf"^{re.escape(field)}[：:]\s*\S+", research_frame, flags=re.MULTILINE):
+            errors.append(f"Research Frame field is missing or empty: {field}")
+
+    for banned in BANNED_RENDERING_FIELDS:
+        if banned.lower() in text.lower():
+            errors.append(f"Banned rendering/layout field found: {banned}")
+
+    pages = extract_pages(text)
+    if not pages:
+        errors.append("No page briefs found. Expected headings like: ### Page 1: 页面标题")
+
+    for page in pages:
+        for field in PAGE_FIELDS:
+            if field not in page.body:
+                errors.append(f"{page.title} (line {page.start_line}) missing field: {field}")
+
+        density = content_char_count(page.body)
+        if density < min_page_content_chars:
+            errors.append(
+                f"{page.title} (line {page.start_line}) content density too low: "
+                f"{density} < {min_page_content_chars} counted characters"
+            )
+
+        if not all(token in page.body for token in ["Claim", "Evidence", "Implication"]):
+            errors.append(f"{page.title} (line {page.start_line}) lacks explicit Claim/Evidence/Implication entries")
+
+        if not any(marker in page.body for marker in EVIDENCE_MARKERS):
+            errors.append(f"{page.title} (line {page.start_line}) lacks evidence source/type markers")
+
+        if "边界提醒" in page.body:
+            boundary_block = re.search(r"边界提醒[：:]?\s*(.*?)(?:\n\S[^-\n].*?[：:]|\Z)", page.body, flags=re.S)
+            if boundary_block and len(re.findall(r"[\w\u4e00-\u9fff]", boundary_block.group(1))) < 8:
+                errors.append(f"{page.title} (line {page.start_line}) has an empty or too-thin boundary reminder")
+
+    source_policy = extract_section(text, "## Source Usage Policy")
+    if not any(policy in source_policy for policy in USAGE_POLICIES):
+        errors.append("Source Usage Policy must include original/summarize/background/discard usage decisions")
+
+    cei_table = extract_section(text, "## Claim Evidence Implication Table")
+    for required in ["Claim", "Evidence", "Evidence Type", "Strength", "Implication", "Boundary"]:
+        if required not in cei_table:
+            errors.append(f"Claim Evidence Implication Table missing column or content: {required}")
+
+    evidence_map = extract_section(text, "## Evidence Map")
+    for required in ["Source Locator", "Supports Claim", "Usage Policy", "Misread Risk"]:
+        if required not in evidence_map:
+            errors.append(f"Evidence Map missing column or content: {required}")
+
+    open_questions = extract_section(text, "## Assumptions and Open Questions")
+    if not re.search(r"(Assumption|假设|Open question|未决|待验证)", open_questions, flags=re.I):
+        errors.append("Assumptions and Open Questions must contain assumptions or open questions")
+
+    numeric_claims = re.findall(r"(?<![A-Za-z0-9])\d+(?:\.\d+)?\s*(?:%|倍|x|X|年|月|日|ms|s|GB|MB|TOPS|tokens?)?", text)
+    if numeric_claims and not any(marker in text for marker in ["Figure", "Table", "Source Locator", "原文", "用户判断", "needs_verification"]):
+        errors.append("Numeric claims appear without visible source locators or verification markers")
+
+    return errors
+
+
+SELF_TEST_BRIEF = """# Storyline Brief
+
+## Research Frame
+研究问题：Memory Intelligence Agent 的汇报应如何说服技术负责人？
+目标读者：技术负责人
+读者当前判断：记忆机制可能只是工程增强。
+希望改变的判断：记忆机制可以成为 Agent 长程任务能力的核心基础设施。
+核心结论：MIA 的价值在于把记忆从上下文堆叠变成可管理的认知资产。
+材料范围：论文正文、Figure 2、Table 1、用户判断。
+证据边界：实验结论仅限论文给定 benchmark。
+
+## Executive Thesis
+MIA 的核心不是增加提示词长度，而是建立可检索、可更新、可评估的记忆层。
+
+## Reader Cognitive Path
+1. 先建立长程任务瓶颈。
+2. 再解释记忆层机制。
+3. 最后收束到落地边界。
+
+## Pyramid Outline
+1. 一级论点：长程任务需要结构化记忆。
+   二级支撑：
+   - 上下文窗口无法稳定承载跨任务经验。
+   证据状态：
+   - Figure 2 source strong。
+   边界：
+   - 不外推到所有 Agent 场景。
+
+## Chapter Logic
+1. 章节名：问题重构
+   章节角色：建立问题
+   本章必须讲清：为什么上下文堆叠不是长期解法。
+   关键证据：Figure 2。
+
+## Page Briefs
+
+### Page 1: 长程任务瓶颈来自经验不可管理
+页面角色：frame
+核心观点：Agent 在多轮任务中真正缺失的是可沉淀、可检索、可更新的经验结构，而不只是更长上下文。
+Claim / Evidence / Implication：
+- Claim：长程任务需要结构化记忆层，而不是单纯扩展上下文窗口。
+  Evidence：Figure 2 source strong，论文展示记忆模块在长程任务 benchmark 上改善连续任务表现；用户判断指出听众关心工程落地。
+  Implication：PPT 应先把问题从“上下文长度”重构为“经验资产管理”，再介绍机制。
+参考图片：
+- Figure 2：original，必须保留 benchmark 名称、坐标轴和方法名，因为它直接支撑 C1；误读风险是外推为所有任务都提升。
+支撑信息：
+- 可解释上下文堆叠的三个限制：成本上升、检索噪声、经验无法复用。
+- 可补充工程视角：记忆层把历史交互转化为可治理对象，便于审计、更新和迁移。
+边界提醒：
+- 不能说 MIA 已证明所有 Agent 场景有效，只能说在论文给定 benchmark 和设置下体现了长程任务收益。
+信息密度说明：本页提供问题定义、证据依据、工程含义和边界，足以支持一页内容页。
+
+## Claim Evidence Implication Table
+| ID | Claim | Evidence | Evidence Type | Strength | Implication | Boundary |
+| --- | --- | --- | --- | --- | --- | --- |
+| C1 | 长程任务需要结构化记忆层 | Figure 2 | source | strong | 先重构问题 | 不外推全部任务 |
+
+## Evidence Map
+| Evidence ID | Source Locator | Supports Claim | Usage Policy | Must Preserve | Misread Risk |
+| --- | --- | --- | --- | --- | --- |
+| E1 | Figure 2 | C1 | original | benchmark、坐标轴、方法名 | 不代表所有任务 |
+
+## Source Usage Policy
+- Must use original: Figure 2。
+- May summarize or rebuild: Table 1。
+- Background only: 引言中的泛化表述。
+- Discard: 与主线无关的实现细节。
+
+## Visual Opportunities
+- Figure 2 可作为证据图。
+
+## Assumptions and Open Questions
+- Assumption: 目标读者偏技术负责人。
+- Open question: 是否需要补充竞品记忆机制对比？
+
+## Recommended Deck Storyline
+先问题重构，再机制解释，再证据证明，最后落地边界。
+"""
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="Validate a PPT Deep Search Storyline Brief.")
+    parser.add_argument("brief", nargs="?", help="Path to Storyline Brief Markdown.")
+    parser.add_argument("--min-page-content-chars", type=int, default=220, help="Minimum counted content characters per Page Brief.")
+    parser.add_argument("--self-test", action="store_true", help="Run validator against an embedded valid brief.")
+    args = parser.parse_args()
+
+    if args.self_test:
+        errors = validate(SELF_TEST_BRIEF, args.min_page_content_chars)
+        if errors:
+            print("[ERROR] Self-test failed:")
+            for error in errors:
+                print(f"  - {error}")
+            return 1
+        print("[OK] Self-test passed.")
+        return 0
+
+    if not args.brief:
+        parser.error("brief is required unless --self-test is used")
+
+    path = Path(args.brief)
+    if not path.exists():
+        print(f"[ERROR] Brief not found: {path}")
+        return 1
+
+    text = path.read_text(encoding="utf-8")
+    errors = validate(text, args.min_page_content_chars)
+    if errors:
+        print(f"[ERROR] Storyline Brief QA failed ({len(errors)} issue(s)):")
+        for error in errors:
+            print(f"  - {error}")
+        return 1
+
+    pages = extract_pages(text)
+    print("[OK] Storyline Brief QA passed.")
+    print(f"[OK] Page briefs checked: {len(pages)}")
+    print(f"[OK] Minimum page content density: {args.min_page_content_chars}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
