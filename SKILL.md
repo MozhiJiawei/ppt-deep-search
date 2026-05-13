@@ -20,7 +20,7 @@ This skill is modeled as a research dialogue, not a one-shot summarizer. The dur
 - Do decide content intent: chapter logic, page titles, page roles, core claims, source evidence, source-figure usage policy, and wording boundaries.
 - Treat every factual claim as one of: `source`, `calculation`, `inference`, `user_judgment`, or `needs_verification`.
 - Never upgrade weak evidence into a fact. If a claim lacks source support, label it as inference or open question.
-- Prefer portable source locators. When source files live under the current workspace, cite workspace-relative paths such as `.tmp/pdf_xml/Aegaeon/final/Aegaeon.xml` instead of absolute machine paths.
+- Absolute local source paths are acceptable when the workflow runs on the same machine. Prefer readable locators, and do not rewrite paths if absolute paths make the downstream handoff clearer.
 - Put all temporary notes, drafts, extracted inventories, and QA outputs under the host workspace `.tmp/ppt-deep-search/<task-name>/`.
 
 ## Workflow
@@ -40,6 +40,29 @@ Opening move:
 - If the user provided a strong opinion, reflect it back and ask what would count as convincing evidence.
 
 Do not ask the user to fill a long form. Turn form-like fields into a short sequence of decisions.
+
+### 0.5 Keep Replies Readable
+
+Human-in-the-loop work should feel like a clear research conversation, not a dumped analysis log.
+
+Use this shape for normal turns:
+
+```text
+我现在的判断：
+- ...
+- ...
+
+需要你拍板的一件事：
+...
+```
+
+Keep each turn short:
+
+- Use 2-4 bullets for the current read.
+- Ask exactly one question.
+- Avoid long evidence inventories in chat; save detailed maps for the brief.
+- When offering choices, use 2-3 options with short labels and one-line tradeoffs.
+- Do not paste the full live structure unless the user asks to review it.
 
 ### 1. Frame the Research
 
@@ -92,6 +115,38 @@ Use this loop:
 3. Capture the user's choice or correction.
 4. Update the live structure: thesis, pyramid, evidence map, page candidates, assumptions, or open questions.
 5. Move to the next highest-impact unresolved decision.
+
+### 3.5 Confirm Downstream Hard Constraints
+
+Before writing the final Storyline Brief to disk, explicitly ask the user to approve every hard constraint that the downstream PPT skill must follow.
+
+The required approval bundle is:
+
+- Page count or page-count range.
+- Chapter/table-of-contents titles and their order.
+- Chapter logic, or for a 1-page output, the page's internal content beat sequence.
+- Every page title.
+- Every page's core viewpoint.
+- Every page role.
+- Required source figures/tables/screenshots and their usage policy: original, summarize/rebuild, background only, or discard.
+- Claims that must be preserved.
+- Boundary reminders that the downstream PPT skill must not weaken.
+
+Present the bundle compactly and ask for approval or corrections. Do not save the final `storyline_brief.md` until the user approves this bundle, unless the user explicitly asks for an unapproved draft. If producing an unapproved draft, mark it clearly in `Research Frame` and `Assumptions and Open Questions`.
+
+Approval prompt pattern:
+
+```text
+落盘前请确认这组下游硬约束：
+- 页数：...
+- 章节目录标题：...
+- Page 1 标题：...
+- Page 1 核心观点：...
+- 主证据图：...
+- 不能说满的边界：...
+
+是否批准我按这组约束写入 Storyline Brief？你可以直接改其中任一项。
+```
 
 ### 4. Build the Evidence Map
 

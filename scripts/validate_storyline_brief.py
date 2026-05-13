@@ -142,7 +142,7 @@ def validate(
     text: str,
     min_page_content_chars: int,
     expected_pages: int | None = None,
-    allow_absolute_paths: bool = False,
+    forbid_absolute_paths: bool = False,
 ) -> list[str]:
     text = text.lstrip("\ufeff")
     errors: list[str] = []
@@ -211,15 +211,15 @@ def validate(
     if numeric_claims and not any(marker in text for marker in ["Figure", "Table", "Source Locator", "原文", "用户判断", "needs_verification"]):
         errors.append("Numeric claims appear without visible source locators or verification markers")
 
-    if not allow_absolute_paths:
+    if forbid_absolute_paths:
         absolute_paths = sorted(set(re.findall(r"[A-Za-z]:\\[^\s|,\)\]]+", text)))
         if absolute_paths:
             shown = ", ".join(absolute_paths[:3])
             if len(absolute_paths) > 3:
                 shown += ", ..."
             errors.append(
-                "Absolute local paths found; use workspace-relative source locators or pass "
-                f"--allow-absolute-paths if unavoidable: {shown}"
+                "Absolute local paths found; use portable source locators or omit "
+                f"--forbid-absolute-paths when local-only paths are acceptable: {shown}"
             )
 
     return errors
@@ -310,7 +310,7 @@ def main() -> int:
     parser.add_argument("brief", nargs="?", help="Path to Storyline Brief Markdown.")
     parser.add_argument("--min-page-content-chars", type=int, default=220, help="Minimum counted content characters per Page Brief.")
     parser.add_argument("--expected-pages", type=int, help="Require an exact number of Page Brief sections.")
-    parser.add_argument("--allow-absolute-paths", action="store_true", help="Allow absolute local paths in source locators.")
+    parser.add_argument("--forbid-absolute-paths", action="store_true", help="Fail when absolute local paths appear in source locators.")
     parser.add_argument("--self-test", action="store_true", help="Run validator against an embedded valid brief.")
     args = parser.parse_args()
 
@@ -319,7 +319,7 @@ def main() -> int:
             SELF_TEST_BRIEF,
             args.min_page_content_chars,
             expected_pages=args.expected_pages,
-            allow_absolute_paths=args.allow_absolute_paths,
+            forbid_absolute_paths=args.forbid_absolute_paths,
         )
         if errors:
             print("[ERROR] Self-test failed:")
@@ -342,7 +342,7 @@ def main() -> int:
         text,
         args.min_page_content_chars,
         expected_pages=args.expected_pages,
-        allow_absolute_paths=args.allow_absolute_paths,
+        forbid_absolute_paths=args.forbid_absolute_paths,
     )
     if errors:
         print(f"[ERROR] Storyline Brief QA failed ({len(errors)} issue(s)):")
