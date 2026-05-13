@@ -98,6 +98,8 @@ For content-direction decisions, do not ask with only one recommended option. Pr
 
 Use this A/B/C pattern when asking the user to choose a top-level conclusion page, a chapter claim/title, or a page title/analysis-summary direction. The user should be choosing between PPT-ready expressions, not abstract themes.
 
+Reserve A/B/C for alternative choices only. Do not use `【A】` and `【B】` to label two pages that will both appear in the deck. When proposing multiple pages inside one chapter, label them with their actual page numbers, such as `Page 3` and `Page 4`.
+
 ### 1. Confirm SCQA and Top-Level Conclusion
 
 Confirm or infer only what is reasonably clear:
@@ -129,11 +131,20 @@ After the user approves Stage 1, ask for page count or page-count range as its o
 
 Offer 2-3 page-count options with tradeoffs, for example:
 
-- 5 pages: decision brief, fastest route to business judgment.
-- 7 pages: balanced investment judgment, enough room for problem, mechanism, and proof.
-- 9 pages: technical decision deck, more space for implementation and boundaries.
+- 5 total pages: cover + contents + 3 content pages.
+- 7 total pages: cover + contents + 5 content pages.
+- 9 total pages: cover + contents + 7 content pages.
 
-Stage 2 required approval: page count or page-count range only.
+Always state the counting convention:
+
+- Total PPT pages.
+- Whether cover is included.
+- Whether contents page is included.
+- Number of actual content pages available after cover/contents.
+
+If the user says "7 pages" without clarifying, ask whether that means `7 total PPT pages` or `7 content pages` before creating the table of contents.
+
+Stage 2 required approval: page count or page-count range, counting convention, whether cover/contents are included, and resulting content-page budget.
 
 After approval, save:
 
@@ -189,6 +200,7 @@ For each chapter:
 - Propose that chapter's page count based on the total page budget.
 - Propose only that chapter's page titles, title subtitles, analysis-summary bullets, page roles, required evidence, and boundaries.
 - When there is more than one plausible page expression, give A/B/C options in the required `表达的观点 / 标题 / 分析总结` format.
+- When listing a chapter's actual page plan, use `Page N`, `Page N+1`, etc. A/B/C is for alternatives, not page numbering.
 - Ask the user to approve or correct that chapter before moving to the next chapter.
 - Save a chapter baseline after approval.
 
@@ -223,6 +235,7 @@ Before writing the final Storyline Brief to disk, explicitly ask the user to app
 The required approval bundle is:
 
 - Page count or page-count range.
+- Page-count convention: total pages vs content pages, including/excluding cover and contents.
 - Target audience and desired reader belief change.
 - SCQA, top-level thesis, and big logic.
 - Table-of-contents small titles, descriptions, order, and represented chapter claims.
@@ -246,6 +259,7 @@ Approval prompt pattern:
 - 顶层观点：...
 - 大逻辑：...
 - 页数：...
+- 页数口径：总页数 / 正文内容页；是否包含封面和目录页
 - 目录：
   - 01 小标题：... / 说明：...
 - Page 1 标题：...
@@ -375,7 +389,7 @@ Claim / Evidence / Implication：
 | Stage | Approved Constraint | User Approval Summary | Baseline File |
 | --- | --- | --- | --- |
 | 1 | Audience, belief change, big logic, top-level thesis | ... | .tmp/ppt-deep-search/<task-name>/baselines/01-audience-thesis.md |
-| 2 | Page count | ... | .tmp/ppt-deep-search/<task-name>/baselines/02-page-count.md |
+| 2 | Page count and counting convention | ... | .tmp/ppt-deep-search/<task-name>/baselines/02-page-count.md |
 | 2.5 | Table-of-contents small titles, descriptions, order, chapter claims | ... | .tmp/ppt-deep-search/<task-name>/baselines/02-table-of-contents.md |
 | 3 | Chapter-by-chapter page titles, title subtitles, analysis summaries, page roles, source usage, boundaries | ... | .tmp/ppt-deep-search/<task-name>/baselines/03-page-plan.md |
 ```

@@ -244,7 +244,7 @@ def validate(
         errors.append("Assumptions and Open Questions must contain assumptions or open questions")
 
     approval_log = extract_section(text, "## Approval Log")
-    for required in ["Audience", "Page count", "Page titles", "Baseline File"]:
+    for required in ["Audience", "Page count", "counting convention", "Page titles", "Baseline File"]:
         if required not in approval_log:
             errors.append(f"Approval Log missing required approval evidence: {required}")
 
@@ -374,7 +374,7 @@ Claim / Evidence / Implication：
 | Stage | Approved Constraint | User Approval Summary | Baseline File |
 | --- | --- | --- | --- |
 | 1 | Audience, belief change, big logic, top-level thesis | 用户确认目标读者为技术负责人，顶层观点为记忆层是基础设施。 | .tmp/ppt-deep-search/demo/baselines/01-audience-thesis.md |
-| 2 | Page count | 用户确认做 1 页。 | .tmp/ppt-deep-search/demo/baselines/02-page-count.md |
+| 2 | Page count and counting convention | 用户确认做 1 页内容页，不包含封面和目录页。 | .tmp/ppt-deep-search/demo/baselines/02-page-count.md |
 | 2.5 | Table-of-contents small titles, descriptions, order, chapter claims | 用户确认 1 页输出不需要独立目录页，页内节奏为问题、机制、证据、边界。 | .tmp/ppt-deep-search/demo/baselines/02-table-of-contents.md |
 | 3 | Page titles, title subtitles, analysis summaries, page roles, source usage, boundaries | 用户确认 Page 1 标题、标题说明、分析总结、Figure 2 原样使用和不可外推边界。 | .tmp/ppt-deep-search/demo/baselines/03-page-plan.md |
 """

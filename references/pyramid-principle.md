@@ -26,10 +26,12 @@ The deck should answer the reader's governing question first, then support that 
 
 4. **Separate page scale, table of contents, and content pages**
    - Page count is a separate decision gate. Do not generate table-of-contents entries until page count is approved.
+   - Page count must state its counting convention: total PPT pages vs content pages, and whether cover, contents, appendix, or transition pages are included.
    - Table-of-contents entries are navigation labels, not content pages.
    - Each table-of-contents entry must contain a concise title and one short explanation.
    - Do not use the A/B/C `表达的观点 / 标题 / 分析总结` pattern for table-of-contents entries.
    - Use A/B/C only for the top-level conclusion page and content-page expression choices.
+   - Reserve A/B/C for alternatives. When listing multiple approved/proposed pages in one chapter, label them as `Page N`, not `A/B`.
 
 5. **Use at most three chapter claims**
    - A human reader should be able to hold the storyline in working memory.
