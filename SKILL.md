@@ -318,6 +318,8 @@ Do not ask the user to review dense content page by page unless the content woul
 
 Present the bundle compactly and ask for approval or corrections. Do not save the final `ppt_content_brief.md` and `research_audit.md` until the user approves this bundle, unless the user explicitly asks for an unapproved draft. If producing an unapproved draft, mark that status in `research_audit.md`.
 
+A user approving the last chapter or saying "generate final files" is not enough unless they have also approved the final hard-constraint bundle in this stage. If the user asks to generate final files immediately after a chapter approval, first show the compact hard-constraint bundle below and ask for approval.
+
 Approval prompt pattern:
 
 ```text
