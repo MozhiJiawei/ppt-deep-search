@@ -88,23 +88,22 @@ For the top-level summary page expression, present 2-3 concrete candidate expres
 
 ```text
 【A】
-表达的观点：...
-标题：...
+页面标题：...
+标题说明：...
 分析总结：
-1. 标签：...
-2. 标签：...
-3. 标签：...
+- 小标题：解释
 
 【B】
-表达的观点：...
-标题：...
+页面标题：...
+标题说明：...
 分析总结：
-1. 标签：...
-2. 标签：...
-3. 标签：...
+- 小标题：解释
+- 小标题：解释
 ```
 
-The user should be choosing between PPT-ready top-level summary expressions, not abstract themes. When discussing chapters or content pages, do not force options. Give your best proposal and ask the user what to adjust.
+The user should be choosing between PPT-ready top-level summary expressions, not abstract themes. Show only the fields that will become visible slide copy: `页面标题`, `标题说明`, and `分析总结`. Keep thesis notes, evidence boundary, audience rationale, and internal page role in the live structure and `research_audit.md`. When discussing chapters or content pages, do not force options. Give your best proposal and ask the user what to adjust.
+
+For visible title lines, treat `页面标题` as the short object label or hook and `标题说明` as the quantitative decision statement. A strong title line usually combines object, scenario, measurable benefit or cost, and decision implication, such as: `{方法/对象}` + `面向{场景} - 以{成本/约束}换{收益/结果}`. Prefer numbers, comparisons, thresholds, rates, task conditions, and experimental settings when the source supports them.
 
 ### 1. Confirm Audience
 
@@ -128,15 +127,23 @@ After approval, save:
 
 ### 1.5 Source Understanding Analysis
 
-After the audience is approved and before discussing the top-level summary page, output a concise source-understanding analysis in Chinese. This is not a final brief; it gives the human a basis for judgment and follow-up questions.
+After the audience is approved and before discussing the top-level summary page, perform source understanding as a data-first research step. This is not a final brief; it gives the human a basis for judgment and follow-up questions.
+
+Before showing the source-understanding analysis, inspect the provided source package deeply enough to support quantitative claims:
+
+- Read the main extracted text/XML for abstract, method, experiments, limitations, and appendix references.
+- Open or OCR/summarize source figures and table images when they contain experimental results, costs, baselines, problem types, or method comparisons. Do not assume all important data is present in the XML text.
+- Build a compact evidence inventory with: key tables/figures, benchmark names, baseline names, metrics, strongest numeric deltas, cost/runtime/token numbers, problem-type splits, and explicit limitations.
+- Cross-check named methods/backbones against source tables or figure captions before using them in user-facing analysis.
+- Put exact locators, table/figure names, and extracted numeric values in the live evidence map and later `research_audit.md`.
 
 Include exactly these three parts:
 
-- `它是什么`：the object/system/paper/tool in plain language.
-- `它解决了什么问题`：the concrete pain or decision problem it addresses.
-- `跟同类技术比有什么亮点`：why it differs from adjacent approaches or existing solutions.
+- `它是什么`：the object/system/paper/tool in plain language, with one concrete source anchor when available.
+- `它解决了什么问题`：the concrete pain or decision problem it addresses, supported by source evidence such as benchmark type, failure mode, problem-type split, or example figure.
+- `跟同类技术比有什么亮点`：why it differs from adjacent approaches or existing solutions, supported by comparative data such as baseline names, metric deltas, runtime/token cost, or source limitations.
 
-Keep the first version source-grounded and compact: 3-6 bullets total. If the user challenges the analysis or asks for deeper comparison, expand only the challenged part and preserve the revised version in the baseline. Then ask the user whether this understanding is basically right or what needs correction.
+Keep the first version source-grounded and compact: 3-6 bullets total, but each part should contain at least one concrete datum, named source figure/table, benchmark, or observed condition when the source provides it. If no quantitative or figure/table support exists for a part, say that explicitly and mark the gap in the evidence map. If the user challenges the analysis or asks for deeper comparison, expand only the challenged part and preserve the revised version in the baseline. Then ask the user whether this understanding is basically right or what needs correction.
 
 After approval, save:
 
@@ -149,9 +156,17 @@ After approval, save:
 Confirm:
 
 - Situation, complication, governing question, and answer
-- The top-level summary page expression: page title, title subtitle, and analysis-summary bullets
+- The top-level summary page expression: PPT-ready `页面标题`, `标题说明`, and `分析总结`
 
 Use A/B/C options for this top-level summary page expression. Do not use A/B/C after this stage unless the user explicitly asks for alternatives.
+
+The top-level summary page proposal is also a downstream-content contract. Keep it concise enough to work as visible slide copy. Put longer reasoning, source caveats, and decision rationale into later `正文内容`, `备注`, or `research_audit.md`.
+
+Before showing each top-level summary page candidate to the user, run the visible-copy check on its `页面标题`, `标题说明`, and `分析总结`. Revise the candidate until the check passes:
+
+```powershell
+python scripts/validate_ppt_content_brief.py --visible-copy-check --summary-page --title "..." --subtitle "..." --analysis-bullet "小标题：解释"
+```
 
 Stage 1.6 required approval: SCQA and top-level summary page.
 
@@ -243,15 +258,34 @@ For each chapter:
 - Propose that chapter's page count based on the total page budget and previously approved chapter allocations.
 - Use the approved page-number map from Stage 2. If the deck includes cover and contents, do not restart content page numbering at `Page 1`.
 - Do not present a page number outside the approved budget. If the desired chapter split would exceed the budget, resolve the budget tradeoff before showing the page plan.
-- First propose only the viewpoint layer for that chapter's pages: page title, title subtitle, analysis-summary bullets, page role, and the chapter claim each page supports.
-- Do not write dense supporting content yet. Wait until the user explicitly approves each page's title, title subtitle, and analysis-summary bullets.
+- First propose only the PPT-ready viewpoint layer for that chapter's pages: `所属章节`, `页面标题`, `标题说明`, and `分析总结`.
+- The page proposal shown to the user is a downstream-content contract, not an internal planning note. Write it in the same field shape that will later appear in `ppt_content_brief.md`; keep `页面角色`, supported chapter claim, evidence status, and page-level boundaries in the baseline or `research_audit.md`.
+- Make `页面标题` a short, clear object label or hook. Make `标题说明` the quantitative lead sentence that carries the fuller judgment: scenario, measurable benefit or cost, experimental condition, and decision implication where available. In the shared title line, the title should be less than half the length of the explanation. Make `分析总结` directly usable in the slide's summary band.
+- Do not write dense supporting content yet. Wait until the user explicitly approves each page's `页面标题`, `标题说明`, and `分析总结`.
 - After the viewpoint layer is approved, expand the content layer autonomously: Claim / Evidence / Implication, reference-image strategy, supporting information, and boundaries. The human does not need to guide or approve dense content page by page.
 - The content layer must support the approved viewpoint; it must not introduce a new unapproved viewpoint.
 - Return to the user before finalizing content only if evidence contradicts the approved viewpoint, the content would materially change the title/subtitle/analysis-summary, or supplemental research changes the argument direction.
 - Use `Page N`, `Page N+1`, etc. for actual page labels.
 - Ask the user to approve or tell you the adjustment direction before moving from one chapter's viewpoint layer to the next chapter's viewpoint layer. Do not force alternatives unless the user asks.
-- If the user revises a page title, title subtitle, or analysis-summary bullet, restate the full updated viewpoint layer before saving it as approved. Do not save a baseline that only records the changed fragment.
+- If the user revises a page title, title subtitle, or analysis-summary bullet, restate the full updated PPT-ready viewpoint layer before saving it as approved. Do not save a baseline that only records the changed fragment.
 - Save a chapter baseline after approval.
+
+Chapter viewpoint proposal shape:
+
+```text
+Page N
+所属章节：...
+页面标题：...
+标题说明：...
+分析总结：
+- 小标题：解释
+```
+
+Before showing a chapter page proposal to the user, run the same visible-copy check for each proposed page. Revise any overlong `页面标题`, `标题说明`, or `分析总结` before asking for approval:
+
+```powershell
+python scripts/validate_ppt_content_brief.py --visible-copy-check --title "..." --subtitle "..." --analysis-bullet "小标题：解释"
+```
 
 Use this loop:
 
@@ -261,7 +295,7 @@ Use this loop:
 4. Update the live structure: thesis, pyramid, evidence map, approved chapter page plan, assumptions, or open questions.
 5. Move to the next highest-impact unresolved decision.
 
-Stage 3 required approval: each chapter's page decomposition, every page title, every page title subtitle, every page's analysis-summary bullets, every page role, and critical page-level boundaries. The title, subtitle, and analysis-summary bullets must be approved before the agent writes detailed supporting content for that page. After viewpoint approval, the agent should generate dense supporting content independently.
+Stage 3 required approval: each chapter's page decomposition and every page's PPT-ready `所属章节`, `页面标题`, `标题说明`, and `分析总结`. These fields must be approved before the agent writes detailed supporting content for that page. After viewpoint approval, the agent should generate dense supporting content independently and record page roles, supported chapter claims, and boundaries internally.
 
 After each chapter is approved, save:
 
@@ -305,7 +339,7 @@ The required approval bundle is:
 - Chapter logic, or for a 1-page output, the page's internal content beat sequence.
 - Every page title.
 - Every page's title subtitle.
-- Every page's `分析总结` bullets.
+- Every page's `分析总结` bullets: choose 1-3 core claims according to the page's real information density.
 - Every page role.
 - Required source figures/tables/screenshots and their usage policy: original, summarize/rebuild, background only, or discard.
 - Supplemental research sources, if used, and whether they are primary source, official docs, paper, repository, technical article, or needs verification.
@@ -314,11 +348,21 @@ The required approval bundle is:
 
 Before final handoff writing, confirm that every page went through this order: viewpoint layer approval first, then AI-generated content-layer expansion. If any page's content was drafted before its title, title subtitle, and analysis-summary bullets were approved, pause and ask the user to approve or revise the viewpoint layer before finalizing that page.
 
+The final approval bundle must expand every page's visible viewpoint fields completely. Do not compress a page into `Page N: title / subtitle`. For each page, list `所属章节` when applicable, `页面标题`, `标题说明`, and every `分析总结` bullet. If any page's `分析总结` bullets are omitted from the approval bundle, do not ask for final approval.
+
 Do not ask the user to review dense content page by page unless the content would change an approved viewpoint or introduce a new major claim. The user owns logic; the agent owns source-grounded content generation.
 
 Present the bundle compactly and ask for approval or corrections. Do not save the final `ppt_content_brief.md` and `research_audit.md` until the user approves this bundle, unless the user explicitly asks for an unapproved draft. If producing an unapproved draft, mark that status in `research_audit.md`.
 
 A user approving the last chapter or saying "generate final files" is not enough unless they have also approved the final hard-constraint bundle in this stage. If the user asks to generate final files immediately after a chapter approval, first show the compact hard-constraint bundle below and ask for approval.
+
+Before asking the user to approve the final bundle, save the proposed approval text under `.tmp/ppt-deep-search/<task-name>/QA/approval_bundle.md` and run:
+
+```powershell
+python scripts/validate_ppt_content_brief.py .tmp/ppt-deep-search/<task-name>/QA/approval_bundle.md --approval-bundle-check
+```
+
+If the check fails, fix the approval bundle before showing it to the user.
 
 Approval prompt pattern:
 
@@ -333,9 +377,13 @@ Approval prompt pattern:
 - 页数口径：总页数 / 正文内容页；是否包含封面和目录页
 - 目录：
   - 01 小标题：... / 说明：...
-- Page 1 标题：...
-- Page 1 标题说明：...
-- Page 1 分析总结：...
+- 逐页观点层：
+  - Page N
+    所属章节：...（总结页可省略）
+    页面标题：...
+    标题说明：...
+    分析总结：
+    - 小标题：解释
 - 主证据图：...
 - 不能说满的边界：...
 
@@ -432,8 +480,13 @@ Match the brief to the requested downstream artifact:
 
 - At least 1200 counted content characters for `## Summary Page` and at least 900 counted content characters per chapter content page, excluding headings and field labels. The summary page should be the highest-density page: compress the top-level conclusion, chapter logic, decision implications, key numbers or mechanisms, visual cue, and boundary wording into one PPT-ready page. A strong technical or decision content page usually lands around 1200-1800 counted characters.
 - Every content page must include `所属章节`, and that value must exactly match one `小标题` in `## Table of Contents`. The summary page is separate and does not need `所属章节`.
-- A `页面标题`, `标题说明`, and `分析总结` section. `分析总结` must contain 1-3 directly usable Chinese label bullets such as `粒度升级：...`.
-- A `正文内容` section that reads like a PPT body material pack, not a list of more conclusions. Use it to provide the concrete body content a slide can consume: mechanisms, source facts, quantitative context, comparison points, causal chains, caveats rewritten for slides, and suggested reading order.
+- A `页面标题`, `标题说明`, and `分析总结` section. `分析总结` must contain 1-3 directly usable Chinese core-claim bullets such as `粒度升级：...`.
+- Treat `页面标题`, `标题说明`, and `分析总结` as visible slide copy. `页面标题` should be a short object label or hook; `标题说明` should be a high-signal quantitative sentence with scenario, measurable benefit/cost, experimental condition, or decision implication; `页面标题` and `标题说明` must fit the shared title line, and the title should be less than half the length of the explanation; `分析总结` bullets should be short enough to sit in a slide summary band.
+- The default visible-copy QA budget is approximately: `页面标题` <= 18 Chinese-width units, `标题说明` <= 60, shared `页面标题 + 标题说明` <= 82, one `分析总结` bullet <= 52, summary-page analysis total <= 170, content-page analysis total <= 120. Treat failures as blockers and rewrite before asking the user to approve.
+- Choose the `分析总结` count by page role and information density. Summary pages usually carry more compression and can use 2-3 bullets. Chapter content pages are usually more focused and often need only 1-2 bullets.
+- Write each `分析总结` bullet as a real core claim in the form `小标题：解释`. A good bullet is short, independently meaningful, and provable by the page body. If one bullet becomes long because it tries to combine several ideas, split it into two bullets or move support detail into `正文内容`.
+- Make `分析总结` bullets evidence-bearing when possible. Prefer `效果：提升/下降/差异 + 条件`, `场景：适用/不适用任务 + 触发条件`, `成本：延迟/token/复杂度 + 决策含义`, `边界：不可外推范围 + 原因`, or `机制：可观察动作 + 结果` over abstract labels.
+- A `正文内容` section that reads like a PPT body material pack, not a list of more conclusions. Use it to support the selected `分析总结` claim(s) with concrete body content a slide can consume: mechanisms, source facts, quantitative context, comparison points, causal chains, caveats rewritten for slides, suggested reading order, and supporting points that echo the core claim.
 - A `参考图片` section that names the image/chart/screenshot/diagram candidate without prescribing layout.
 
 Do not pad with vague filler just to pass the length check. If a page is thin, add source-grounded mechanisms, comparisons, constraints, implications, examples, or reading guidance. When the original source package is insufficient, do targeted external research and record the supplemental trail in `research_audit.md`, not in the PPT content file.

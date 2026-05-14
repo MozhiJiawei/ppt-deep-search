@@ -26,6 +26,7 @@ This file defines the internal audit artifact for `ppt-deep-search`.
 - Human-approved hard constraints: audience, page count, counting convention, titles, subtitles, analysis summaries, and table-of-contents entries.
 - Internal logic fields: page role, supported chapter claim, Claim/Evidence/Implication, boundary reminders, and source usage policy.
 - Evidence source locators: file paths, URLs, page numbers, section names, figure/table ids, or user statements.
+- Source-understanding evidence inventory: key figures/tables/images inspected, benchmark names, baseline names, metrics, numeric deltas, runtime/token/cost values, problem-type splits, and explicit source limitations.
 - Verification status for numeric claims and causal claims.
 - Supplemental research source list and how it supports or qualifies the approved viewpoint.
 - Assumptions, open questions, and claims that should be softened.

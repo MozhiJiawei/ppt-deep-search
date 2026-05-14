@@ -48,7 +48,15 @@ The deck should answer the reader's governing question first, express that answe
    - A page is a unit of persuasion: one page title, one title subtitle, 1-3 analysis-summary bullets, one role, enough supporting facts, and explicit boundaries.
    - Source figures and tables are evidence for page claims, not page reasons by themselves.
 
-8. **SCQA frames the need for the pyramid**
+8. **Prefer quantitative, testable claims**
+   - Write like an engineer or scientist making a decision, not like an essayist naming a theme.
+   - Before proposing the top-level summary, inspect the source's tables, figures, chart images, captions, appendix tables, and extracted text enough to know the strongest data points.
+   - When the source provides numbers, comparisons, costs, thresholds, rates, dates, sample sizes, rankings, or experimental conditions, use them in the top-level summary page, page subtitles, or analysis-summary bullets.
+   - A strong visible claim usually names the object, scenario, measurable effect, cost or constraint, and decision implication.
+   - If exact numbers are unavailable, use concrete observable conditions such as applicable task type, trigger condition, failure mode, or verification criterion.
+   - Keep qualitative abstraction in the body only after the measurable or observable judgment is clear.
+
+9. **SCQA frames the need for the pyramid**
    - Situation: what stable context does the reader already accept?
    - Complication: what changes or breaks their current judgment?
    - Question: what governing question must the deck answer?

@@ -81,8 +81,33 @@ class PageSection:
     start_line: int
 
 
+@dataclass
+class VisibleCopyLimits:
+    max_title_units: int = 18
+    max_subtitle_units: int = 60
+    max_title_line_units: int = 82
+    max_analysis_bullet_units: int = 52
+    max_summary_analysis_total_units: int = 170
+    max_page_analysis_total_units: int = 120
+    max_toc_title_units: int = 18
+    max_toc_description_units: int = 44
+
+
 def line_number_for_offset(text: str, offset: int) -> int:
     return text.count("\n", 0, offset) + 1
+
+
+def slide_text_units(text: str) -> int:
+    """Approximate visible slide capacity using Chinese-width units."""
+    units = 0.0
+    for char in text.strip():
+        if "\u4e00" <= char <= "\u9fff":
+            units += 1.0
+        elif char.isspace():
+            units += 0.25
+        else:
+            units += 0.55
+    return int(units + 0.999)
 
 
 def content_char_count(text: str) -> int:
@@ -136,7 +161,121 @@ def extract_field(body: str, field: str) -> str:
     return match.group(1).strip() if match else ""
 
 
-def validate_summary_block(text: str, min_summary_content_chars: int, expected_summary_page: int | None) -> list[str]:
+def extract_analysis_summary_items(section_body: str) -> list[str] | None:
+    summary_match = re.search(
+        r"分析总结[：:]?\s*\n(?P<body>.*?)(?:\n(?:正文内容|参考图片|备注)[：:]|\Z)",
+        section_body,
+        flags=re.S,
+    )
+    if not summary_match:
+        return None
+
+    return [item.strip() for item in re.findall(r"^\s*-\s*(\S.+?)\s*$", summary_match.group("body"), flags=re.MULTILINE)]
+
+
+def validate_analysis_summary_count(section_name: str, section_body: str) -> list[str]:
+    summary_items = extract_analysis_summary_items(section_body)
+    if summary_items is None:
+        return [f"{section_name} missing analysis summary block"]
+    labeled_items = [item for item in summary_items if re.match(r"^[^：:\n]{2,12}[：:]\s*\S+", item)]
+    if not 1 <= len(labeled_items) <= 3 or len(labeled_items) != len(summary_items):
+        return [
+            f"{section_name} analysis summary must contain 1-3 labeled core-claim bullets; "
+            "summary pages often use 2-3 bullets, while focused chapter content pages often use 1-2"
+        ]
+    return []
+
+
+def validate_visible_copy(section_name: str, section_body: str, limits: VisibleCopyLimits, *, is_summary: bool) -> list[str]:
+    errors: list[str] = []
+    title = extract_field(section_body, "页面标题")
+    subtitle = extract_field(section_body, "标题说明")
+
+    title_units = slide_text_units(title)
+    if title and title_units > limits.max_title_units:
+        errors.append(
+            f"{section_name} 页面标题 too long for visible slide copy: "
+            f"{title_units} > {limits.max_title_units} Chinese-width units"
+        )
+
+    subtitle_units = slide_text_units(subtitle)
+    if subtitle and subtitle_units > limits.max_subtitle_units:
+        errors.append(
+            f"{section_name} 标题说明 too long for visible slide copy: "
+            f"{subtitle_units} > {limits.max_subtitle_units} Chinese-width units"
+        )
+
+    title_line_units = slide_text_units(f"{title} {subtitle}")
+    if title and subtitle and title_line_units > limits.max_title_line_units:
+        errors.append(
+            f"{section_name} 页面标题 + 标题说明 too long for the shared title line: "
+            f"{title_line_units} > {limits.max_title_line_units} Chinese-width units"
+        )
+    if title and subtitle and title_units * 2 >= subtitle_units:
+        errors.append(
+            f"{section_name} 页面标题 should be less than half of 标题说明 length: "
+            f"title {title_units}, subtitle {subtitle_units} Chinese-width units"
+        )
+
+    summary_items = extract_analysis_summary_items(section_body)
+    if summary_items:
+        total_units = 0
+        for item in summary_items:
+            item_units = slide_text_units(item)
+            total_units += item_units
+            if item_units > limits.max_analysis_bullet_units:
+                errors.append(
+                    f"{section_name} 分析总结 bullet too long for summary band: "
+                    f"{item_units} > {limits.max_analysis_bullet_units} Chinese-width units: {item[:40]}"
+                )
+
+        total_limit = limits.max_summary_analysis_total_units if is_summary else limits.max_page_analysis_total_units
+        if total_units > total_limit:
+            errors.append(
+                f"{section_name} 分析总结 total too long for visible summary band: "
+                f"{total_units} > {total_limit} Chinese-width units"
+            )
+
+    return errors
+
+
+def visible_copy_block(title: str, subtitle: str, analysis_items: list[str]) -> str:
+    lines = [
+        f"页面标题：{title}",
+        f"标题说明：{subtitle}",
+        "分析总结：",
+    ]
+    lines.extend(f"- {item}" for item in analysis_items)
+    return "\n".join(lines)
+
+
+def validate_approval_bundle(text: str) -> list[str]:
+    errors: list[str] = []
+    page_matches = list(re.finditer(r"^\s*-\s*Page\s+\d+\b.*$", text, flags=re.MULTILINE))
+    if not page_matches:
+        return ["Approval bundle must include expanded Page N entries"]
+
+    for index, match in enumerate(page_matches):
+        end = page_matches[index + 1].start() if index + 1 < len(page_matches) else len(text)
+        block = text[match.start() : end]
+        page_label = match.group(0).strip(" -")
+        for field in ["页面标题", "标题说明", "分析总结"]:
+            if not re.search(rf"^\s*{field}[：:]\s*", block, flags=re.MULTILINE):
+                errors.append(f"{page_label} missing approval field: {field}")
+        summary_match = re.search(r"^\s*分析总结[：:]\s*\n(?P<body>.*)", block, flags=re.S | re.MULTILINE)
+        if summary_match:
+            bullets = re.findall(r"^\s*-\s*[^：:\n]{2,12}[：:]\s*\S+", summary_match.group("body"), flags=re.MULTILINE)
+            if not 1 <= len(bullets) <= 3:
+                errors.append(f"{page_label} approval 分析总结 must list 1-3 labeled bullets")
+    return errors
+
+
+def validate_summary_block(
+    text: str,
+    min_summary_content_chars: int,
+    expected_summary_page: int | None,
+    limits: VisibleCopyLimits,
+) -> list[str]:
     errors: list[str] = []
     summary = extract_section(text, "## Summary Page")
     if not summary.strip():
@@ -152,21 +291,8 @@ def validate_summary_block(text: str, min_summary_content_chars: int, expected_s
     elif expected_summary_page is not None and int(page_match.group(1)) != expected_summary_page:
         errors.append(f"Summary Page 页码 must be Page {expected_summary_page}")
 
-    summary_match = re.search(
-        r"分析总结[：:]?\s*\n(?P<body>.*?)(?:\n(?:正文内容|参考图片|备注)[：:]|\Z)",
-        summary,
-        flags=re.S,
-    )
-    if not summary_match:
-        errors.append("Summary Page missing analysis summary block")
-    else:
-        summary_items = re.findall(
-            r"^\s*-\s*([^：:\n]{2,12})[：:]\s*\S+",
-            summary_match.group("body"),
-            flags=re.MULTILINE,
-        )
-        if not 1 <= len(summary_items) <= 3:
-            errors.append("Summary Page analysis summary must contain 1-3 labeled bullets")
+    errors.extend(validate_analysis_summary_count("Summary Page", summary))
+    errors.extend(validate_visible_copy("Summary Page", summary, limits, is_summary=True))
 
     density = content_char_count(summary)
     if density < min_summary_content_chars:
@@ -181,9 +307,11 @@ def validate(
     min_summary_content_chars: int,
     expected_pages: int | None = None,
     allow_absolute_paths: bool = False,
+    visible_copy_limits: VisibleCopyLimits | None = None,
 ) -> list[str]:
     text = text.lstrip("\ufeff")
     errors: list[str] = []
+    limits = visible_copy_limits or VisibleCopyLimits()
 
     for heading in REQUIRED_HEADINGS:
         if not re.search(rf"^{re.escape(heading)}\s*$", text, flags=re.MULTILINE):
@@ -231,7 +359,14 @@ def validate(
         errors.append("Summary-only PPT Content Brief must place Summary Page after Deck Metadata and omit later sections")
 
     expected_summary_page = 1 if summary_only else 2
-    errors.extend(validate_summary_block(text, min_summary_content_chars=min_summary_content_chars, expected_summary_page=expected_summary_page))
+    errors.extend(
+        validate_summary_block(
+            text,
+            min_summary_content_chars=min_summary_content_chars,
+            expected_summary_page=expected_summary_page,
+            limits=limits,
+        )
+    )
 
     for banned in BANNED_INTERNAL_FIELDS + BANNED_RENDERING_FIELDS:
         if banned.lower() in text.lower():
@@ -265,21 +400,8 @@ def validate(
                 f"{density} < {min_page_content_chars} counted characters"
             )
 
-        summary_match = re.search(
-            r"分析总结[：:]?\s*\n(?P<body>.*?)(?:\n(?:正文内容|参考图片|备注)[：:]|\Z)",
-            page.body,
-            flags=re.S,
-        )
-        if not summary_match:
-            errors.append(f"{page.title} (line {page.start_line}) missing analysis summary block")
-        else:
-            summary_items = re.findall(
-                r"^\s*-\s*([^：:\n]{2,12})[：:]\s*\S+",
-                summary_match.group("body"),
-                flags=re.MULTILINE,
-            )
-            if not 1 <= len(summary_items) <= 3:
-                errors.append(f"{page.title} (line {page.start_line}) analysis summary must contain 1-3 labeled bullets")
+        errors.extend(validate_analysis_summary_count(f"{page.title} (line {page.start_line})", page.body))
+        errors.extend(validate_visible_copy(f"{page.title} (line {page.start_line})", page.body, limits, is_summary=False))
 
         body_match = re.search(r"正文内容[：:]?\s*(.*?)(?:\n参考图片[：:]|\n备注[：:]|\Z)", page.body, flags=re.S)
         body_chars = content_char_count(body_match.group(1) if body_match else "")
@@ -313,21 +435,22 @@ SELF_TEST_BRIEF = """# PPT Content Brief
 
 ## Summary Page
 页码：Page 2
-页面标题：长程任务需要可治理的记忆层
-标题说明：MIA 的价值在于把记忆从上下文堆叠升级为可检索、可更新、可评估的认知资产。
+页面标题：记忆治理层
+标题说明：把跨轮经验从上下文堆叠升级为可检索、可更新、可审计资产。
 分析总结：
 - 结构升级：长程任务需要把历史经验沉淀成可治理资产。
 - 机制价值：记忆层让经验能够被检索、更新、淘汰和审计。
 - 采用判断：跨多轮、多工具、多目标任务最值得优先评估记忆层。
 正文内容：
 - 这一页作为顶层总结页，应先回答技术负责人最关心的问题：为什么这不是又一种提示词技巧，而是长程任务基础设施的一部分。核心表达是，长程任务会不断产生跨轮经验，如果这些经验只存在于上下文窗口或临时摘要中，就会随任务轮次增加而变得难以管理。
-- PPT 正文可以围绕三层逻辑展开：第一，上下文堆叠只能让模型看见更多历史，不能决定哪些历史值得保留；第二，结构化记忆把历史经验转化为可检索、可更新、可评估的对象；第三，团队只有能治理记忆对象，才可能在长程任务里持续复用成功路径并降低错误经验污染。
+- PPT 正文可以围绕一条主体论点展开：长上下文只能让模型看见更多历史，但结构化记忆才能决定哪些历史值得保留、何时检索、如何更新，以及团队如何治理这些经验资产。
 - 对读者来说，顶层判断不是“所有 Agent 都需要记忆层”，而是“当任务跨多轮、多工具、多目标，且历史经验会影响后续决策时，记忆层才从功能增强变成基础设施能力”。这个判断为后续章节留下清晰问题：为什么上下文不够、记忆机制怎么工作、落地时如何治理风险。
 - 高密总结页还应该给 PPT Maker 足够的页面材料：可以把信息组织为“当前做法的问题、记忆层的机制、架构判断、采用边界”四块。当前做法的问题是长程任务中的经验会被上下文窗口、摘要策略和人工复制粘贴切碎；记忆层的机制是把经验变成有来源、有更新时间、有适用范围的对象；架构判断是记忆是否可治理决定它能否进入生产工作流；采用边界是短任务、一次性问答和低风险闲聊通常不需要完整记忆基础设施。
-- 这一页的正文还要能支撑图文排版：左侧可以放任务循环或记忆生命周期图，右侧用三条高密标签句总结“为什么需要、怎么实现、何时采用”，底部用一行谨慎备注说明不外推到所有 Agent 场景。这样下游 PPT Agent 不需要读取内部审计文件，也能直接写出完整总结页。
+- 这一页的正文还要能支撑图文排版：左侧可以放任务循环或记忆生命周期图，右侧用若干高密标签句总结“为什么需要、怎么实现、何时采用”，底部用一行谨慎备注说明不外推到所有 Agent 场景。这样下游 PPT Agent 不需要读取内部审计文件，也能直接写出完整总结页。
 - 总结页可以加入更具体的决策语言：如果团队的 Agent 任务需要跨会话延续、复用工具经验、保留用户长期偏好或沉淀失败教训，就应该评估记忆层；如果任务只是一次性问答，简单上下文摘要通常更轻。这个判断能帮助技术负责人把“记忆能力”从功能清单转成路线选择。
 - 还可以给出一条可执行的采用路径：先在高价值长程任务中试点，定义记忆对象、更新时间、删除条件和访问权限，再观察任务完成率、错误记忆污染、人工修正成本和隐私合规压力。这样总结页不只是观点页，也能直接承接后续章节的机制、治理和落地讨论。
 - 为避免页面空泛，正文应保留至少一个反向提醒：记忆层不是越多越好，错误记忆、过期偏好和权限不清的数据都会污染后续决策。真正值得投入的不是“让 Agent 记住更多”，而是让 Agent 知道哪些经验应该被保留、何时应该被调用、何时必须被删除。
+- 若页面只保留一条核心论点，也必须在正文中给足支撑：问题来自经验不可管理，机制来自记忆对象的生命周期，决策含义来自治理成本和任务价值的权衡。这些内容是同一论点的展开，不需要被拆成多个并列结论。
 - 这一页最终要让读者带走一个完整判断：记忆层的价值不在存储本身，而在把跨轮经验变成可管理、可复用、可纠错的工程资产。
 - 因此总结页的信息密度应高于普通章节页，承担结论、结构、判断和行动入口四个任务。
 参考图片：
@@ -343,20 +466,20 @@ SELF_TEST_BRIEF = """# PPT Content Brief
 
 ### Page 4: 长程任务瓶颈来自经验不可管理
 所属章节：问题重构
-页面标题：长程任务瓶颈来自经验不可管理
-标题说明：Agent 在多轮任务中真正缺失的是可沉淀、可检索、可更新的经验结构，而不只是更长上下文。
+页面标题：经验资产化
+标题说明：多轮 Agent 需要把历史经验沉淀成可治理资产。
 分析总结：
 - 问题重构：长程任务的瓶颈不是上下文长度，而是经验无法沉淀为可治理资产。
-- 机制升级：记忆层把历史交互转化为可检索、可更新、可评估的任务资产。
-- 落地判断：只有跨多轮、多工具、多目标的任务，才真正需要把记忆当成基础设施。
 正文内容：
 - 长程任务会持续产生跨轮经验，包括用户偏好、工具调用结果、失败路径、已验证假设和中间产物。如果这些信息只留在上下文窗口里，模型每轮都要在旧对话、新目标和工具结果之间重新筛选，成本会随轮次上升，噪声也会持续积累。
 - 单纯扩大上下文窗口只能缓解“放不下”的问题，不能解决“哪些经验值得保留、什么时候应该检索、错误经验如何淘汰”的治理问题。对技术负责人来说，真正的问题不是模型是否看过更多历史，而是团队能否管理历史经验的生命周期。
 - MIA 这类记忆机制的表达重点应该放在经验资产化：任务执行过程中沉淀可复用经验，下一轮任务按需检索相关记忆，任务结束后再更新或淘汰旧记忆。这样才能把一次性对话中的信息转化为可持续复用的能力。
-- 页面正文可以按“问题、机制、采用边界”三段展开。第一段解释上下文堆叠带来的成本和噪声；第二段解释记忆对象如何被组织、检索和更新；第三段说明并非所有场景都需要完整记忆层，短任务或一次性问答可能只需要摘要。
+- 页面正文可以用“问题、机制、采用边界”作为对同一核心论点的支撑层次。第一层解释上下文堆叠带来的成本和噪声；第二层解释记忆对象如何被组织、检索和更新；第三层说明并非所有场景都需要完整记忆层，短任务或一次性问答可能只需要摘要。
 - 如果给技术负责人看，还应补充工程检查项：记忆对象如何切分，检索命中如何评估，错误记忆如何回滚，哪些数据需要权限控制，哪些记忆只适合 session 级保存。这些内容能把“记忆层是基础设施”支撑成可讨论的工程判断。
 - 这一页的正文不应停留在“效果更好”的泛泛表述，而要讲清为什么记忆层比长上下文更可治理：它能记录来源、更新时间、适用范围和删除条件，也能让团队审计哪些历史经验影响了后续决策。
 - 对 PPT 制作来说，可以把核心正文压成三组信息：上下文堆叠的问题，结构化记忆的能力，工程落地的判断标准。这样读者先理解痛点，再理解机制，最后知道什么时候值得采用。
+- 页面标题和说明保持短句，具体解释留给正文承接。
+- 这种拆法也让下游 PPT 能把标题行控制在一行内。
 - 采用建议可以写得更克制：先在高价值长程任务中试点记忆层，例如代码迁移、复杂数据分析、跨系统运维排障，再观察检索命中、错误记忆污染和人工修正成本。
 参考图片：
 - 使用论文中的记忆机制图或任务循环图，突出历史经验如何进入记忆、任务执行时如何检索、任务结束后如何更新。若没有合适原图，可重绘为“任务执行 -> 经验沉淀 -> 记忆检索 -> 结果更新”的简洁流程图。
@@ -377,8 +500,8 @@ SELF_TEST_SUMMARY_ONLY_BRIEF = """# PPT Content Brief
 
 ## Summary Page
 页码：Page 1
-页面标题：长程任务需要可治理的记忆层
-标题说明：MIA 的价值在于把记忆从上下文堆叠升级为可检索、可更新、可评估的认知资产。
+页面标题：记忆治理层
+标题说明：把跨轮经验从上下文堆叠升级为可检索、可更新、可审计资产。
 分析总结：
 - 结构升级：长程任务需要把历史经验沉淀成可治理资产。
 - 机制价值：记忆层让经验能够被检索、更新、淘汰和审计。
@@ -387,12 +510,13 @@ SELF_TEST_SUMMARY_ONLY_BRIEF = """# PPT Content Brief
 - 这一页作为唯一交付页，需要同时承担结论、结构、判断和行动入口。它先回答技术负责人最关心的问题：为什么记忆层不是提示词技巧，而是长程任务基础设施的一部分。长程任务会持续产生跨轮经验，如果这些经验只存在于上下文窗口、摘要策略或人工复制粘贴里，就会随任务轮次增加而变得难以管理、难以复用，也难以纠错。
 - 页面正文可以压成四块：当前做法的问题、记忆层的机制、架构判断、采用边界。当前做法的问题是历史经验会被上下文窗口切碎；记忆层的机制是把经验变成有来源、有更新时间、有适用范围的对象；架构判断是记忆是否可治理决定它能否进入生产工作流；采用边界是短任务、一次性问答和低风险闲聊通常不需要完整记忆基础设施。
 - 这一页还应给出可执行的采用路径：先在高价值长程任务中试点，定义记忆对象、更新时间、删除条件和访问权限，再观察任务完成率、错误记忆污染、人工修正成本和隐私合规压力。真正值得投入的不是“让 Agent 记住更多”，而是让 Agent 知道哪些经验应该被保留、何时应该被调用、何时必须被删除。
-- 如果做成高密排版，左侧可以放任务循环或记忆生命周期图，右侧用三条高密标签句总结“为什么需要、怎么实现、何时采用”，底部用一句谨慎备注说明不外推到所有 Agent 场景。
-- 一页模式下不需要目录和后续内容页，因此总结页必须自己讲完整故事：先用标题和标题说明给出顶层结论，再用三条分析总结压缩问题、机制和判断，正文则补足原因、采用路径、风险边界和视觉组织建议。这样 PPT Maker 即使只消费这一页，也能生成一张信息密度足够高的高管判断页，而不是只有口号和几条空泛结论。
+- 如果做成高密排版，左侧可以放任务循环或记忆生命周期图，右侧用若干高密标签句总结“为什么需要、怎么实现、何时采用”，底部用一句谨慎备注说明不外推到所有 Agent 场景。
+- 一页模式下不需要目录和后续内容页，因此总结页必须自己讲完整故事：先用标题和标题说明给出顶层结论，再用按信息密度选择的分析总结压缩核心论点，正文则补足原因、采用路径、风险边界和视觉组织建议。这样 PPT Maker 即使只消费这一页，也能生成一张信息密度足够高的高管判断页，而不是只有口号和几条空泛结论。
 - 页面还可以加入一句反向判断：如果团队无法记录记忆来源、无法删除过期记忆、无法解释某次任务为何调用某段历史经验，那么记忆层会从资产变成污染源。这个反向判断能让总结页同时具备说服力和谨慎边界。
 - 为了让一页内容真正可用，正文还应给出落地检查清单：记忆对象是否有清晰粒度，检索命中是否可评估，错误记忆是否能回滚，用户隐私和权限是否能隔离，记忆更新是否有人工审核或自动淘汰机制。这些检查项能直接变成 PPT 的下半部分内容，帮助读者判断是否进入试点。
 - 如果需要更偏决策表达，可以把页面结论写成“先试点、再平台化”：先选一个跨多轮、多工具、失败代价较高的任务池验证记忆层收益，再决定是否沉淀为平台能力。这样总结页同时覆盖技术价值、试点路径和投资节奏。
 - 这一页还应避免只讲收益：记忆层会引入存储成本、权限治理、错误传播和解释性压力。只有当这些治理成本小于长期任务中的重复探索、人工修正和上下文噪声成本时，记忆层才值得从功能增强升级为基础设施。
+- 标题行保持短句，正文负责承接完整判断。
 - 最终页面应该让读者能立即做判断：是否值得试点、试点看什么指标、什么情况下暂停推进，以及谁负责治理。
 参考图片：
 - 可用任务循环图表达“任务执行 -> 经验沉淀 -> 记忆检索 -> 结果更新”的主线。
@@ -408,8 +532,60 @@ def main() -> int:
     parser.add_argument("--min-summary-content-chars", type=int, default=1200, help="Minimum counted content characters for Summary Page.")
     parser.add_argument("--expected-pages", type=int, help="Require an exact total PPT page count. 1 means Summary Page only; 7 means cover + Summary Page + contents + 4 chapter pages.")
     parser.add_argument("--allow-absolute-paths", action="store_true", help="Allow local absolute paths in the PPT content brief.")
+    parser.add_argument("--max-title-units", type=int, default=VisibleCopyLimits.max_title_units, help="Maximum Chinese-width units for 页面标题.")
+    parser.add_argument("--max-subtitle-units", type=int, default=VisibleCopyLimits.max_subtitle_units, help="Maximum Chinese-width units for 标题说明.")
+    parser.add_argument("--max-title-line-units", type=int, default=VisibleCopyLimits.max_title_line_units, help="Maximum Chinese-width units for 页面标题 + 标题说明 on the shared title line.")
+    parser.add_argument("--max-analysis-bullet-units", type=int, default=VisibleCopyLimits.max_analysis_bullet_units, help="Maximum Chinese-width units for one 分析总结 bullet.")
+    parser.add_argument("--max-summary-analysis-total-units", type=int, default=VisibleCopyLimits.max_summary_analysis_total_units, help="Maximum Chinese-width units for Summary Page 分析总结 total.")
+    parser.add_argument("--max-page-analysis-total-units", type=int, default=VisibleCopyLimits.max_page_analysis_total_units, help="Maximum Chinese-width units for one content page 分析总结 total.")
+    parser.add_argument("--visible-copy-check", action="store_true", help="Check only visible slide-copy fields from --title, --subtitle, and --analysis-bullet.")
+    parser.add_argument("--approval-bundle-check", action="store_true", help="Check a final approval bundle text file for expanded page viewpoint fields.")
+    parser.add_argument("--title", default="", help="Visible-copy check 页面标题.")
+    parser.add_argument("--subtitle", default="", help="Visible-copy check 标题说明.")
+    parser.add_argument("--analysis-bullet", action="append", default=[], help="Visible-copy check 分析总结 bullet; pass once per bullet.")
+    parser.add_argument("--summary-page", action="store_true", help="Treat --visible-copy-check as a Summary Page instead of a chapter content page.")
     parser.add_argument("--self-test", action="store_true", help="Run validator against an embedded valid brief.")
     args = parser.parse_args()
+    visible_copy_limits = VisibleCopyLimits(
+        max_title_units=args.max_title_units,
+        max_subtitle_units=args.max_subtitle_units,
+        max_title_line_units=args.max_title_line_units,
+        max_analysis_bullet_units=args.max_analysis_bullet_units,
+        max_summary_analysis_total_units=args.max_summary_analysis_total_units,
+        max_page_analysis_total_units=args.max_page_analysis_total_units,
+    )
+
+    if args.visible_copy_check:
+        errors = validate_visible_copy(
+            "Visible copy",
+            visible_copy_block(args.title, args.subtitle, args.analysis_bullet),
+            visible_copy_limits,
+            is_summary=args.summary_page,
+        )
+        errors.extend(validate_analysis_summary_count("Visible copy", visible_copy_block(args.title, args.subtitle, args.analysis_bullet)))
+        if errors:
+            print(f"[ERROR] Visible copy QA failed ({len(errors)} issue(s)):")
+            for error in errors:
+                print(f"  - {error}")
+            return 1
+        print("[OK] Visible copy QA passed.")
+        return 0
+
+    if args.approval_bundle_check:
+        if not args.brief:
+            parser.error("brief is required with --approval-bundle-check")
+        path = Path(args.brief)
+        if not path.exists():
+            print(f"[ERROR] Approval bundle not found: {path}")
+            return 1
+        errors = validate_approval_bundle(path.read_text(encoding="utf-8"))
+        if errors:
+            print(f"[ERROR] Approval bundle QA failed ({len(errors)} issue(s)):")
+            for error in errors:
+                print(f"  - {error}")
+            return 1
+        print("[OK] Approval bundle QA passed.")
+        return 0
 
     if args.self_test:
         errors = validate(
@@ -418,6 +594,7 @@ def main() -> int:
             args.min_summary_content_chars,
             expected_pages=4,
             allow_absolute_paths=args.allow_absolute_paths,
+            visible_copy_limits=visible_copy_limits,
         )
         one_page_errors = validate(
             SELF_TEST_SUMMARY_ONLY_BRIEF,
@@ -425,6 +602,7 @@ def main() -> int:
             args.min_summary_content_chars,
             expected_pages=1,
             allow_absolute_paths=args.allow_absolute_paths,
+            visible_copy_limits=visible_copy_limits,
         )
         errors.extend([f"summary-only: {error}" for error in one_page_errors])
         if errors:
@@ -450,6 +628,7 @@ def main() -> int:
         args.min_summary_content_chars,
         expected_pages=args.expected_pages,
         allow_absolute_paths=args.allow_absolute_paths,
+        visible_copy_limits=visible_copy_limits,
     )
     if errors:
         print(f"[ERROR] PPT Content Brief QA failed ({len(errors)} issue(s)):")
