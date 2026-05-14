@@ -13,8 +13,6 @@ REQUIRED_HEADINGS = [
     "# PPT Content Brief",
     "## Deck Metadata",
     "## Summary Page",
-    "## Table of Contents",
-    "## Page Content",
 ]
 
 DECK_METADATA_FIELDS = [
@@ -138,7 +136,7 @@ def extract_field(body: str, field: str) -> str:
     return match.group(1).strip() if match else ""
 
 
-def validate_summary_block(text: str, min_summary_content_chars: int) -> list[str]:
+def validate_summary_block(text: str, min_summary_content_chars: int, expected_summary_page: int | None) -> list[str]:
     errors: list[str] = []
     summary = extract_section(text, "## Summary Page")
     if not summary.strip():
@@ -148,8 +146,11 @@ def validate_summary_block(text: str, min_summary_content_chars: int) -> list[st
         if field not in summary:
             errors.append(f"Summary Page missing field: {field}")
 
-    if not re.search(r"^页码[：:]\s*(?:Page\s*)?\d+\s*$", summary, flags=re.MULTILINE):
+    page_match = re.search(r"^页码[：:]\s*(?:Page\s*)?(\d+)\s*$", summary, flags=re.MULTILINE)
+    if not page_match:
         errors.append("Summary Page must include an actual page number in 页码")
+    elif expected_summary_page is not None and int(page_match.group(1)) != expected_summary_page:
+        errors.append(f"Summary Page 页码 must be Page {expected_summary_page}")
 
     summary_match = re.search(
         r"分析总结[：:]?\s*\n(?P<body>.*?)(?:\n(?:正文内容|参考图片|备注)[：:]|\Z)",
@@ -188,39 +189,63 @@ def validate(
         if not re.search(rf"^{re.escape(heading)}\s*$", text, flags=re.MULTILINE):
             errors.append(f"Missing required heading: {heading}")
 
+    has_toc = bool(re.search(r"^## Table of Contents\s*$", text, flags=re.MULTILINE))
+    has_page_content = bool(re.search(r"^## Page Content\s*$", text, flags=re.MULTILINE))
+    if expected_pages is not None and expected_pages < 1:
+        errors.append("--expected-pages must be total PPT pages and must be >= 1")
+    summary_only = expected_pages == 1
+    contents_only = expected_pages == 3
+    requires_chapter_pages = expected_pages is None or expected_pages >= 4
+    expected_content_pages = expected_pages - 3 if expected_pages is not None and expected_pages >= 4 else None
+    if requires_chapter_pages or contents_only:
+        required_later_headings = ["## Table of Contents", "## Page Content"] if requires_chapter_pages else ["## Table of Contents"]
+        for heading in required_later_headings:
+            if not re.search(rf"^{re.escape(heading)}\s*$", text, flags=re.MULTILINE):
+                errors.append(f"Missing required heading for multi-page brief: {heading}")
+    elif summary_only and (has_toc or has_page_content):
+        errors.append("For expected-pages 1, omit Table of Contents and Page Content")
+    if contents_only and has_page_content:
+        errors.append("For expected-pages 3, omit Page Content because there are no chapter content pages")
+
     metadata = extract_section(text, "## Deck Metadata")
     for field in DECK_METADATA_FIELDS:
         if not re.search(rf"^{re.escape(field)}[：:]\s*\S+", metadata, flags=re.MULTILINE):
             errors.append(f"Deck Metadata field is missing or empty: {field}")
 
-    toc = extract_section(text, "## Table of Contents")
-    toc_items = re.findall(r"^\d{2}\s+小标题[：:]\s*\S+", toc, flags=re.MULTILINE)
-    if not toc_items:
-        errors.append("Table of Contents must contain items like: 01 小标题：...")
-    if len(toc_items) > 3:
-        errors.append(f"Table of Contents has too many chapter items: {len(toc_items)} > 3")
-    if "说明" not in toc:
-        errors.append("Table of Contents items must include concise 说明 lines")
+    if has_toc:
+        toc = extract_section(text, "## Table of Contents")
+        toc_items = re.findall(r"^\d{2}\s+小标题[：:]\s*\S+", toc, flags=re.MULTILINE)
+        if not toc_items:
+            errors.append("Table of Contents must contain items like: 01 小标题：...")
+        if len(toc_items) > 3:
+            errors.append(f"Table of Contents has too many chapter items: {len(toc_items)} > 3")
+        if "说明" not in toc:
+            errors.append("Table of Contents items must include concise 说明 lines")
 
     summary_index = text.find("## Summary Page")
     toc_index = text.find("## Table of Contents")
     page_index = text.find("## Page Content")
-    if not (summary_index != -1 and toc_index != -1 and page_index != -1 and summary_index < toc_index < page_index):
+    if requires_chapter_pages and not (summary_index != -1 and toc_index != -1 and page_index != -1 and summary_index < toc_index < page_index):
         errors.append("PPT Content Brief must be ordered as Summary Page, Table of Contents, then Page Content")
+    if not requires_chapter_pages and not (summary_index != -1 and (toc_index == -1 or summary_index < toc_index) and (page_index == -1 or summary_index < page_index)):
+        errors.append("Summary-only PPT Content Brief must place Summary Page after Deck Metadata and omit later sections")
 
-    errors.extend(validate_summary_block(text, min_summary_content_chars=min_summary_content_chars))
+    expected_summary_page = 1 if summary_only else 2
+    errors.extend(validate_summary_block(text, min_summary_content_chars=min_summary_content_chars, expected_summary_page=expected_summary_page))
 
     for banned in BANNED_INTERNAL_FIELDS + BANNED_RENDERING_FIELDS:
         if banned.lower() in text.lower():
             errors.append(f"Banned internal/layout token found in PPT Content Brief: {banned}")
 
-    pages = extract_pages(text)
-    if not pages and (expected_pages is None or expected_pages > 0):
+    pages = extract_pages(text) if has_page_content else []
+    if not pages and requires_chapter_pages:
         errors.append("No page content blocks found. Expected headings like: ### Page 1: 页面标题")
-    elif expected_pages is not None and len(pages) != expected_pages:
-        errors.append(f"Expected exactly {expected_pages} page content block(s), found {len(pages)}")
+    elif expected_content_pages is not None and len(pages) != expected_content_pages:
+        errors.append(
+            f"Expected exactly {expected_content_pages} chapter Page Content block(s) for {expected_pages} total PPT pages, found {len(pages)}"
+        )
 
-    allowed_chapters = toc_titles(text)
+    allowed_chapters = toc_titles(text) if has_toc else []
 
     for page in pages:
         for field in PAGE_FIELDS:
@@ -287,7 +312,7 @@ SELF_TEST_BRIEF = """# PPT Content Brief
 关联审计文件：research_audit.md
 
 ## Summary Page
-页码：Page 1
+页码：Page 2
 页面标题：长程任务需要可治理的记忆层
 标题说明：MIA 的价值在于把记忆从上下文堆叠升级为可检索、可更新、可评估的认知资产。
 分析总结：
@@ -316,7 +341,7 @@ SELF_TEST_BRIEF = """# PPT Content Brief
 
 ## Page Content
 
-### Page 1: 长程任务瓶颈来自经验不可管理
+### Page 4: 长程任务瓶颈来自经验不可管理
 所属章节：问题重构
 页面标题：长程任务瓶颈来自经验不可管理
 标题说明：Agent 在多轮任务中真正缺失的是可沉淀、可检索、可更新的经验结构，而不只是更长上下文。
@@ -340,12 +365,48 @@ SELF_TEST_BRIEF = """# PPT Content Brief
 """
 
 
+SELF_TEST_SUMMARY_ONLY_BRIEF = """# PPT Content Brief
+
+## Deck Metadata
+主题：Memory Intelligence Agent 的一页技术汇报
+目标读者：技术负责人
+页数口径：1 页总结页，不包含封面和目录页
+核心结论：MIA 的价值在于把记忆从上下文堆叠升级为可治理的认知资产。
+内容来源：论文正文、Figure 2、Table 1、用户补充判断
+关联审计文件：research_audit.md
+
+## Summary Page
+页码：Page 1
+页面标题：长程任务需要可治理的记忆层
+标题说明：MIA 的价值在于把记忆从上下文堆叠升级为可检索、可更新、可评估的认知资产。
+分析总结：
+- 结构升级：长程任务需要把历史经验沉淀成可治理资产。
+- 机制价值：记忆层让经验能够被检索、更新、淘汰和审计。
+- 采用判断：跨多轮、多工具、多目标任务最值得优先评估记忆层。
+正文内容：
+- 这一页作为唯一交付页，需要同时承担结论、结构、判断和行动入口。它先回答技术负责人最关心的问题：为什么记忆层不是提示词技巧，而是长程任务基础设施的一部分。长程任务会持续产生跨轮经验，如果这些经验只存在于上下文窗口、摘要策略或人工复制粘贴里，就会随任务轮次增加而变得难以管理、难以复用，也难以纠错。
+- 页面正文可以压成四块：当前做法的问题、记忆层的机制、架构判断、采用边界。当前做法的问题是历史经验会被上下文窗口切碎；记忆层的机制是把经验变成有来源、有更新时间、有适用范围的对象；架构判断是记忆是否可治理决定它能否进入生产工作流；采用边界是短任务、一次性问答和低风险闲聊通常不需要完整记忆基础设施。
+- 这一页还应给出可执行的采用路径：先在高价值长程任务中试点，定义记忆对象、更新时间、删除条件和访问权限，再观察任务完成率、错误记忆污染、人工修正成本和隐私合规压力。真正值得投入的不是“让 Agent 记住更多”，而是让 Agent 知道哪些经验应该被保留、何时应该被调用、何时必须被删除。
+- 如果做成高密排版，左侧可以放任务循环或记忆生命周期图，右侧用三条高密标签句总结“为什么需要、怎么实现、何时采用”，底部用一句谨慎备注说明不外推到所有 Agent 场景。
+- 一页模式下不需要目录和后续内容页，因此总结页必须自己讲完整故事：先用标题和标题说明给出顶层结论，再用三条分析总结压缩问题、机制和判断，正文则补足原因、采用路径、风险边界和视觉组织建议。这样 PPT Maker 即使只消费这一页，也能生成一张信息密度足够高的高管判断页，而不是只有口号和几条空泛结论。
+- 页面还可以加入一句反向判断：如果团队无法记录记忆来源、无法删除过期记忆、无法解释某次任务为何调用某段历史经验，那么记忆层会从资产变成污染源。这个反向判断能让总结页同时具备说服力和谨慎边界。
+- 为了让一页内容真正可用，正文还应给出落地检查清单：记忆对象是否有清晰粒度，检索命中是否可评估，错误记忆是否能回滚，用户隐私和权限是否能隔离，记忆更新是否有人工审核或自动淘汰机制。这些检查项能直接变成 PPT 的下半部分内容，帮助读者判断是否进入试点。
+- 如果需要更偏决策表达，可以把页面结论写成“先试点、再平台化”：先选一个跨多轮、多工具、失败代价较高的任务池验证记忆层收益，再决定是否沉淀为平台能力。这样总结页同时覆盖技术价值、试点路径和投资节奏。
+- 这一页还应避免只讲收益：记忆层会引入存储成本、权限治理、错误传播和解释性压力。只有当这些治理成本小于长期任务中的重复探索、人工修正和上下文噪声成本时，记忆层才值得从功能增强升级为基础设施。
+- 最终页面应该让读者能立即做判断：是否值得试点、试点看什么指标、什么情况下暂停推进，以及谁负责治理。
+参考图片：
+- 可用任务循环图表达“任务执行 -> 经验沉淀 -> 记忆检索 -> 结果更新”的主线。
+备注：
+- 不把记忆层包装成所有 Agent 场景的默认答案，保持技术评审语气。
+"""
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Validate a PPT Deep Search PPT Content Brief.")
     parser.add_argument("brief", nargs="?", help="Path to PPT Content Brief Markdown.")
     parser.add_argument("--min-page-content-chars", type=int, default=900, help="Minimum counted content characters per page.")
     parser.add_argument("--min-summary-content-chars", type=int, default=1200, help="Minimum counted content characters for Summary Page.")
-    parser.add_argument("--expected-pages", type=int, help="Require an exact number of chapter Page Content sections, excluding Summary Page and Table of Contents.")
+    parser.add_argument("--expected-pages", type=int, help="Require an exact total PPT page count. 1 means Summary Page only; 7 means cover + Summary Page + contents + 4 chapter pages.")
     parser.add_argument("--allow-absolute-paths", action="store_true", help="Allow local absolute paths in the PPT content brief.")
     parser.add_argument("--self-test", action="store_true", help="Run validator against an embedded valid brief.")
     args = parser.parse_args()
@@ -355,9 +416,17 @@ def main() -> int:
             SELF_TEST_BRIEF,
             args.min_page_content_chars,
             args.min_summary_content_chars,
-            expected_pages=args.expected_pages,
+            expected_pages=4,
             allow_absolute_paths=args.allow_absolute_paths,
         )
+        one_page_errors = validate(
+            SELF_TEST_SUMMARY_ONLY_BRIEF,
+            args.min_page_content_chars,
+            args.min_summary_content_chars,
+            expected_pages=1,
+            allow_absolute_paths=args.allow_absolute_paths,
+        )
+        errors.extend([f"summary-only: {error}" for error in one_page_errors])
         if errors:
             print("[ERROR] Self-test failed:")
             for error in errors:

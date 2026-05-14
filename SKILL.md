@@ -192,7 +192,7 @@ After approval, save:
 .tmp/ppt-deep-search/<task-name>/baselines/02-page-count.md
 ```
 
-Also create a page-number map in the baseline. If cover and contents are included, preserve actual PPT page numbers, for example: `Page 1: cover`, `Page 2: contents`, `Page 3: top-level summary`, `Page 4-N: content pages`. Later page briefs must use these actual PPT page numbers, not a restarted content-page index.
+Also create a page-number map in the baseline. For multi-page decks, preserve this order by default: `Page 1: cover`, `Page 2: top-level summary`, `Page 3: contents`, `Page 4-N: chapter content pages`. If the user asks for a 1-page output, produce only `Page 1: top-level summary` and omit contents and chapter content pages. Later page briefs must use these actual PPT page numbers, not a restarted content-page index.
 
 ### 2.5 Confirm Table of Contents
 
@@ -211,7 +211,7 @@ Use this exact shape:
 Rules:
 
 - The table of contents must have at most three content chapters unless the user explicitly requests more.
-- The top-level summary page is not necessarily a table-of-contents entry; it may be the opening summary page.
+- The top-level summary page is not a table-of-contents entry; it is the standalone Page 2 in multi-page decks. If the output is only 1 page, omit the table of contents entirely.
 - Each `小标题` must be short enough to fit the page's top-left chapter indicator.
 - Each `说明` should be one concise sentence explaining what that chapter proves.
 - Do not use `表达的观点 / 标题 / 分析总结` for the table of contents.
@@ -366,7 +366,7 @@ Before finalizing, run a skeptic pass:
 
 Write the final handoff only when the user explicitly says to proceed, the conversation has resolved the main forks, or a deadline requires a first draft.
 
-Write `ppt_content_brief.md` as the only downstream PPT copy source. It must contain only PPT-ready structured text. Preserve this order: `Summary Page`, `Table of Contents`, then chapter-mapped `Page Content`.
+Write `ppt_content_brief.md` as the only downstream PPT copy source. It must contain only PPT-ready structured text. For multi-page decks, preserve this order: `Summary Page`, `Table of Contents`, then chapter-mapped `Page Content`. For a 1-page output, include only `Summary Page` after `Deck Metadata`; omit `Table of Contents` and `Page Content`.
 
 ```markdown
 # PPT Content Brief
@@ -380,7 +380,7 @@ Write `ppt_content_brief.md` as the only downstream PPT copy source. It must con
 关联审计文件：research_audit.md
 
 ## Summary Page
-页码：
+页码：Page 2
 页面标题：
 标题说明：
 分析总结：
@@ -421,7 +421,7 @@ Do not put `Claim`, `Evidence`, `Implication`, source locator tables, approval h
 
 Match the brief to the requested downstream artifact:
 
-- If the user asks for a 1-page PPT, produce `## Summary Page` as the single slide and omit additional `Page Content` blocks only if there are no chapter content pages.
+- If the user asks for a 1-page PPT, produce `## Summary Page` as `Page 1` and omit `## Table of Contents` and `## Page Content`.
 - If the user asks for a short deck, produce one `Page Content` block per intended chapter content page unless the user asks for alternatives.
 - Do not create a broad multi-chapter deck storyline when the task is a single page. Put unused angles in `Assumptions and Open Questions` or `Visual Opportunities`.
 - Keep `Recommended Deck Storyline` scoped to the requested artifact, for example "one-page storyline" for a single-slide request.
@@ -446,10 +446,10 @@ Before handing the brief to a PPT skill, save `ppt_content_brief.md` and run:
 python scripts/validate_ppt_content_brief.py .tmp/ppt-deep-search/<task-name>/ppt_content_brief.md --min-page-content-chars 900 --min-summary-content-chars 1200
 ```
 
-For fixed-size outputs, add `--expected-pages <n>` for chapter content pages only; do not count the standalone summary page or table-of-contents page. For example, a 1-page PPT with only the summary page should use `--expected-pages 0`, while a 7-page deck with Page 3 summary and Page 4-7 chapter content should use `--expected-pages 4`.
+For fixed-size outputs, add `--expected-pages <n>` as total PPT pages. For example, a 1-page PPT with only the summary page should use `--expected-pages 1`, while a 7-page deck with Page 1 cover, Page 2 summary, Page 3 contents, and Page 4-7 chapter content should use `--expected-pages 7`.
 
 ```powershell
-python scripts/validate_ppt_content_brief.py .tmp/ppt-deep-search/<task-name>/ppt_content_brief.md --min-page-content-chars 900 --min-summary-content-chars 1200 --expected-pages 4
+python scripts/validate_ppt_content_brief.py .tmp/ppt-deep-search/<task-name>/ppt_content_brief.md --min-page-content-chars 900 --min-summary-content-chars 1200 --expected-pages 7
 ```
 
 The QA script checks required downstream headings, stable PPT page fields, banned internal audit fields, banned visual-rendering fields, direct PPT usability, and per-page content density. Treat script failures as blockers. Keep source evidence QA in `research_audit.md`.

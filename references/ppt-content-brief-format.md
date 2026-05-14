@@ -20,10 +20,13 @@ The PPT generation skill should consume `ppt_content_brief.md` first. It may ins
 - `# PPT Content Brief`
 - `## Deck Metadata`
 - `## Summary Page`
+
+For multi-page decks, it must also include:
+
 - `## Table of Contents`
 - `## Page Content`
 
-Missing headings are hard QA failures.
+For a 1-page output, omit `## Table of Contents` and `## Page Content`.
 
 ## Deck Metadata Fields
 
@@ -40,7 +43,7 @@ These fields are for downstream orientation. Keep them compact and PPT-relevant.
 
 ## Table Of Contents Contract
 
-`## Table of Contents` is the contents-page copy contract. It is not the page plan and not an evidence map.
+`## Table of Contents` is the contents-page copy contract. It is not the page plan and not an evidence map. In multi-page decks, contents should be Page 3 because Page 2 is the standalone summary page.
 
 Each item must use this shape:
 
@@ -58,7 +61,7 @@ Rules:
 
 ## Summary Page Contract
 
-`## Summary Page` is the standalone top-level conclusion page. It must appear before `## Table of Contents` so the downstream PPT maker sees the deck's answer before the navigation structure.
+`## Summary Page` is the standalone top-level conclusion page. In multi-page decks it must be Page 2, after the cover and before `## Table of Contents`. In a 1-page output it is Page 1 and `## Table of Contents` / `## Page Content` should be omitted.
 
 The summary page must include:
 
@@ -192,7 +195,7 @@ A PPT generation skill should validate:
 - Each content page has `所属章节`, and it matches one table-of-contents `小标题`.
 - `分析总结` has 1-3 directly usable Chinese labeled statements.
 - Each page meets the content-density threshold.
-- Expected page count for QA means chapter content pages under `## Page Content`; it excludes the standalone summary page and table-of-contents page.
+- Expected page count for QA means total PPT pages. `--expected-pages 1` means Summary Page only; `--expected-pages 7` means Page 1 cover, Page 2 summary, Page 3 contents, and Page 4-7 chapter content pages.
 - Banned internal/audit tokens do not appear.
 - Banned rendering/layout tokens do not appear.
 - `关联审计文件` points to a `research_audit.md` file for verification if needed.
