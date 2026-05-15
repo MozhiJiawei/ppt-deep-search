@@ -7,6 +7,8 @@ description: Human-in-the-loop deep research and storyline planning for PPT gene
 
 Build a source-grounded PPT Content Brief before PPT production. Act as content editor and research partner: frame the question, challenge the thesis, organize evidence, expose uncertainty, and hand PPT-ready structured Markdown to the downstream PPT skill.
 
+The core standard is source-grounded audience expression. Understand the source deeply enough to quote, locate, and verify its numbers, figures, mechanisms, and boundaries; then rewrite that evidence into the logic the target reader needs to accept the deck's conclusion. Do not merely paste source facts, and do not produce elegant logic that is weakly grounded. Strong output keeps both: original evidence for credibility, audience-fit expression for persuasion.
+
 This skill is modeled as a research dialogue, not a one-shot summarizer. The durable handoff has two files: `ppt_content_brief.md` for downstream PPT generation, and `research_audit.md` for internal evidence, boundaries, and approvals.
 
 Before doing any storyline work, read `references/pyramid-principle.md` and follow it as the highest-level doctrine. If any workflow detail conflicts with that doctrine, the doctrine wins.
@@ -105,6 +107,13 @@ The user should be choosing between PPT-ready top-level summary expressions, not
 
 For visible title lines, treat `页面标题` as the short object label or hook and `标题说明` as the quantitative decision statement. A strong title line usually combines object, scenario, measurable benefit or cost, and decision implication, such as: `{方法/对象}` + `面向{场景} - 以{成本/约束}换{收益/结果}`. Prefer numbers, comparisons, thresholds, rates, task conditions, and experimental settings when the source supports them.
 
+Use a progressive viewpoint layer. `页面标题` names the object or scenario, `标题说明` states the judgment, and `分析总结` makes that judgment more concrete with evidence-bearing conditions, numbers, comparisons, mechanisms, or decision implications. Choose 1-3 `分析总结` bullets by orthogonality, not by habit:
+
+- Use one bullet when the page is proving one condition, one mechanism, or one decision judgment. The bullet should be a more specific version of the title explanation, not a broader restatement.
+- Use 2-3 bullets when the page has genuinely orthogonal dimensions that a reader should evaluate separately, such as result plus deployment scope, benefit plus cost, scenario plus boundary, or mechanism plus engineering proof.
+- When multiple candidate bullets describe the same cause-effect chain, combine them into one bullet and move supporting details into `正文内容`.
+- When bullets are orthogonal, make each label name the dimension and each explanation carry its own evidence. For example, a production-result page can use `降本结果：GPU 需求减少 82%，且未报告 SLO violation` and `落地范围：服务 tens of models，参数规模覆盖 1.8B 到 72B` because one proves the business effect and the other proves deployment scope. A scenario-fit page may need only one bullet such as `适配条件：779 个模型中 94.1% 属于长尾，仅贡献 1.35% 请求，却占用 17.7% GPU` because the numbers jointly prove one scene-fit judgment.
+
 ### 1. Confirm Audience
 
 Confirm or infer only what is reasonably clear:
@@ -136,6 +145,7 @@ Before showing the source-understanding analysis, inspect the provided source pa
 - Build a compact evidence inventory with: key tables/figures, benchmark names, baseline names, metrics, strongest numeric deltas, cost/runtime/token numbers, problem-type splits, and explicit limitations.
 - Cross-check named methods/backbones against source tables or figure captions before using them in user-facing analysis.
 - Put exact locators, table/figure names, and extracted numeric values in the live evidence map and later `research_audit.md`.
+- Interpret the evidence through the approved audience frame. For each important source datum, ask what reader belief it supports, what decision or comparison it clarifies, and what boundary prevents overclaiming.
 
 Include exactly these three parts:
 
@@ -485,8 +495,10 @@ Match the brief to the requested downstream artifact:
 - The default visible-copy QA budget is approximately: `页面标题` <= 18 Chinese-width units, `标题说明` <= 60, shared `页面标题 + 标题说明` <= 82, one `分析总结` bullet <= 52, summary-page analysis total <= 170, content-page analysis total <= 120. Treat failures as blockers and rewrite before asking the user to approve.
 - Choose the `分析总结` count by page role and information density. Summary pages usually carry more compression and can use 2-3 bullets. Chapter content pages are usually more focused and often need only 1-2 bullets.
 - Write each `分析总结` bullet as a real core claim in the form `小标题：解释`. A good bullet is short, independently meaningful, and provable by the page body. If one bullet becomes long because it tries to combine several ideas, split it into two bullets or move support detail into `正文内容`.
+- Split `分析总结` into multiple bullets only when the bullets are orthogonal decision dimensions. Good multi-bullet pages separate dimensions such as `结果` and `范围`, `收益` and `成本`, `场景` and `边界`, or `机制` and `工程证明`. Good single-bullet pages use one evidence-rich bullet when all numbers and conditions support the same judgment. The page body then carries the subordinate support.
 - Make `分析总结` bullets evidence-bearing when possible. Prefer `效果：提升/下降/差异 + 条件`, `场景：适用/不适用任务 + 触发条件`, `成本：延迟/token/复杂度 + 决策含义`, `边界：不可外推范围 + 原因`, or `机制：可观察动作 + 结果` over abstract labels.
 - A `正文内容` section that reads like a PPT body material pack, not a list of more conclusions. Use it to support the selected `分析总结` claim(s) with concrete body content a slide can consume: mechanisms, source facts, quantitative context, comparison points, causal chains, caveats rewritten for slides, suggested reading order, and supporting points that echo the core claim.
+- Make the support mapping explicit. For every `分析总结` label, include at least one `正文内容` bullet or paragraph that repeats the same label and then gives the supporting facts, mechanism, comparison, or boundary. For example, if `分析总结` has `降本结果` and `落地范围`, the body should include separate support entries beginning with `降本结果：...` and `落地范围：...`; if the page has one `适配条件` bullet, the body can start with `适配条件：...` and then add subordinate explanation. This keeps the body visibly subordinate to the approved viewpoint instead of becoming a parallel essay.
 - A `参考图片` section that names the image/chart/screenshot/diagram candidate without prescribing layout.
 
 Do not pad with vague filler just to pass the length check. If a page is thin, add source-grounded mechanisms, comparisons, constraints, implications, examples, or reading guidance. When the original source package is insufficient, do targeted external research and record the supplemental trail in `research_audit.md`, not in the PPT content file.

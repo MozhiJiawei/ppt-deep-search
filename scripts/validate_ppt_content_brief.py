@@ -173,6 +173,21 @@ def extract_analysis_summary_items(section_body: str) -> list[str] | None:
     return [item.strip() for item in re.findall(r"^\s*-\s*(\S.+?)\s*$", summary_match.group("body"), flags=re.MULTILINE)]
 
 
+def analysis_summary_labels(section_body: str) -> list[str]:
+    items = extract_analysis_summary_items(section_body) or []
+    labels: list[str] = []
+    for item in items:
+        match = re.match(r"^([^：:\n]{2,12})[：:]\s*\S+", item)
+        if match:
+            labels.append(match.group(1).strip())
+    return labels
+
+
+def extract_body_content(section_body: str) -> str:
+    body_match = re.search(r"正文内容[：:]?\s*(.*?)(?:\n参考图片[：:]|\n备注[：:]|\Z)", section_body, flags=re.S)
+    return body_match.group(1) if body_match else ""
+
+
 def validate_analysis_summary_count(section_name: str, section_body: str) -> list[str]:
     summary_items = extract_analysis_summary_items(section_body)
     if summary_items is None:
@@ -184,6 +199,22 @@ def validate_analysis_summary_count(section_name: str, section_body: str) -> lis
             "summary pages often use 2-3 bullets, while focused chapter content pages often use 1-2"
         ]
     return []
+
+
+def validate_body_support_mapping(section_name: str, section_body: str) -> list[str]:
+    labels = analysis_summary_labels(section_body)
+    if not labels:
+        return []
+
+    body = extract_body_content(section_body)
+    errors: list[str] = []
+    for label in labels:
+        if not re.search(rf"(^|\n)\s*(?:-\s*)?{re.escape(label)}[：:]", body):
+            errors.append(
+                f"{section_name} 正文内容 must explicitly support 分析总结 label '{label}' "
+                f"with a body bullet or paragraph starting '{label}：...'"
+            )
+    return errors
 
 
 def validate_visible_copy(section_name: str, section_body: str, limits: VisibleCopyLimits, *, is_summary: bool) -> list[str]:
@@ -292,6 +323,7 @@ def validate_summary_block(
         errors.append(f"Summary Page 页码 must be Page {expected_summary_page}")
 
     errors.extend(validate_analysis_summary_count("Summary Page", summary))
+    errors.extend(validate_body_support_mapping("Summary Page", summary))
     errors.extend(validate_visible_copy("Summary Page", summary, limits, is_summary=True))
 
     density = content_char_count(summary)
@@ -401,10 +433,10 @@ def validate(
             )
 
         errors.extend(validate_analysis_summary_count(f"{page.title} (line {page.start_line})", page.body))
+        errors.extend(validate_body_support_mapping(f"{page.title} (line {page.start_line})", page.body))
         errors.extend(validate_visible_copy(f"{page.title} (line {page.start_line})", page.body, limits, is_summary=False))
 
-        body_match = re.search(r"正文内容[：:]?\s*(.*?)(?:\n参考图片[：:]|\n备注[：:]|\Z)", page.body, flags=re.S)
-        body_chars = content_char_count(body_match.group(1) if body_match else "")
+        body_chars = content_char_count(extract_body_content(page.body))
         if body_chars < max(500, min_page_content_chars // 2):
             errors.append(f"{page.title} (line {page.start_line}) 正文内容 is too thin for PPT body material")
 
@@ -442,6 +474,9 @@ SELF_TEST_BRIEF = """# PPT Content Brief
 - 机制价值：记忆层让经验能够被检索、更新、淘汰和审计。
 - 采用判断：跨多轮、多工具、多目标任务最值得优先评估记忆层。
 正文内容：
+- 结构升级：长程任务会不断产生跨轮经验，如果这些经验只存在于上下文窗口或临时摘要中，就会随任务轮次增加而变得难以管理。
+- 机制价值：记忆层把经验变成有来源、有更新时间、有适用范围的对象，让经验能够被检索、更新、淘汰和审计。
+- 采用判断：跨多轮、多工具、多目标任务最值得优先评估记忆层，短任务和一次性问答通常不需要完整记忆基础设施。
 - 这一页作为顶层总结页，应先回答技术负责人最关心的问题：为什么这不是又一种提示词技巧，而是长程任务基础设施的一部分。核心表达是，长程任务会不断产生跨轮经验，如果这些经验只存在于上下文窗口或临时摘要中，就会随任务轮次增加而变得难以管理。
 - PPT 正文可以围绕一条主体论点展开：长上下文只能让模型看见更多历史，但结构化记忆才能决定哪些历史值得保留、何时检索、如何更新，以及团队如何治理这些经验资产。
 - 对读者来说，顶层判断不是“所有 Agent 都需要记忆层”，而是“当任务跨多轮、多工具、多目标，且历史经验会影响后续决策时，记忆层才从功能增强变成基础设施能力”。这个判断为后续章节留下清晰问题：为什么上下文不够、记忆机制怎么工作、落地时如何治理风险。
@@ -471,6 +506,7 @@ SELF_TEST_BRIEF = """# PPT Content Brief
 分析总结：
 - 问题重构：长程任务的瓶颈不是上下文长度，而是经验无法沉淀为可治理资产。
 正文内容：
+- 问题重构：长程任务的瓶颈不是上下文长度，而是经验无法被记录来源、更新时间、适用范围和淘汰条件，最终无法沉淀为可治理资产。
 - 长程任务会持续产生跨轮经验，包括用户偏好、工具调用结果、失败路径、已验证假设和中间产物。如果这些信息只留在上下文窗口里，模型每轮都要在旧对话、新目标和工具结果之间重新筛选，成本会随轮次上升，噪声也会持续积累。
 - 单纯扩大上下文窗口只能缓解“放不下”的问题，不能解决“哪些经验值得保留、什么时候应该检索、错误经验如何淘汰”的治理问题。对技术负责人来说，真正的问题不是模型是否看过更多历史，而是团队能否管理历史经验的生命周期。
 - MIA 这类记忆机制的表达重点应该放在经验资产化：任务执行过程中沉淀可复用经验，下一轮任务按需检索相关记忆，任务结束后再更新或淘汰旧记忆。这样才能把一次性对话中的信息转化为可持续复用的能力。
@@ -507,6 +543,9 @@ SELF_TEST_SUMMARY_ONLY_BRIEF = """# PPT Content Brief
 - 机制价值：记忆层让经验能够被检索、更新、淘汰和审计。
 - 采用判断：跨多轮、多工具、多目标任务最值得优先评估记忆层。
 正文内容：
+- 结构升级：一页总结必须先证明长程任务会持续产生跨轮经验，而上下文窗口、摘要策略或人工复制粘贴无法长期管理这些经验。
+- 机制价值：记忆层把经验变成有来源、有更新时间、有适用范围的对象，使其能够被检索、更新、淘汰和审计。
+- 采用判断：跨会话延续、复用工具经验、保留用户长期偏好或沉淀失败教训的任务最值得优先评估记忆层。
 - 这一页作为唯一交付页，需要同时承担结论、结构、判断和行动入口。它先回答技术负责人最关心的问题：为什么记忆层不是提示词技巧，而是长程任务基础设施的一部分。长程任务会持续产生跨轮经验，如果这些经验只存在于上下文窗口、摘要策略或人工复制粘贴里，就会随任务轮次增加而变得难以管理、难以复用，也难以纠错。
 - 页面正文可以压成四块：当前做法的问题、记忆层的机制、架构判断、采用边界。当前做法的问题是历史经验会被上下文窗口切碎；记忆层的机制是把经验变成有来源、有更新时间、有适用范围的对象；架构判断是记忆是否可治理决定它能否进入生产工作流；采用边界是短任务、一次性问答和低风险闲聊通常不需要完整记忆基础设施。
 - 这一页还应给出可执行的采用路径：先在高价值长程任务中试点，定义记忆对象、更新时间、删除条件和访问权限，再观察任务完成率、错误记忆污染、人工修正成本和隐私合规压力。真正值得投入的不是“让 Agent 记住更多”，而是让 Agent 知道哪些经验应该被保留、何时应该被调用、何时必须被删除。

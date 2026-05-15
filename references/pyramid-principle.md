@@ -8,6 +8,8 @@ A PPT Content Brief is not a summary of source material. It is a pyramid-shaped 
 
 The deck should answer the reader's governing question first, express that answer as a standalone top-level summary page, then support it with a small number of necessary arguments, page-level evidence, and implications.
 
+Deep source understanding serves audience-facing expression. Original source quotes, tables, figures, and numeric claims provide credibility, but they are not the storyline by themselves. Translate source evidence into the reader's decision logic: what they should believe, why it matters for their context, what evidence makes it credible, and what boundary keeps the claim honest. Never choose between "faithful to the source" and "logical for the audience"; a strong brief must do both.
+
 ## Non-Negotiable Rules
 
 1. **Answer first**
@@ -47,6 +49,7 @@ The deck should answer the reader's governing question first, express that answe
 7. **Pages are not source-section slices**
    - A page is a unit of persuasion: one page title, one title subtitle, 1-3 analysis-summary bullets, one role, enough supporting facts, and explicit boundaries.
    - Source figures and tables are evidence for page claims, not page reasons by themselves.
+   - Use source language and locators for traceability, then rewrite the visible claim in the reader's decision language. If a paragraph only describes what the paper says but not why the reader should care, it is not yet PPT-ready.
 
 8. **Prefer quantitative, testable claims**
    - Write like an engineer or scientist making a decision, not like an essayist naming a theme.

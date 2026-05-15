@@ -102,8 +102,8 @@ Do not include internal fields such as `页面角色`, `支撑的章节论点`, 
 - `所属章节`: use to map the page to a table-of-contents item. It must exactly match one `小标题`.
 - `页面标题`: use as slide title. It should be a short object label or hook and readable as visible slide copy.
 - `标题说明`: use as subtitle or lead sentence. It should be a high-signal quantitative sentence with scenario, measurable benefit/cost, experimental condition, or decision implication. `页面标题` and `标题说明` share one visible title line in the downstream slide, so their combined length must fit, and the title should be less than half the length of the explanation.
-- `分析总结`: use as the high-visibility summary band. Each bullet must be a real core claim in the form `小标题：解释`. Summary pages usually carry more compression and can use 2-3 bullets. Chapter content pages are usually more focused and often need only 1-2 bullets. A good bullet is short, independently meaningful, evidence-bearing when possible, and provable by the page body.
-- `正文内容`: use as the main content pool for the slide. It should be specific enough for the PPT maker to write blocks, captions, and explanatory paragraphs without inventing substance. Make the body support each selected `分析总结` claim with mechanisms, facts, comparisons, examples, implications, and cautions.
+- `分析总结`: use as the high-visibility summary band. Each bullet must be a real core claim in the form `小标题：解释`. Summary pages usually carry more compression and can use 2-3 bullets. Chapter content pages are usually more focused and often need only 1-2 bullets. A good bullet is short, independently meaningful, evidence-bearing when possible, and provable by the page body. Choose multiple bullets only when they are orthogonal decision dimensions, such as result plus deployment scope, benefit plus cost, scenario plus boundary, or mechanism plus engineering proof. If candidate bullets describe the same cause-effect chain, use one stronger bullet and put support details in `正文内容`.
+- `正文内容`: use as the main content pool for the slide. It should be specific enough for the PPT maker to write blocks, captions, and explanatory paragraphs without inventing substance. Make the body support each selected `分析总结` claim with mechanisms, facts, comparisons, examples, implications, and cautions. The support mapping must be explicit: every `分析总结` label should appear again in `正文内容` as a support anchor, followed by the concrete material that proves or qualifies that claim.
 - `参考图片`: use to select or recreate visual material. It should name the visual object and its intended use, but not prescribe layout, template, font, color, or column count.
 - `备注`: use for speaker notes, footnotes, or cautious wording. Keep it short and useful.
 
@@ -121,6 +121,21 @@ The lower threshold exists because internal evidence and audit text no longer li
 - visual guidance tied to the slide message.
 
 If a page is thin, enrich `正文内容` with source-grounded explanation or supplemental research, then record the source trail in `research_audit.md`.
+
+## Body Support Mapping
+
+`正文内容` must be visibly subordinate to `分析总结`, not a separate essay. For every `分析总结` bullet label, include at least one body bullet or paragraph that repeats the same label and supplies support:
+
+```markdown
+分析总结：
+- 降本结果：GPU 需求减少 82%，且未报告 SLO violation
+- 落地范围：服务 tens of models，参数规模覆盖 1.8B 到 72B
+正文内容：
+- 降本结果：用 1,192 GPU -> 213 GPU、82% saving、70-hour utilization 和 SLO 观测支撑业务结果。
+- 落地范围：用 tens of models、1.8B-72B parameters、Alibaba Cloud Model Studio beta deployment 支撑生产范围。
+```
+
+The body may include extra bullets after the label-anchored support, but those extra bullets should elaborate mechanisms, comparisons, implications, or boundaries for the approved claims.
 
 ## Banned Content In PPT Content Brief
 
@@ -197,8 +212,9 @@ A PPT generation skill should validate:
 - `页面标题`, `标题说明`, and `分析总结` are concise enough to work as visible slide copy.
 - `页面标题 + 标题说明` fits the shared title line.
 - Default visible-copy QA budget: `页面标题` <= 18 Chinese-width units, `标题说明` <= 60, shared `页面标题 + 标题说明` <= 82, one `分析总结` bullet <= 52, summary-page analysis total <= 170, content-page analysis total <= 120. `页面标题` should be less than half the length of `标题说明`.
-- The number of `分析总结` bullets matches the page role and information density: summary pages often use 2-3, while focused chapter content pages often use 1-2.
+- The number of `分析总结` bullets matches the page role, information density, and orthogonality: summary pages often use 2-3, focused chapter content pages often use 1-2, and multi-bullet pages should split genuinely separate dimensions rather than restating one judgment.
 - Each `分析总结` bullet is a short core claim in `小标题：解释` form, and `正文内容` supports those selected claim(s).
+- `正文内容` repeats every `分析总结` label as a support anchor, so the PPT maker can see which body material supports which visible claim.
 - Each page meets the content-density threshold.
 - Expected page count for QA means total PPT pages. `--expected-pages 1` means Summary Page only; `--expected-pages 7` means Page 1 cover, Page 2 summary, Page 3 contents, and Page 4-7 chapter content pages.
 - Banned internal/audit tokens do not appear.
