@@ -29,7 +29,7 @@ For the downstream file contract and QA-checked fields, see `references/ppt-cont
 - Never upgrade weak evidence into a fact. If a claim lacks source support, label it as inference or open question.
 - If the approved viewpoint needs more support than the provided source material contains, use external research such as web search, official docs, papers, repository docs, or reputable technical articles to gather more context. Mark those materials as supplemental evidence and explain how they support, qualify, or challenge the approved viewpoint.
 - Do not let external research replace the approved viewpoint or blur source boundaries. Separate `primary source`, `supplemental research`, `inference`, and `user_judgment` in the evidence map.
-- Absolute local source paths are acceptable in `research_audit.md` because this workflow runs on the same machine. Do not put local absolute paths in `ppt_content_brief.md`; use source names there and keep exact locators in the audit file.
+- Absolute local source paths are acceptable in `research_audit.md` because this workflow runs on the same machine. In `ppt_content_brief.md`, use absolute filesystem paths only inside Markdown image references under `参考图片`; keep other exact source locators in the audit file.
 - Put all temporary notes, drafts, extracted inventories, and QA outputs under the host workspace `.tmp/ppt-deep-search/<task-name>/`. The only final handoff files are `ppt_content_brief.md` and `research_audit.md`.
 
 ## Workflow
@@ -446,7 +446,8 @@ Write `ppt_content_brief.md` as the only downstream PPT copy source. It must con
 正文内容：
 - 顶层总结页可直接使用的正文素材。
 参考图片：
-- ...
+- ![Figure 1: 图中展示的对象或关系](D:\absolute\path\final\images\picture_003.png)
+- Figure 1 展示/说明...
 备注：
 - 可选。只放 PPT 可用的脚注、讲者备注或谨慎表述。
 
@@ -466,14 +467,15 @@ Write `ppt_content_brief.md` as the only downstream PPT copy source. It must con
 - 可直接展开成 PPT 正文的机制、数据、对比、例子、推理链或限制条件。
 - 每条都要比标题和分析总结更具体，说明“为什么这样判断”或“下游页面该写什么”。
 参考图片：
-- ...
+- ![Figure 1: 图中展示的对象或关系](D:\absolute\path\final\images\picture_003.png)
+- Figure 1 展示/说明...
 备注：
 - 可选。只放 PPT 可用的脚注、讲者备注或谨慎表述。
 ```
 
 Write `research_audit.md` separately. Use `references/research-audit-format.md` as the contract. Put Research Frame, Source Understanding, Pyramid Outline, Chapter Logic, page roles, supported chapter claims, Claim/Evidence/Implication, Evidence Map, Source Usage Policy, Visual Opportunities, Assumptions/Open Questions, and Approval Log there.
 
-Do not put `Claim`, `Evidence`, `Implication`, source locator tables, approval history, local absolute source paths, `needs_verification`, `inference`, `user_judgment`, or `边界提醒` into `ppt_content_brief.md`. If a caveat matters for the slide, rewrite it as a concise `备注`. Put exact local paths and source locators in `research_audit.md`.
+Do not put `Claim`, `Evidence`, `Implication`, source locator tables, approval history, non-image local absolute source paths, `needs_verification`, `inference`, `user_judgment`, or `边界提醒` into `ppt_content_brief.md`. If a caveat matters for the slide, rewrite it as a concise `备注`. Put exact non-image local paths and source locators in `research_audit.md`.
 
 ## Right-Size the Brief
 
@@ -499,7 +501,8 @@ Match the brief to the requested downstream artifact:
 - Make `分析总结` bullets evidence-bearing when possible. Prefer `效果：提升/下降/差异 + 条件`, `场景：适用/不适用任务 + 触发条件`, `成本：延迟/token/复杂度 + 决策含义`, `边界：不可外推范围 + 原因`, or `机制：可观察动作 + 结果` over abstract labels.
 - A `正文内容` section that reads like a PPT body material pack, not a list of more conclusions. Use it to support the selected `分析总结` claim(s) with concrete body content a slide can consume: mechanisms, source facts, quantitative context, comparison points, causal chains, caveats rewritten for slides, suggested reading order, and supporting points that echo the core claim.
 - Make the support mapping explicit. For every `分析总结` label, include at least one `正文内容` bullet or paragraph that repeats the same label and then gives the supporting facts, mechanism, comparison, or boundary. For example, if `分析总结` has `降本结果` and `落地范围`, the body should include separate support entries beginning with `降本结果：...` and `落地范围：...`; if the page has one `适配条件` bullet, the body can start with `适配条件：...` and then add subordinate explanation. This keeps the body visibly subordinate to the approved viewpoint instead of becoming a parallel essay.
-- A `参考图片` section that names the image/chart/screenshot/diagram candidate without prescribing layout.
+- When `正文内容` depends on a source figure, reference it in neutral paper-style prose, for example `Figure X 说明...` or `Figure X 展示...`. Do not weaken figure-backed body claims into optional wording such as `可用 Figure X` or `候选图片`.
+- A `参考图片` section that writes each source figure as a Markdown image reference with an absolute filesystem path, then preserves nearby neutral prose about what the figure shows. Use this shape: `![Figure X: 简短说明](D:\absolute\path\final\images\picture_003.png)` followed by `Figure X 展示/说明...`. This creates an explicit Figure -> source image file association without prescribing layout or making downstream insertion mandatory.
 
 Do not pad with vague filler just to pass the length check. If a page is thin, add source-grounded mechanisms, comparisons, constraints, implications, examples, or reading guidance. When the original source package is insufficient, do targeted external research and record the supplemental trail in `research_audit.md`, not in the PPT content file.
 
@@ -508,13 +511,13 @@ Do not pad with vague filler just to pass the length check. If a page is thin, a
 Before handing the brief to a PPT skill, save `ppt_content_brief.md` and run:
 
 ```powershell
-python scripts/validate_ppt_content_brief.py .tmp/ppt-deep-search/<task-name>/ppt_content_brief.md --min-page-content-chars 900 --min-summary-content-chars 1200
+python scripts/validate_ppt_content_brief.py .tmp/ppt-deep-search/<task-name>/ppt_content_brief.md --min-page-content-chars 900 --min-summary-content-chars 1200 --allow-absolute-paths
 ```
 
 For fixed-size outputs, add `--expected-pages <n>` as total PPT pages. For example, a 1-page PPT with only the summary page should use `--expected-pages 1`, while a 7-page deck with Page 1 cover, Page 2 summary, Page 3 contents, and Page 4-7 chapter content should use `--expected-pages 7`.
 
 ```powershell
-python scripts/validate_ppt_content_brief.py .tmp/ppt-deep-search/<task-name>/ppt_content_brief.md --min-page-content-chars 900 --min-summary-content-chars 1200 --expected-pages 7
+python scripts/validate_ppt_content_brief.py .tmp/ppt-deep-search/<task-name>/ppt_content_brief.md --min-page-content-chars 900 --min-summary-content-chars 1200 --expected-pages 7 --allow-absolute-paths
 ```
 
 The QA script checks required downstream headings, stable PPT page fields, banned internal audit fields, banned visual-rendering fields, direct PPT usability, and per-page content density. Treat script failures as blockers. Keep source evidence QA in `research_audit.md`.
