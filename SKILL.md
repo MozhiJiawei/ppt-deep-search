@@ -19,6 +19,8 @@ For the downstream file contract and QA-checked fields, see `references/ppt-cont
 
 - Use Chinese for all user-facing interaction by default, including questions, options, stage summaries, approval prompts, and final handoff notes. Keep source titles, figure/table labels, code paths, URLs, model names, metrics, and technical terms in their original language when that improves traceability.
 - Work human-in-the-loop by default. Do not skip straight to the final PPT Content Brief unless the user explicitly asks for a one-pass draft or the research frame is already fully specified.
+- Output instructions are not approval. A request to "complete a deep research", "write artifacts", "write to this directory", "run a forward test", or use a `.tmp/forward-tests/...` path does not authorize one-shot execution, simulated approval, or promotion of draft baselines to final files. Treat those phrases only as workspace/output constraints. Continue to ask the required human questions and wait for answers.
+- If the user wants to bypass the dialogue, they must explicitly say they want a `one-pass draft`, `一次性草稿`, `不走 HITL`, or `unapproved draft`. In that case, mark every skipped approval as unapproved in `research_audit.md`; otherwise, stop at the first missing approval gate and ask the user.
 - Ask one key question at a time when research direction, target reader, thesis strength, or evidence boundary is unclear. One turn should resolve one decision.
 - Ask what the user is already thinking before offering a polished AI framework. Use the user's judgment as a first-class input, not as an afterthought.
 - Prefer single-select options at major forks, with a free-form escape hatch. Use open prose questions only when options would bias the answer or the user needs to explain context.
@@ -31,6 +33,7 @@ For the downstream file contract and QA-checked fields, see `references/ppt-cont
 - Do not let external research replace the approved viewpoint or blur source boundaries. Separate `primary source`, `supplemental research`, `inference`, and `user_judgment` in the evidence map.
 - Absolute local source paths are acceptable in `research_audit.md` because this workflow runs on the same machine. In `ppt_content_brief.md`, use absolute filesystem paths only inside Markdown image references under `参考图片`; keep other exact source locators in the audit file.
 - Put all temporary notes, drafts, extracted inventories, and QA outputs under the host workspace `.tmp/ppt-deep-search/<task-name>/`. The only final handoff files are `ppt_content_brief.md` and `research_audit.md`.
+- If the user provides a custom output directory, use it only after the relevant approval gate allows writing that artifact. Do not infer approval from the existence, name, or test-like nature of the directory.
 
 ## Workflow
 
@@ -365,6 +368,8 @@ Do not ask the user to review dense content page by page unless the content woul
 Present the bundle compactly and ask for approval or corrections. Do not save the final `ppt_content_brief.md` and `research_audit.md` until the user approves this bundle, unless the user explicitly asks for an unapproved draft. If producing an unapproved draft, mark that status in `research_audit.md`.
 
 A user approving the last chapter or saying "generate final files" is not enough unless they have also approved the final hard-constraint bundle in this stage. If the user asks to generate final files immediately after a chapter approval, first show the compact hard-constraint bundle below and ask for approval.
+
+Forward-test or output-directory language does not weaken this gate. If the run is under `.tmp/forward-tests/...`, still stop here and ask the user/main agent to approve the bundle. If no approval is received, leave the approval bundle as a draft QA artifact and do not write final `ppt_content_brief.md` or `research_audit.md`.
 
 Before asking the user to approve the final bundle, save the proposed approval text under `.tmp/ppt-deep-search/<task-name>/QA/approval_bundle.md` and run:
 
