@@ -23,10 +23,11 @@ Optional judge-facing files:
 
 ## Running Semantics
 
-Forward tests do not need a Node runner. They are main-agent orchestration prompts, but they do require an interactive child-agent session:
+Forward tests do not need a Node runner. They are main-agent orchestration prompts, but they do require interactive child-agent sessions:
 
-- When the user asks to run forward without specifying a case, the main agent randomly chooses up to 3 case directories and starts one child agent per case.
+- When the user asks to run forward without specifying a case, the main agent randomly chooses 3 valid case directories when 3 or more exist, otherwise all valid case directories, and starts one child agent per selected case.
 - The max child-agent concurrency is 3.
+- For the default run, start the selected child agents in parallel up to that concurrency limit.
 - When the user asks to run a named case, the main agent starts exactly one child agent for that case.
 - Each child agent receives only that case's `candidate/prompt.md`, `candidate/input/`, repository `SKILL.md`, and normal runtime references/scripts required by the Skill.
 - Judge-only files stay in the main agent context.
@@ -65,3 +66,10 @@ In Codex, also keep the child context isolated:
 - Do not use full-history forking for the candidate child. A fork may leak judge-side context, previous user critiques, or main-agent hypotheses into the candidate run.
 - Spawn the child with a fresh minimal prompt and the required paths.
 - If the child says it cannot find `multi_agent_v1.spawn_agent`, remind it once that it is already the spawned candidate child and should continue without spawning another agent.
+
+## Included Cases
+
+- `aegaeon-gpu-pooling-hitl`
+- `goal-oriented-reasoning-rag-memory-hitl`
+- `stochastic-kv-routing-hitl`
+- `tidar-hitl`

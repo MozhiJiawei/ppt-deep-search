@@ -110,4 +110,4 @@ The main agent's stakeholder answers should be realistic, but not permissive.
 
 If the user says "跑forward" without naming a case, follow the forward-test README's case-selection rule. For this repository, use cases under `forward-tests/ppt-deep-search/`.
 
-If there is one case, run that case. If there are multiple cases and the README does not specify otherwise, choose up to three representative cases and state which ones are being run.
+If there is one case, run that case. If there are multiple cases and the README does not specify otherwise, randomly select 3 valid cases when at least 3 exist, otherwise select all valid cases, and state which ones are being run.

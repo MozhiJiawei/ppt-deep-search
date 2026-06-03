@@ -24,8 +24,8 @@ Ignore files at the suite root and ignore directories without `candidate/prompt.
 
 When the user asks to run forward tests without specifying a case:
 
-- randomly select up to 3 valid case directories;
-- spawn one child agent per selected case;
+- randomly select 3 valid case directories when 3 or more exist, otherwise select all valid case directories;
+- spawn one child agent per selected case in parallel;
 - run at most 3 child agents concurrently.
 
 ## Specific Case
