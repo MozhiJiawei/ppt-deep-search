@@ -59,3 +59,9 @@ Forward tests measure whether the runtime Skill can elicit and shape the brief t
 - at most one short user-requested reminder sentence for that run.
 
 Do not include strategy explanations, judging criteria, expected answer structure, evidence-selection policy, approval scripts, or summaries of previous failures in the child-agent dispatch prompt. Keep those in `fixture-manifest.md`, `judge/rubric.md`, or the main agent's judgment context only.
+
+In Codex, also keep the child context isolated:
+
+- Do not use full-history forking for the candidate child. A fork may leak judge-side context, previous user critiques, or main-agent hypotheses into the candidate run.
+- Spawn the child with a fresh minimal prompt and the required paths.
+- If the child says it cannot find `multi_agent_v1.spawn_agent`, remind it once that it is already the spawned candidate child and should continue without spawning another agent.

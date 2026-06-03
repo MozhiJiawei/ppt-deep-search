@@ -9,11 +9,11 @@ Build a source-grounded PPT Content Brief before PPT production. Act as content 
 
 The core standard is source-grounded audience expression. Understand the source deeply enough to quote, locate, and verify its numbers, figures, mechanisms, and boundaries; then rewrite that evidence into the logic the target reader needs to accept the deck's conclusion. Do not merely paste source facts, and do not produce elegant logic that is weakly grounded. Strong output keeps both: original evidence for credibility, audience-fit expression for persuasion.
 
-This skill is modeled as a research dialogue, not a one-shot summarizer. The durable handoff has two files: `ppt_content_brief.md` for downstream PPT generation, and `research_audit.md` for internal evidence, boundaries, and approvals.
+This skill is modeled as a research dialogue, not a one-shot summarizer. The durable handoff has two files: `ppt_content_brief.md` for downstream PPT generation, and `research_audit.md` for internal evidence, boundaries, and approvals. During source understanding, the workflow may also create a temporary HTML review page to help the human inspect evidence and reasoning before approval.
 
 Before doing any storyline work, read `references/pyramid-principle.md` and follow it as the highest-level doctrine. If any workflow detail conflicts with that doctrine, the doctrine wins.
 
-For the downstream file contract and QA-checked fields, see `references/ppt-content-brief-format.md`. Load `references/research-audit-format.md` when writing or validating the internal audit file.
+For the downstream file contract and QA-checked fields, see `references/ppt-content-brief-format.md`. Load `references/research-audit-format.md` when writing or validating the internal audit file. Load `references/html-review-surface.md`, `references/html-review-data-model.md`, `references/html-review-report-kit.md`, and `references/html-review-pattern-library.md` before creating the temporary source-understanding HTML page.
 
 ## Operating Rules
 
@@ -25,15 +25,16 @@ For the downstream file contract and QA-checked fields, see `references/ppt-cont
 - Ask what the user is already thinking before offering a polished AI framework. Use the user's judgment as a first-class input, not as an afterthought.
 - Prefer single-select options at major forks, with a free-form escape hatch. Use open prose questions only when options would bias the answer or the user needs to explain context.
 - Keep a live research structure after each round: research frame, thesis, pyramid outline, evidence map, open questions, and page candidates. Keep this internal structure out of the final PPT content file.
-- Do not make visual-rendering decisions. Avoid fields such as `visual_anchor.kind`, `template`, `contentLayout`, renderer names, column layout, font size, color, card structure, and visual-anchor implementation details.
+- Do not make downstream PPT visual-rendering decisions. Avoid fields such as `visual_anchor.kind`, `template`, `contentLayout`, renderer names, column layout, font size, color, card structure, and visual-anchor implementation details in `ppt_content_brief.md`. Temporary HTML review pages may use diagrams, charts, and source images for human understanding; keep those artifacts under `<workspace-root>/review/` and keep their implementation details out of the final PPT Content Brief.
 - Do decide content intent: chapter logic, page titles, page roles, core claims, source evidence, source-figure usage policy, and wording boundaries. Put role/evidence/boundary audit details in `research_audit.md`, not in `ppt_content_brief.md`.
 - Treat every factual claim as one of: `source`, `calculation`, `inference`, `user_judgment`, or `needs_verification`.
 - Never upgrade weak evidence into a fact. If a claim lacks source support, label it as inference or open question.
 - If the approved viewpoint needs more support than the provided source material contains, use external research such as web search, official docs, papers, repository docs, or reputable technical articles to gather more context. Mark those materials as supplemental evidence and explain how they support, qualify, or challenge the approved viewpoint.
 - Do not let external research replace the approved viewpoint or blur source boundaries. Separate `primary source`, `supplemental research`, `inference`, and `user_judgment` in the evidence map.
 - Absolute local source paths are acceptable in `research_audit.md` because this workflow runs on the same machine. In `ppt_content_brief.md`, use absolute filesystem paths only inside Markdown image references under `参考图片`; keep other exact source locators in the audit file.
-- Put all temporary notes, drafts, extracted inventories, and QA outputs under the host workspace `.tmp/ppt-deep-search/<task-name>/`. The only final handoff files are `ppt_content_brief.md` and `research_audit.md`.
-- If the user provides a custom output directory, use it only after the relevant approval gate allows writing that artifact. Do not infer approval from the existence, name, or test-like nature of the directory.
+- At the start of a run, establish one `workspace-root` and use it consistently for every baseline, review page, asset, QA file, and final handoff. If the user or parent dispatch provides an explicit output directory, that directory is the `workspace-root`. Otherwise use `.tmp/ppt-deep-search/<task-name>/`.
+- Put all temporary notes, drafts, extracted inventories, and QA outputs under `<workspace-root>/`. The only final handoff files are `ppt_content_brief.md` and `research_audit.md`, written at `<workspace-root>/ppt_content_brief.md` and `<workspace-root>/research_audit.md`.
+- If the user provides a custom output directory, treat it as a workspace constraint only after the relevant approval gate allows writing that artifact. Do not infer approval from the existence, name, or test-like nature of the directory.
 
 ## Workflow
 
@@ -42,7 +43,7 @@ Follow the pyramid principle doctrine in `references/pyramid-principle.md`: conf
 Each stage has two gates:
 
 1. User approval gate: ask the user to approve or correct the stage output.
-2. Baseline persistence gate: after approval, save that stage output under `.tmp/ppt-deep-search/<task-name>/baselines/` and treat it as the baseline for later stages.
+2. Baseline persistence gate: after approval, save that stage output under `<workspace-root>/baselines/` and treat it as the baseline for later stages.
 
 Do not silently rewrite an approved baseline. If later evidence suggests a change, ask whether to revise the baseline and record the revision in `Approval Log`.
 
@@ -108,9 +109,9 @@ For the top-level summary page expression, present 2-3 concrete candidate expres
 
 The user should be choosing between PPT-ready top-level summary expressions, not abstract themes. Show only the fields that will become visible slide copy: `页面标题`, `标题说明`, and `分析总结`. Keep thesis notes, evidence boundary, audience rationale, and internal page role in the live structure and `research_audit.md`. When discussing chapters or content pages, do not force options. Give your best proposal and ask the user what to adjust.
 
-For visible title lines, treat `页面标题` as the short object label or hook and `标题说明` as the quantitative decision statement. A strong title line usually combines object, scenario, measurable benefit or cost, and decision implication, such as: `{方法/对象}` + `面向{场景} - 以{成本/约束}换{收益/结果}`. Prefer numbers, comparisons, thresholds, rates, task conditions, and experimental settings when the source supports them.
+For visible title lines, `页面标题` must be a concise claim hook, not an abstract theme, method name, outline label, or category label. Bad top-level titles: `R-CLA 路线判断`, `Depth-wise KV sharing`, `KV cache 新实验轴`, `问题分析`. Good top-level titles: `先复测，再谈上线`, `可立项，不可直上`, `值得进实验，不宜直接上线`. Good content-page titles also state the page's conclusion, for example `瓶颈在层，不只在 token`, `随机训练换来确定共享`, `容量收益已可复测`.
 
-Use a progressive viewpoint layer. `页面标题` names the object or scenario, `标题说明` states the judgment, and `分析总结` makes that judgment more concrete with evidence-bearing conditions, numbers, comparisons, mechanisms, or decision implications. Choose 1-3 `分析总结` bullets by orthogonality, not by habit:
+Use a progressive viewpoint layer. `页面标题` states the claim in its shortest form, `标题说明` adds the evidence condition or boundary, and `分析总结` makes that judgment more concrete with numbers, comparisons, mechanisms, or decision implications. Choose 1-3 `分析总结` bullets by orthogonality, not by habit:
 
 - Use one bullet when the page is proving one condition, one mechanism, or one decision judgment. The bullet should be a more specific version of the title explanation, not a broader restatement.
 - Use 2-3 bullets when the page has genuinely orthogonal dimensions that a reader should evaluate separately, such as result plus deployment scope, benefit plus cost, scenario plus boundary, or mechanism plus engineering proof.
@@ -134,14 +135,14 @@ Stage 1 required approval: target audience, reader's current belief, desired bel
 After approval, save:
 
 ```text
-.tmp/ppt-deep-search/<task-name>/baselines/01-audience.md
+<workspace-root>/baselines/01-audience.md
 ```
 
 ### 1.5 Source Understanding Analysis
 
-After the audience is approved and before discussing the top-level summary page, perform source understanding as a data-first research step. This is not a final brief; it gives the human a basis for judgment and follow-up questions.
+After the audience is approved and before discussing the top-level summary page, produce a data-first HTML source-understanding review. This is the human approval surface for source understanding. It replaces the older three-part chat summary and must give the human enough evidence, comparison context, visuals, citations, and boundaries to approve or challenge the agent's understanding before SCQA and page planning.
 
-Before showing the source-understanding analysis, inspect the provided source package deeply enough to support quantitative claims:
+Before writing the HTML review, inspect the provided source package deeply enough to support quantitative and visual claims:
 
 - Read the main extracted text/XML for abstract, method, experiments, limitations, and appendix references.
 - Open or OCR/summarize source figures and table images when they contain experimental results, costs, baselines, problem types, or method comparisons. Do not assume all important data is present in the XML text.
@@ -150,18 +151,39 @@ Before showing the source-understanding analysis, inspect the provided source pa
 - Put exact locators, table/figure names, and extracted numeric values in the live evidence map and later `research_audit.md`.
 - Interpret the evidence through the approved audience frame. For each important source datum, ask what reader belief it supports, what decision or comparison it clarifies, and what boundary prevents overclaiming.
 
-Include exactly these three parts:
+Create this temporary HTML review package before asking for source-understanding approval:
 
-- `它是什么`：the object/system/paper/tool in plain language, with one concrete source anchor when available.
-- `它解决了什么问题`：the concrete pain or decision problem it addresses, supported by source evidence such as benchmark type, failure mode, problem-type split, or example figure.
-- `跟同类技术比有什么亮点`：why it differs from adjacent approaches or existing solutions, supported by comparative data such as baseline names, metric deltas, runtime/token cost, or source limitations.
+```text
+<workspace-root>/review/
+  report-data.json
+  source_understanding_review.html
+  assets/
+```
 
-Keep the first version source-grounded and compact: 3-6 bullets total, but each part should contain at least one concrete datum, named source figure/table, benchmark, or observed condition when the source provides it. If no quantitative or figure/table support exists for a part, say that explicitly and mark the gap in the evidence map. If the user challenges the analysis or asks for deeper comparison, expand only the challenged part and preserve the revised version in the baseline. Then ask the user whether this understanding is basically right or what needs correction.
+Follow the HTML review references as the source of detailed standards:
+
+- `references/html-review-surface.md` for the content standard, research depth, citations, visible prose, and evidence boundaries.
+- `references/html-review-data-model.md` for the `report-data.json` staging contract.
+- `references/html-review-report-kit.md` for reusable report rhythm, chart/table/source-image blocks, and preview behavior.
+- `references/html-review-pattern-library.md` for local visual, comparison, evidence-pair, and citation patterns.
+
+Keep the chat response compact after writing the page: link the HTML path, summarize only the high-signal conclusion in 2-4 bullets, and ask whether this understanding is approved or what needs correction. Dense evidence, visuals, citations, and source-data staging belong in the HTML package and later `research_audit.md`, not in a dumped chat answer.
+
+Before asking for approval, run the local review-surface hygiene checks when practical. These are guardrails for broken anchors, visible internal labels, mechanical outline headings, and malformed report data; they do not replace editorial judgment:
+
+```powershell
+python scripts/validate_html_review_data.py <workspace-root>/review/report-data.json
+python scripts/validate_html_review.py <workspace-root>/review/source_understanding_review.html
+```
+
+If this check fails, revise the HTML before asking for approval.
+
+The HTML review is a research artifact, not the final PPT plan. It may propose implications, next questions, and likely deck directions, but do not let its section outline replace the later SCQA, page-count, table-of-contents, page-viewpoint, or approval-bundle gates.
 
 After approval, save:
 
 ```text
-.tmp/ppt-deep-search/<task-name>/baselines/01-source-understanding.md
+<workspace-root>/baselines/01-source-understanding.md
 ```
 
 ### 1.6 Confirm SCQA and Top-Level Summary Page
@@ -186,7 +208,7 @@ Stage 1.6 required approval: SCQA and top-level summary page.
 After approval, save:
 
 ```text
-.tmp/ppt-deep-search/<task-name>/baselines/01-audience-thesis.md
+<workspace-root>/baselines/01-audience-thesis.md
 ```
 
 This file becomes the baseline for all later page-count, chapter, and page-title decisions.
@@ -217,7 +239,7 @@ Stage 2 required approval: page count or page-count range, counting convention, 
 After approval, save:
 
 ```text
-.tmp/ppt-deep-search/<task-name>/baselines/02-page-count.md
+<workspace-root>/baselines/02-page-count.md
 ```
 
 Also create a page-number map in the baseline. For multi-page decks, preserve this order by default: `Page 1: cover`, `Page 2: top-level summary`, `Page 3: contents`, `Page 4-N: chapter content pages`. If the user asks for a 1-page output, produce only `Page 1: top-level summary` and omit contents and chapter content pages. Later page briefs must use these actual PPT page numbers, not a restarted content-page index.
@@ -249,13 +271,13 @@ Stage 2.5 required approval: table-of-contents small titles, descriptions, order
 After approval, save:
 
 ```text
-.tmp/ppt-deep-search/<task-name>/baselines/02-table-of-contents.md
+<workspace-root>/baselines/02-table-of-contents.md
 ```
 
 Then consolidate page count and table of contents into:
 
 ```text
-.tmp/ppt-deep-search/<task-name>/baselines/02-deck-structure.md
+<workspace-root>/baselines/02-deck-structure.md
 ```
 
 Do not create chapter-internal page titles until this baseline exists.
@@ -273,7 +295,7 @@ For each chapter:
 - Do not present a page number outside the approved budget. If the desired chapter split would exceed the budget, resolve the budget tradeoff before showing the page plan.
 - First propose only the PPT-ready viewpoint layer for that chapter's pages: `所属章节`, `页面标题`, `标题说明`, and `分析总结`.
 - The page proposal shown to the user is a downstream-content contract, not an internal planning note. Write it in the same field shape that will later appear in `ppt_content_brief.md`; keep `页面角色`, supported chapter claim, evidence status, and page-level boundaries in the baseline or `research_audit.md`.
-- Make `页面标题` a short, clear object label or hook. Make `标题说明` the quantitative lead sentence that carries the fuller judgment: scenario, measurable benefit or cost, experimental condition, and decision implication where available. In the shared title line, the title should be less than half the length of the explanation. Make `分析总结` directly usable in the slide's summary band.
+- Make `页面标题` a short claim hook that states the page's conclusion, not an object label, method name, or outline label. Make `标题说明` the quantitative lead sentence that carries the fuller judgment: scenario, measurable benefit or cost, experimental condition, and decision implication where available. In the shared title line, the title should be less than half the length of the explanation. Make `分析总结` directly usable in the slide's summary band.
 - Do not write dense supporting content yet. Wait until the user explicitly approves each page's `页面标题`, `标题说明`, and `分析总结`.
 - After the viewpoint layer is approved, expand the content layer autonomously: Claim / Evidence / Implication, reference-image strategy, supporting information, and boundaries. The human does not need to guide or approve dense content page by page.
 - The content layer must support the approved viewpoint; it must not introduce a new unapproved viewpoint.
@@ -313,13 +335,13 @@ Stage 3 required approval: each chapter's page decomposition and every page's PP
 After each chapter is approved, save:
 
 ```text
-.tmp/ppt-deep-search/<task-name>/baselines/03-chapter-<n>-page-plan.md
+<workspace-root>/baselines/03-chapter-<n>-page-plan.md
 ```
 
 After all chapter viewpoint layers are approved, autonomously generate content layers for every approved page, then consolidate viewpoint and content layers into:
 
 ```text
-.tmp/ppt-deep-search/<task-name>/baselines/03-page-plan.md
+<workspace-root>/baselines/03-page-plan.md
 ```
 
 Only after this consolidated page-plan baseline exists may the agent write the final handoff files.
@@ -371,10 +393,10 @@ A user approving the last chapter or saying "generate final files" is not enough
 
 Forward-test or output-directory language does not weaken this gate. If the run is under `.tmp/forward-tests/...`, still stop here and ask the user/main agent to approve the bundle. If no approval is received, leave the approval bundle as a draft QA artifact and do not write final `ppt_content_brief.md` or `research_audit.md`.
 
-Before asking the user to approve the final bundle, save the proposed approval text under `.tmp/ppt-deep-search/<task-name>/QA/approval_bundle.md` and run:
+Before asking the user to approve the final bundle, save the proposed approval text under `<workspace-root>/QA/approval_bundle.md` and run:
 
 ```powershell
-python scripts/validate_ppt_content_brief.py .tmp/ppt-deep-search/<task-name>/QA/approval_bundle.md --approval-bundle-check
+python scripts/validate_ppt_content_brief.py <workspace-root>/QA/approval_bundle.md --approval-bundle-check
 ```
 
 If the check fails, fix the approval bundle before showing it to the user.
@@ -384,7 +406,7 @@ Approval prompt pattern:
 ```text
 落盘前请确认这组下游硬约束：
 - 听众：...
-- 原始信息理解：它是什么 / 解决什么问题 / 跟同类技术比的亮点
+- HTML source-understanding review：路径 / 已批准的核心判断 / 不能越界的证据边界
 - SCQA：...
 - 顶层总结页：标题 / 标题说明 / 分析总结
 - 大逻辑：...
@@ -498,7 +520,7 @@ Match the brief to the requested downstream artifact:
 - At least 1200 counted content characters for `## Summary Page` and at least 900 counted content characters per chapter content page, excluding headings and field labels. The summary page should be the highest-density page: compress the top-level conclusion, chapter logic, decision implications, key numbers or mechanisms, visual cue, and boundary wording into one PPT-ready page. A strong technical or decision content page usually lands around 1200-1800 counted characters.
 - Every content page must include `所属章节`, and that value must exactly match one `小标题` in `## Table of Contents`. The summary page is separate and does not need `所属章节`.
 - A `页面标题`, `标题说明`, and `分析总结` section. `分析总结` must contain 1-3 directly usable Chinese core-claim bullets such as `粒度升级：...`.
-- Treat `页面标题`, `标题说明`, and `分析总结` as visible slide copy. `页面标题` should be a short object label or hook; `标题说明` should be a high-signal quantitative sentence with scenario, measurable benefit/cost, experimental condition, or decision implication; `页面标题` and `标题说明` must fit the shared title line, and the title should be less than half the length of the explanation; `分析总结` bullets should be short enough to sit in a slide summary band.
+- Treat `页面标题`, `标题说明`, and `分析总结` as visible slide copy. `页面标题` should be a short claim hook that states the page's conclusion; `标题说明` should be a high-signal quantitative sentence with scenario, measurable benefit/cost, experimental condition, or decision implication; `页面标题` and `标题说明` must fit the shared title line, and the title should be less than half the length of the explanation; `分析总结` bullets should be short enough to sit in a slide summary band.
 - The default visible-copy QA budget is approximately: `页面标题` <= 18 Chinese-width units, `标题说明` <= 60, shared `页面标题 + 标题说明` <= 82, one `分析总结` bullet <= 52, summary-page analysis total <= 170, content-page analysis total <= 120. Treat failures as blockers and rewrite before asking the user to approve.
 - Choose the `分析总结` count by page role and information density. Summary pages usually carry more compression and can use 2-3 bullets. Chapter content pages are usually more focused and often need only 1-2 bullets.
 - Write each `分析总结` bullet as a real core claim in the form `小标题：解释`. A good bullet is short, independently meaningful, and provable by the page body. If one bullet becomes long because it tries to combine several ideas, split it into two bullets or move support detail into `正文内容`.
@@ -516,13 +538,13 @@ Do not pad with vague filler just to pass the length check. If a page is thin, a
 Before handing the brief to a PPT skill, save `ppt_content_brief.md` and run:
 
 ```powershell
-python scripts/validate_ppt_content_brief.py .tmp/ppt-deep-search/<task-name>/ppt_content_brief.md --min-page-content-chars 900 --min-summary-content-chars 1200 --allow-absolute-paths
+python scripts/validate_ppt_content_brief.py <workspace-root>/ppt_content_brief.md --min-page-content-chars 900 --min-summary-content-chars 1200 --allow-absolute-paths
 ```
 
 For fixed-size outputs, add `--expected-pages <n>` as total PPT pages. For example, a 1-page PPT with only the summary page should use `--expected-pages 1`, while a 7-page deck with Page 1 cover, Page 2 summary, Page 3 contents, and Page 4-7 chapter content should use `--expected-pages 7`.
 
 ```powershell
-python scripts/validate_ppt_content_brief.py .tmp/ppt-deep-search/<task-name>/ppt_content_brief.md --min-page-content-chars 900 --min-summary-content-chars 1200 --expected-pages 7 --allow-absolute-paths
+python scripts/validate_ppt_content_brief.py <workspace-root>/ppt_content_brief.md --min-page-content-chars 900 --min-summary-content-chars 1200 --expected-pages 7 --allow-absolute-paths
 ```
 
 The QA script checks required downstream headings, stable PPT page fields, banned internal audit fields, banned visual-rendering fields, direct PPT usability, and per-page content density. Treat script failures as blockers. Keep source evidence QA in `research_audit.md`.

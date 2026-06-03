@@ -73,6 +73,17 @@ BANNED_RENDERING_FIELDS = [
     "四栏",
 ]
 
+THEME_LIKE_TITLE_PATTERNS = [
+    r"^[A-Za-z0-9][A-Za-z0-9\s/_\-.+@()]+$",
+    r"路线判断$",
+    r"新实验轴$",
+    r"问题分析$",
+    r"研究现状$",
+    r"关键机制$",
+    r"实验结果$",
+    r"下一步计划$",
+]
+
 
 @dataclass
 class PageSection:
@@ -221,6 +232,11 @@ def validate_visible_copy(section_name: str, section_body: str, limits: VisibleC
     errors: list[str] = []
     title = extract_field(section_body, "页面标题")
     subtitle = extract_field(section_body, "标题说明")
+
+    if title and any(re.search(pattern, title, flags=re.IGNORECASE) for pattern in THEME_LIKE_TITLE_PATTERNS):
+        errors.append(
+            f"{section_name} 页面标题 looks like a theme or outline label, not a conclusion claim: {title}"
+        )
 
     title_units = slide_text_units(title)
     if title and title_units > limits.max_title_units:
