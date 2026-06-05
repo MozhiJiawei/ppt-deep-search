@@ -36,6 +36,8 @@ Two invariants define the system:
 |  The temporary source-understanding HTML helps the human inspect evidence,        |
 |  comparison context, visual explanations, citations, and boundaries before        |
 |  approving storyline work.                                                       |
+|  Webpage evidence is captured first through Codex Browser/browser-use into        |
+|  local text, image, screenshot, and manifest artifacts consumed by the review.    |
 +----------------------------------------------------------------------------------+
 
 +----------------------------------------------------------------------------------+
@@ -119,6 +121,7 @@ Owned by:
 Responsibilities:
 
 - help the human judge whether the agent understands the issue before approving SCQA and page planning;
+- for webpage sources, consume local Codex Browser/browser-use evidence packages rather than live remote URLs or hotlinked images;
 - use fixed logical labels for side navigation when useful;
 - use claim-like, topic-specific body headings for persuasion;
 - pair reconstructed visuals with original evidence and clickable citations when reconstruction is used.
@@ -128,6 +131,7 @@ Constraints:
 - Body headings must not merely be outline labels such as `问题为什么重要`.
 - Side navigation may use fixed logical labels because it serves wayfinding.
 - Reconstructed charts must expose source data, original evidence, and citation anchors.
+- Webpage citations and webpage images displayed in the report must map to local browser-use evidence assets through `report-data.json`.
 - Internal labels such as `needs_verification`, `agent-chart`, and `QA` belong in audit records, not visible prose.
 
 ## Handoff Artifacts

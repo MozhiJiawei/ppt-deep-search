@@ -71,5 +71,6 @@ In Codex, also keep the child context isolated:
 
 - `aegaeon-gpu-pooling-hitl`
 - `goal-oriented-reasoning-rag-memory-hitl`
+- `rtx-spark-agent-pc-web-evidence-hitl`
 - `stochastic-kv-routing-hitl`
 - `tidar-hitl`

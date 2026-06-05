@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import re
 from html.parser import HTMLParser
 from pathlib import Path
@@ -51,6 +52,7 @@ class ReviewHTMLParser(HTMLParser):
         self.references_text = ""
         self.figcaptions: list[str] = []
         self.classes: list[str] = []
+        self.images: list[tuple[str, str]] = []
         self._tag_stack: list[str] = []
         self._capture_heading: str | None = None
         self._heading_parts: list[str] = []
@@ -72,6 +74,8 @@ class ReviewHTMLParser(HTMLParser):
             self.hrefs.append(attr["href"][1:])
         if attr.get("class"):
             self.classes.extend(part for part in attr["class"].split() if part)
+        if tag == "img":
+            self.images.append((attr.get("src", ""), attr.get("alt", "")))
         if tag in {"h1", "h2", "h3"}:
             self._capture_heading = tag
             self._heading_parts = []
@@ -135,11 +139,48 @@ def line_for(text: str, needle: str) -> int:
     return text.count("\n", 0, index) + 1
 
 
-def validate_html_review(html: str) -> list[str]:
+def _is_remote_url(value: str) -> bool:
+    text = value.strip().lower()
+    return text.startswith("http://") or text.startswith("https://")
+
+
+def _is_data_url(value: str) -> bool:
+    return value.strip().lower().startswith("data:")
+
+
+def _load_report_asset_paths(base_dir: Path | None) -> set[str]:
+    if base_dir is None:
+        return set()
+    data_path = base_dir / "report-data.json"
+    if not data_path.exists():
+        return set()
+    try:
+        data = json.loads(data_path.read_text(encoding="utf-8"))
+    except Exception:
+        return set()
+    assets = data.get("assets") if isinstance(data, dict) else []
+    if not isinstance(assets, list):
+        return set()
+    paths: set[str] = set()
+    for asset in assets:
+        if not isinstance(asset, dict):
+            continue
+        path_value = str(asset.get("path") or asset.get("local_path") or "").strip()
+        if not path_value:
+            continue
+        paths.add(path_value.replace("\\", "/"))
+        asset_path = Path(path_value)
+        resolved = asset_path if asset_path.is_absolute() else (base_dir / asset_path)
+        paths.add(str(resolved.resolve()).replace("\\", "/"))
+    return paths
+
+
+def validate_html_review(html: str, base_dir: Path | None = None) -> list[str]:
     parser = ReviewHTMLParser()
     parser.feed(html)
     visible_text = strip_tags(html)
     errors: list[str] = []
+    report_asset_paths = _load_report_asset_paths(base_dir)
 
     id_counts: dict[str, int] = {}
     for id_value in parser.ids:
@@ -192,6 +233,25 @@ def validate_html_review(html: str) -> list[str]:
     if has_reconstructed and not any(word in visible_text for word in ["原始证据", "原始表格", "原图", "source figure", "source table"]):
         errors.append("Reconstructed visual appears without nearby original evidence wording")
 
+    for src, alt in parser.images:
+        if not src.strip():
+            errors.append("Image tag missing src")
+            continue
+        if _is_remote_url(src):
+            errors.append(f"Image uses remote src instead of a local review asset: {src}")
+            continue
+        if _is_data_url(src):
+            errors.append("Image uses data: URL; save browser-captured evidence images under review/assets/ and reference local files")
+            continue
+        if src.startswith("#"):
+            continue
+        if base_dir is not None:
+            image_path = (base_dir / src).resolve() if not Path(src).is_absolute() else Path(src)
+            if not image_path.exists():
+                errors.append(f"Image local src does not exist: {src}")
+            if report_asset_paths and src.replace("\\", "/") not in report_asset_paths and str(image_path).replace("\\", "/") not in report_asset_paths:
+                errors.append(f"Image local src is not listed in report-data.json assets: {src}")
+
     return errors
 
 
@@ -221,6 +281,7 @@ def run_self_test() -> int:
 <h2>结论先行</h2>
 <p>当前理解：这里是 source understanding。[S1][T4][R2]</p>
 <p>重构图显示提升。</p>
+<img src="https://example.com/remote.png" alt="远程图">
 </main>
 </body></html>
 """
@@ -237,6 +298,7 @@ def run_self_test() -> int:
         "banned internal/default token",
         "dense bracket citation chain",
         "Reconstructed visual appears without nearby original evidence",
+        "remote src",
     ]
     missing = [fragment for fragment in expected_fragments if not any(fragment in error for error in invalid_errors)]
     if missing:
@@ -268,7 +330,7 @@ def main() -> int:
         print(f"[ERROR] HTML file not found: {html_path}")
         return 1
     html = html_path.read_text(encoding="utf-8", errors="replace")
-    errors = validate_html_review(html)
+    errors = validate_html_review(html, html_path.parent)
     if errors:
         print("[ERROR] HTML Review QA failed:")
         for error in errors:

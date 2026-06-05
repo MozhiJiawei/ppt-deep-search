@@ -11,6 +11,15 @@ The core standard is source-grounded audience expression. Understand the source 
 
 This skill is modeled as a research dialogue, not a one-shot summarizer. The durable handoff has two files: `ppt_content_brief.md` for downstream PPT generation, and `research_audit.md` for internal evidence, boundaries, and approvals. During source understanding, the workflow may also create a temporary HTML review page to help the human inspect evidence and reasoning before approval.
 
+## Source-Understanding HTML Goals
+
+When creating a temporary HTML review page, optimize for two outcomes:
+
+1. **Trustworthy by inspection**: the reader should be able to see why the report is credible without opening every source. Put original source images, rendered webpage screenshots, quoted/source-located evidence, and quiet clickable citations close to the claims they support. Use local browser-captured assets for webpage evidence, keep citation anchors intact, and make source provenance visible enough that the human can audit the argument.
+2. **Data-smart technical judgment**: when the material is technical, make the report reason with data, not only prose. Extract numbers, specs, benchmark conditions, release dates, architecture constraints, tables, figures, diagrams, or metric comparisons. Turn them into readable KPI strips, matrices, reconstructed charts, source-image pairs, decision registers, or compact tables when they clarify the decision. Do not add decorative charts; every chart or table should answer a technical question and carry source, unit, condition, and boundary.
+
+The workflow exists to serve these goals. If a process step produces a formally complete but untrustworthy, citation-light, image-light, or prose-only technical report, keep researching and revising. If drafting reveals that an important claim needs a new citation, source image, or comparison dataset, dynamically return to source discovery and browser capture instead of deleting the claim just to pass validation.
+
 Before doing any storyline work, read `references/pyramid-principle.md` and follow it as the highest-level doctrine. If any workflow detail conflicts with that doctrine, the doctrine wins.
 
 For the downstream file contract and QA-checked fields, see `references/ppt-content-brief-format.md`. Load `references/research-audit-format.md` when writing or validating the internal audit file. Load `references/html-review-surface.md`, `references/html-review-data-model.md`, `references/html-review-report-kit.md`, and `references/html-review-pattern-library.md` before creating the temporary source-understanding HTML page.
@@ -30,6 +39,7 @@ For the downstream file contract and QA-checked fields, see `references/ppt-cont
 - Treat every factual claim as one of: `source`, `calculation`, `inference`, `user_judgment`, or `needs_verification`.
 - Never upgrade weak evidence into a fact. If a claim lacks source support, label it as inference or open question.
 - If the approved viewpoint needs more support than the provided source material contains, use external research such as web search, official docs, papers, repository docs, or reputable technical articles to gather more context. Mark those materials as supplemental evidence and explain how they support, qualify, or challenge the approved viewpoint.
+- For webpage sources, load and follow the repo-local `web-article-capture/SKILL.md` to create local Browser evidence packages. Do not substitute web search, generic web browsing snippets, `curl`, `Invoke-WebRequest`, raw HTML fetches, third-party crawler packages, or self-written Playwright/Puppeteer/Selenium scripts for this step.
 - Do not let external research replace the approved viewpoint or blur source boundaries. Separate `primary source`, `supplemental research`, `inference`, and `user_judgment` in the evidence map.
 - Absolute local source paths are acceptable in `research_audit.md` because this workflow runs on the same machine. In `ppt_content_brief.md`, use absolute filesystem paths only inside Markdown image references under `参考图片`; keep other exact source locators in the audit file.
 - At the start of a run, establish one `workspace-root` and use it consistently for every baseline, review page, asset, QA file, and final handoff. If the user or parent dispatch provides an explicit output directory, that directory is the `workspace-root`. Otherwise use `.tmp/ppt-deep-search/<task-name>/`.
@@ -142,14 +152,34 @@ After approval, save:
 
 After the audience is approved and before discussing the top-level summary page, produce a data-first HTML source-understanding review. This is the human approval surface for source understanding. It replaces the older three-part chat summary and must give the human enough evidence, comparison context, visuals, citations, and boundaries to approve or challenge the agent's understanding before SCQA and page planning.
 
+Source understanding starts with source discovery, not HTML writing. Before crawling or drafting the review page, create a short source map under `<workspace-root>/sources/source-discovery.md` with:
+
+- `Primary sources`: the source package or official/original materials that directly define the object.
+- `Adjacent-route sources`: sources for comparable products, methods, platforms, standards, or research lines that a technical reader would expect in the "已有做法与缺口" section.
+- `Boundary/check sources`: sources that can verify dates, naming, availability, benchmark conditions, security claims, pricing/procurement, or other overclaim risks.
+- `Candidate visuals`: source figures, screenshots, product images, diagrams, tables, or benchmark charts likely to help the human inspect the evidence.
+- `Crawl plan`: which URLs/files will be captured first, why they matter, and what each source is expected to prove or qualify.
+
+Use this map as a thinking artifact, not a long report. The point is to make the agent notice missing adjacent routes and evidence gaps before it starts designing the HTML page. If the user already provided a strong source list, still add the natural adjacent-route and boundary sources a skeptical reader would ask about.
+
 Before writing the HTML review, inspect the provided source package deeply enough to support quantitative and visual claims:
 
 - Read the main extracted text/XML for abstract, method, experiments, limitations, and appendix references.
 - Open or OCR/summarize source figures and table images when they contain experimental results, costs, baselines, problem types, or method comparisons. Do not assume all important data is present in the XML text.
+- For every webpage source that may be cited, use `web-article-capture/SKILL.md` to extract article/main正文图文 into `<workspace-root>/sources/web/<source-slug>/`. Treat that package as the source of webpage text, original images, screenshots, and image inventory.
 - Build a compact evidence inventory with: key tables/figures, benchmark names, baseline names, metrics, strongest numeric deltas, cost/runtime/token numbers, problem-type splits, and explicit limitations.
 - Cross-check named methods/backbones against source tables or figure captions before using them in user-facing analysis.
 - Put exact locators, table/figure names, and extracted numeric values in the live evidence map and later `research_audit.md`.
 - Interpret the evidence through the approved audience frame. For each important source datum, ask what reader belief it supports, what decision or comparison it clarifies, and what boundary prevents overclaiming.
+
+While drafting the HTML review, keep a live `citation debt` list in scratch notes or `report-data.json` metadata. Whenever the report needs a factual comparison, mechanism claim, product capability, date, metric, or boundary but the current evidence package does not support it, do not delete the claim merely to pass citation QA. Instead:
+
+1. Identify the missing source type: primary source, official docs, paper, product page, benchmark, repository, standard, or reputable technical article.
+2. Capture the missing source with the same browser-use or local-source evidence discipline.
+3. Add or update the relevant `citations[]`, `comparison_methods[]`, `assets[]`, and visible citation anchors.
+4. If no good source is available in reasonable time, keep the idea only as a clearly worded open question or boundary in Chinese, and record the gap in `research_audit.md`.
+
+The review should get better as it discovers citation gaps. QA is a guardrail against broken evidence, not an excuse to flatten comparison sections or remove useful adjacent-route analysis.
 
 Create this temporary HTML review package before asking for source-understanding approval:
 
@@ -160,6 +190,8 @@ Create this temporary HTML review package before asking for source-understanding
   assets/
 ```
 
+When the HTML review cites webpage images, copy only the selected local `sources/web/<slug>/images/` files into `review/assets/` and reference them with relative paths such as `assets/<image>.png`. The HTML review must not hotlink remote webpage images.
+
 Follow the HTML review references as the source of detailed standards:
 
 - `references/html-review-surface.md` for the content standard, research depth, citations, visible prose, and evidence boundaries.
@@ -169,11 +201,18 @@ Follow the HTML review references as the source of detailed standards:
 
 Keep the chat response compact after writing the page: link the HTML path, summarize only the high-signal conclusion in 2-4 bullets, and ask whether this understanding is approved or what needs correction. Dense evidence, visuals, citations, and source-data staging belong in the HTML package and later `research_audit.md`, not in a dumped chat answer.
 
-Before asking for approval, run the local review-surface hygiene checks when practical. These are guardrails for broken anchors, visible internal labels, mechanical outline headings, and malformed report data; they do not replace editorial judgment:
+Before asking for approval, run the local review-surface hygiene checks when practical:
 
 ```powershell
+python scripts/validate_web_evidence_package.py <workspace-root>/review/report-data.json --require-screenshots --require-images when-indexed
 python scripts/validate_html_review_data.py <workspace-root>/review/report-data.json
 python scripts/validate_html_review.py <workspace-root>/review/source_understanding_review.html
+```
+
+For product launches, technical announcements, official blogs, or other media-rich webpages, use the stricter image gate. It exists only to catch the common mistake of counting screenshots as正文 images:
+
+```powershell
+python scripts/validate_web_evidence_package.py <workspace-root>/review/report-data.json --require-screenshots --require-images always --min-image-sources 1
 ```
 
 If this check fails, revise the HTML before asking for approval.

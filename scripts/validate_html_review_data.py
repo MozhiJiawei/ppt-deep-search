@@ -29,7 +29,51 @@ def _as_list(value: Any) -> list[Any]:
     return value if isinstance(value, list) else []
 
 
-def validate(data: Any) -> list[str]:
+def _is_http_url(value: Any) -> bool:
+    text = str(value or "").strip().lower()
+    return text.startswith("http://") or text.startswith("https://")
+
+
+def _resolve_artifact_path(path_value: str, base_dir: Path | None) -> Path:
+    path = Path(path_value)
+    if path.is_absolute() or base_dir is None:
+        return path
+    if path.parts and path.parts[0] in {"sources", "review", "baselines", "QA"}:
+        return base_dir.parent / path
+    return base_dir / path
+
+
+def _browser_evidence_for(value: Any) -> dict[str, Any]:
+    if _is_obj(value):
+        return value
+    return {}
+
+
+def _has_browser_capture(value: Any) -> bool:
+    text = str(value or "").lower()
+    good = ("codex browser", "in-app browser", "browser plugin", "browser-use")
+    bad = (
+        "raw capture",
+        "raw html",
+        "web search",
+        "search-result",
+        "browser unavailable",
+        "browser-use tool unavailable",
+        "curl",
+        "invoke-webrequest",
+        "playwright script",
+        "custom playwright",
+        "puppeteer",
+        "selenium",
+        "third-party crawler",
+        "crawl4ai",
+        "firecrawl",
+        "singlefile",
+    )
+    return any(fragment in text for fragment in good) and not any(fragment in text for fragment in bad)
+
+
+def validate(data: Any, base_dir: Path | None = None) -> list[str]:
     errors: list[str] = []
     if not _is_obj(data):
         return ["Top-level JSON value must be an object"]
@@ -44,6 +88,8 @@ def validate(data: Any) -> list[str]:
 
     citations = _as_list(data.get("citations"))
     citation_ids: set[str] = set()
+    web_citation_ids: set[str] = set()
+    visual_citation_ids: set[str] = set()
     for idx, citation in enumerate(citations):
         if not _is_obj(citation):
             errors.append(f"citations[{idx}] must be an object")
@@ -59,6 +105,53 @@ def validate(data: Any) -> list[str]:
             errors.append(f"citation {cid or idx} missing title")
         if not str(citation.get("locator", "")).strip():
             errors.append(f"citation {cid or idx} missing locator")
+        if _is_http_url(citation.get("url")):
+            if cid:
+                web_citation_ids.add(cid)
+            evidence = _browser_evidence_for(citation.get("browser_evidence"))
+            local_path = str(evidence.get("local_path") or evidence.get("path") or "").strip()
+            if not local_path:
+                errors.append(f"web citation {cid or idx} missing browser_evidence.local_path")
+            elif not _resolve_artifact_path(local_path, base_dir).exists():
+                errors.append(f"web citation {cid or idx} browser_evidence.local_path does not exist: {local_path}")
+            if not _has_browser_capture(evidence.get("capture_method")):
+                errors.append(f"web citation {cid or idx} browser_evidence.capture_method must identify Codex/browser-use capture")
+        kind = str(citation.get("kind", "")).strip().lower()
+        marker = str(citation.get("marker", "")).strip().upper()
+        if kind in {"figure", "image", "screenshot", "table"} or marker.startswith(("F", "T")):
+            if cid:
+                visual_citation_ids.add(cid)
+
+    assets = _as_list(data.get("assets"))
+    asset_citation_ids: set[str] = set()
+    for idx, asset in enumerate(assets):
+        if not _is_obj(asset):
+            errors.append(f"assets[{idx}] must be an object")
+            continue
+        label = str(asset.get("id") or idx)
+        asset_path = str(asset.get("path") or asset.get("local_path") or "").strip()
+        if not asset_path:
+            errors.append(f"asset {label} missing path")
+        elif not _resolve_artifact_path(asset_path, base_dir).exists():
+            errors.append(f"asset {label} path does not exist: {asset_path}")
+        source_citation = str(asset.get("source_citation", "")).strip()
+        if source_citation:
+            asset_citation_ids.add(source_citation)
+            if citation_ids and source_citation not in citation_ids:
+                errors.append(f"asset {label} cites unknown citation id: {source_citation}")
+        elif _is_http_url(asset.get("source_url")) or _is_http_url(asset.get("page_url")):
+            errors.append(f"web asset {label} missing source_citation")
+        if _is_http_url(asset.get("source_url")) or _is_http_url(asset.get("page_url")):
+            if not _is_http_url(asset.get("page_url")):
+                errors.append(f"web asset {label} missing page_url")
+            if not _is_http_url(asset.get("source_url")):
+                errors.append(f"web asset {label} missing source_url")
+            if not _has_browser_capture(asset.get("capture_method")):
+                errors.append(f"web asset {label} capture_method must identify Codex/browser-use capture")
+
+    for cid in sorted(visual_citation_ids & web_citation_ids):
+        if cid not in asset_citation_ids:
+            errors.append(f"web visual citation {cid} has no matching asset.source_citation")
 
     sections = _as_list(data.get("sections"))
     for idx, section in enumerate(sections):
@@ -122,14 +215,32 @@ def self_test() -> int:
             "representative_evidence": "primary source result", "boundary": "not layer axis", "relationship": "orthogonal"
         }],
     }
-    bad = {"meta": {"title": ""}, "sections": [{"heading_claim": "结论先行", "blocks": [{}]}], "charts": [{}]}
+    bad = {
+        "meta": {"title": ""},
+        "citations": [{
+            "id": "f1",
+            "kind": "figure",
+            "title": "Web figure",
+            "locator": "web page hero",
+            "url": "https://example.com/article",
+            "browser_evidence": {"capture_method": "curl", "local_path": "missing.md"},
+        }],
+        "sections": [{"heading_claim": "结论先行", "blocks": [{}]}],
+        "charts": [{}],
+    }
     good_errors = validate(good)
     bad_errors = validate(bad)
     if good_errors:
         print("[ERROR] valid fixture failed:")
         print("\n".join(good_errors))
         return 1
-    required = ["Missing meta.title", "outline label", "missing source_citations"]
+    required = [
+        "Missing meta.title",
+        "outline label",
+        "missing source_citations",
+        "browser_evidence.capture_method",
+        "web visual citation f1 has no matching asset.source_citation",
+    ]
     if not all(any(fragment in err for err in bad_errors) for fragment in required):
         print("[ERROR] invalid fixture did not produce expected errors:")
         print("\n".join(bad_errors))
@@ -155,7 +266,7 @@ def main() -> int:
         print(f"[ERROR] Failed to read JSON: {exc}")
         return 1
 
-    errors = validate(data)
+    errors = validate(data, args.json_file.parent)
     if errors:
         print("[ERROR] HTML review data QA failed:")
         for error in errors:

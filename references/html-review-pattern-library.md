@@ -164,6 +164,7 @@ Rules:
 - Do not imply a visual is an original figure when it was rebuilt by the agent.
 - If a data point is calculated, preserve the formula or extraction note in `research_audit.md` and cite the source rows in the visible report.
 - Prefer one reconstructed chart plus one original evidence block over a pile of screenshots.
+- For webpage evidence, pair the reconstructed or selected visual with the local Codex Browser/browser-use asset and keep the remote source URL in `report-data.json`. Do not use remote `<img src="https://...">` hotlinks in the report.
 
 ## Method Mini-Brief Card
 
@@ -177,6 +178,11 @@ Required fields:
 - `代表证据`
 - `适用边界`
 - `与本文/本对象的关系`
+
+Citation behavior:
+
+- Put quiet clickable citations next to the specific fields they support, especially `核心机制`, `代表证据`, and `适用边界`.
+- If a card needs a claim but the source is missing, pause drafting and fetch the source or rewrite the claim as an open question. Do not remove the claim merely to avoid a citation error.
 
 Recommended shape:
 
@@ -262,6 +268,7 @@ Before showing the HTML report, inspect it for these structural signs:
 - Side navigation uses stable logical labels; body headings are claim-like and topic-specific.
 - At least one `evidence-pair` or equivalent narrative-data block when the report includes quantitative results.
 - At least one original-evidence link, figure, table, screenshot, or reference near any reconstructed visual.
+- Webpage references and displayed webpage images are backed by local browser-use artifacts, with `report-data.json` mapping each cited URL/image to the local file.
 - No visible internal labels such as `agent-chart`, `source-original`, `QA`, `needs_verification`, or `inference`.
 - Citation anchors are clickable and not just bracket text.
 - The `已有做法与缺口` section contains developed mini-briefs, not only a comparison table.

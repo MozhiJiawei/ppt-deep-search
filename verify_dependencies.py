@@ -29,12 +29,19 @@ def main() -> int:
         root / "scripts" / "validate_ppt_content_brief.py",
         root / "scripts" / "validate_html_review.py",
         root / "scripts" / "validate_html_review_data.py",
+        root / "scripts" / "validate_web_evidence_package.py",
         root / "agents" / "openai.yaml",
         root / "references" / "html-review-surface.md",
         root / "references" / "html-review-data-model.md",
         root / "references" / "html-review-report-kit.md",
         root / "references" / "html-review-pattern-library.md",
         root / "scripts" / "serve_html_review.py",
+        root / "web-article-capture" / "SKILL.md",
+        root / "web-article-capture" / "scripts" / "validate_capture_package.py",
+        root / "web-article-capture" / "references" / "output-contract.md",
+        root / "web-article-capture" / "forward-tests" / "nvidia-pc" / "candidate" / "prompt.md",
+        root / "web-article-capture" / "forward-tests" / "nvidia-pc" / "candidate" / "input" / "urls.txt",
+        root / "web-article-capture" / "forward-tests" / "nvidia-pc" / "judge" / "rubric.md",
     ]
     missing = [str(path.relative_to(root)) for path in required if not path.exists()]
     if missing:
@@ -76,6 +83,36 @@ def main() -> int:
         safe_print((html_review_data_self_test.stdout + html_review_data_self_test.stderr).strip())
         return 1
     safe_print(html_review_data_self_test.stdout.strip())
+
+    web_evidence_self_test = subprocess.run(
+        [sys.executable, str(root / "scripts" / "validate_web_evidence_package.py"), "--self-test"],
+        cwd=root,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    if web_evidence_self_test.returncode != 0:
+        print("[ERROR] Web evidence package validator self-test failed:")
+        safe_print((web_evidence_self_test.stdout + web_evidence_self_test.stderr).strip())
+        return 1
+    safe_print(web_evidence_self_test.stdout.strip())
+
+    web_capture_self_test = subprocess.run(
+        [sys.executable, str(root / "web-article-capture" / "scripts" / "validate_capture_package.py"), "--self-test"],
+        cwd=root,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    if web_capture_self_test.returncode != 0:
+        print("[ERROR] Web article capture validator self-test failed:")
+        safe_print((web_capture_self_test.stdout + web_capture_self_test.stderr).strip())
+        return 1
+    safe_print(web_capture_self_test.stdout.strip())
 
     print("[OK] Python standard library dependencies available.")
     print("[OK] No required external services, packages, browsers, or hardware dependencies.")

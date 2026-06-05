@@ -19,6 +19,28 @@ It should answer:
 - What is uncertain, limited, or contested?
 - What follow-up research or deck direction should happen next?
 
+## Outcome Standard
+
+The page succeeds when it lets the human both trust the evidence and make a sharper technical judgment.
+
+### Trustworthy By Inspection
+
+The report should expose enough provenance that a skeptical reader can audit the argument from the page itself:
+
+- Put original source images, rendered screenshots, source tables, or quoted/source-located evidence near the claims they support.
+- Keep citations quiet but visible, clickable, and attached to the specific claim, field, chart, table, or caption they support.
+- For webpage evidence, use local assets and inventories captured through the Codex in-app Browser / Browser plugin. Do not substitute web search, raw HTML fetches, third-party crawlers, or self-written Playwright/Puppeteer/Selenium scripts for this evidence path.
+- When a source cannot be captured or a claim remains weak, name the boundary honestly instead of hiding it.
+
+### Data-Smart Technical Judgment
+
+For papers, technical announcements, benchmarks, product specs, architecture reports, and engineering incidents, prose is not enough. The report should actively look for data and make it useful:
+
+- Extract numbers, units, experimental conditions, system constraints, release dates, architecture layers, benchmark baselines, security claims, compatibility limits, and adoption or availability signals.
+- Prefer KPI strips, comparison matrices, decision registers, evidence tables, reconstructed charts, source-image pairs, timelines, or architecture diagrams when they make the reasoning clearer.
+- Every chart or table should answer a named technical question. Preserve units, conditions, source rows, and uncertainty; pair reconstructed visuals with original evidence or a direct reference.
+- Do not make decorative charts. If the source has no reliable numeric basis, use a boundary table or open-question register rather than inventing quantitative confidence.
+
 ## Research Autonomy Standard
 
 The outline is a floor, not a form to mechanically fill. The agent must behave like a researcher preparing a useful briefing: decide what extra context, comparisons, figures, definitions, timelines, diagrams, and evidence are needed for this topic to become understandable and decision-ready.
@@ -35,6 +57,20 @@ Requirements:
 
 Reject the report if it feels like the agent filled headings without discovering or explaining anything the user did not already hand it.
 
+## Source Discovery Before Writing
+
+Before drafting the report, create a source map and crawl plan. The report should not begin from a blank template; it should begin from a researched understanding of what sources are needed.
+
+Requirements:
+
+- List the primary sources that directly define the object under discussion.
+- List adjacent-route sources for comparison objects the reader would naturally ask about. For example, a local Agent PC report should look for sources on adjacent AI PC, existing local RTX AI, cloud/frontier agents, DGX or workstation routes, security runtimes, and relevant developer tooling before writing the comparison section.
+- List boundary/check sources for naming, release dates, availability, benchmark conditions, safety/security claims, procurement status, pricing, or other overclaim risks.
+- Decide which sources need rendered browser capture, which can be local files, and which are only background.
+- Record the map under the workspace so the audit can explain why the report compared these alternatives and not others.
+
+When drafting reveals a missing source, loop back to discovery and capture. Do not solve missing evidence by deleting a useful comparison, removing citations, or reducing the section to generic prose. Either fetch the missing source, or preserve the idea as an open question/boundary with honest wording.
+
 ## Report-Writing Standard
 
 The visible page body must be Chinese-first and report-like.
@@ -49,6 +85,7 @@ Requirements:
 - Do not paste dense citation chains such as `[S1][F4][T2][T4][T5]` into paragraphs. When several sources support one sentence, cite the most important 1-2 markers and list the rest in the reference entry.
 - Keep citations visually quiet: smaller text, superscript, or footnote-style links are acceptable. They must support auditability without interrupting reading.
 - Every visible citation/index marker must be clickable. Clicking a marker in the report body must jump to the matching reference entry. Each reference entry should include a backlink to the first or nearest referring paragraph.
+- Webpage citations must be backed by local Codex in-app Browser / Browser plugin evidence, not only by a URL. Before citing a webpage, use the Browser tool itself to save the rendered article text, article metadata, rendered page/article screenshot, image inventory, and relevant downloaded images under the workspace, then point `report-data.json` at those local artifacts. Raw HTML, `curl`, `Invoke-WebRequest`, search-result snippets, third-party crawlers, self-written Playwright/Puppeteer/Selenium scripts, or hand-written excerpts are not substitutes for this package.
 - Move internal evidence classification to a hidden/details section, appendix, or `research_audit.md`; it must not dominate the report.
 - Treat the required outline as the hidden logic job of each section, not as the visible heading. Visible report headings should be claim-like conclusions, not topic labels. For example, use `R-CLA 值得进入受控 serving 实验` instead of `结论先行`, `KV cache 已从计算优化问题变成容量约束` instead of `问题为什么重要`, and `R-CLA 的差异在训练期鲁棒性，而不是又一种 token pruning` instead of `已有做法与缺口`.
 - The side navigation is allowed to use fixed logical labels because it serves wayfinding, not persuasion. A good default navigation set is: `结论先行` / `问题为什么重要` / `已有做法与缺口` / `关键机制` / `实验信号与边界` / `下一步验证` / `参考资料`.
@@ -108,6 +145,7 @@ Requirements:
 - Use supplemental research when the provided source is too narrow.
 - Explain what each alternative optimizes for, where it struggles, and why it is or is not a fair comparison to the current source.
 - For each comparison object, provide an abstract-style mini-summary with: `一句话定位`, `核心机制`, `主要证据或代表结果`, `适用边界`, and `与本文/本对象的关键差异`.
+- Each comparison object needs its own source basis. Do not use one citation at the end of the card as a token compliance marker if the card contains several sourced assertions. Put quiet citations near the specific fields they support, especially `核心机制`, `主要证据或代表结果`, and `适用边界`.
 - Each comparison object must include at least one visual summary, not merely share one visual for the entire section. Good options: source figure, simplified mechanism diagram, tiny flow, axis marker in a method map, evidence card, sparkline/bar, or compact mini-table.
 - Include one synthesis visual for the section after the mini-briefs: comparison matrix, method map, layer stack, quadrant, small-multiple cards, timeline, or tradeoff chart. The visual must help the reader compare methods, not merely decorate the page.
 - Prefer a structured comparison over a long prose list. A good default is 3-5 method cards, each with its own mini visual, plus one matrix that compares optimization axis, required model change, serving-time impact, evidence strength, and deployment risk.
@@ -176,6 +214,7 @@ Requirements:
 - Every factual claim in the page must map to a quiet citation marker such as a superscript number, footnote link, or compact marker. The marker must resolve to `[S1]`, `[F2]`, `[T1]`, or `[R3]` style entries in the reference section, but the main report should not look like a source-marker chain.
 - `S` means textual/source document, `F` means figure/image, `T` means table/data, `R` means supplemental research.
 - References must include enough locator detail for audit: source title, URL or local path, section/page/figure/table when available, access date for web sources, and whether the item is primary or supplemental.
+- For webpage references, include both the original URL and the local browser-use evidence locator. The local locator must point into a rendered browser-use evidence package that includes article text, structured metadata, and at least one rendered screenshot. For media-rich pages, it should also include downloaded source images and an image manifest.
 - Local absolute paths are allowed in this review page and in `research_audit.md`; keep final `ppt_content_brief.md` cleaner.
 - Implement citation navigation with stable HTML anchors:
   - Body marker: `<sup id="cite-ref-t4-1"><a href="#ref-t4">4</a></sup>`
@@ -193,6 +232,7 @@ Requirements:
 - Quote sparingly. Prefer paraphrase plus locator.
 - Keep provenance for each visual in image metadata, captions, an appendix, or `research_audit.md`; do not show raw provenance labels in the main report body.
 - Citation links are part of evidence quality. Broken anchors, non-clickable source markers, duplicate ids, or references with no reachable body marker count as report defects.
+- Missing citations should trigger source acquisition, not citation removal. If a sentence is important enough to shape the reader's comparison or decision, find the source or rewrite it as an open question/boundary. Do not silently drop source-demanding claims just to make validation pass.
 
 ## Visual Rules
 
@@ -218,6 +258,8 @@ Requirements:
 - Add a short Chinese caption explaining what the user should notice.
 - Do not redraw source evidence as if it were original data.
 - If cropping or annotating, keep a path to the original image and label the derivative in metadata or audit notes.
+- For webpage sources, display local copies of the original正文 images downloaded through Browser/browser-use. Screenshots are useful audit evidence, but they are not a substitute for original webpage images.
+- Do not hotlink remote webpage images. Copy selected local evidence images into `review/assets/` and reference those files.
 
 ### Explanatory Diagrams
 
@@ -269,6 +311,10 @@ Before showing the page to the user, check:
 - Results include tradeoffs, limitations, and weak evidence.
 - Every factual claim maps to a citation or to an open question in Chinese.
 - The references section is complete enough to audit.
+- Every webpage URL cited in the report has a matching local browser-use evidence artifact in `report-data.json`.
+- Every webpage URL cited in the report has a rendered screenshot artifact; a `raw.html` file or manually written article excerpt alone is not enough.
+- Every webpage image displayed in the report is a local `review/assets/` file with a matching `assets[].source_citation`.
+- Run `scripts/validate_web_evidence_package.py <workspace-root>/review/report-data.json --require-screenshots --require-images when-indexed` before approval, and use `--require-images always --min-image-sources 1` for media-rich web source packages.
 - The page asks one clear approval/correction question.
 
 ## Rejection Triggers
@@ -282,6 +328,10 @@ Revise before showing the report if any of these appear in the visible main body
 - Dense bracket citation chains with three or more markers in a row.
 - Plain, non-clickable citation markers such as `[S1]` or `[T4]` in visible paragraphs or figure captions.
 - Broken reference navigation: citation links that do nothing, links that jump to the wrong reference, missing reference ids, duplicate ids, or references with no backlink.
+- Remote webpage image hotlinks in report figures, such as `<img src="https://...">`, instead of local browser-use evidence assets.
+- Webpage facts or source images cited only by URL, with no local browser-use evidence artifact in `report-data.json`.
+- Capture methods that admit `raw HTML`, `curl`, `Invoke-WebRequest`, `web search`, third-party crawler packages, self-written Playwright/Puppeteer/Selenium scripts, or `browser-use unavailable` while still presenting the source as browser-use evidence.
+- Media-rich web source packages that contain no screenshots or no downloaded original webpage images without an explicit no-useful-image explanation. A rendered full-page or article-region screenshot copied into `images/` does not count as a downloaded webpage image.
 - Paragraphs that mix Chinese and avoidable English glue words when a natural Chinese phrase exists.
 - A first viewport that begins with audit process rather than the topic's conclusion and strongest evidence.
 - Visual captions that describe provenance instead of telling the reader what to notice.

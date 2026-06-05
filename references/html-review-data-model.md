@@ -36,7 +36,45 @@ For a very small text-only source, the agent may skip the JSON file, but it shou
     "question": "The one decision question the report answers",
     "audience": "Target reader",
     "generated_at": "2026-06-03T00:00:00+08:00",
-    "source_package": "local path, URL, or source description"
+    "source_package": "local path, URL, or source description",
+    "source_discovery_path": "sources/source-discovery.md"
+  },
+  "source_discovery": {
+    "primary_sources": [
+      {
+        "id": "primary-nvidia-news",
+        "title": "NVIDIA official announcement",
+        "url_or_path": "https://example.com/official",
+        "why_it_matters": "Defines the official wording and product object.",
+        "capture_status": "captured | planned | blocked"
+      }
+    ],
+    "adjacent_route_sources": [
+      {
+        "id": "adjacent-copilot-pc",
+        "title": "Adjacent product or method source",
+        "url_or_path": "https://example.com/adjacent",
+        "comparison_role": "Explains how a neighboring route differs on mechanism, evidence, or boundary.",
+        "capture_status": "captured | planned | blocked"
+      }
+    ],
+    "boundary_sources": [
+      {
+        "id": "boundary-availability",
+        "title": "Availability or benchmark caveat source",
+        "url_or_path": "https://example.com/boundary",
+        "boundary_checked": "Release date, metric condition, security claim, procurement state, or other overclaim risk.",
+        "capture_status": "captured | planned | blocked"
+      }
+    ],
+    "citation_debt": [
+      {
+        "claim_or_comparison_need": "A useful claim that appeared while drafting but needs more support.",
+        "needed_source_type": "official docs | paper | product page | benchmark | repository | standard | technical article",
+        "resolution": "captured and cited | rewritten as boundary | left as open question",
+        "linked_citations": ["r2"]
+      }
+    ]
   },
   "citations": [
     {
@@ -47,16 +85,55 @@ For a very small text-only source, the agent may skip the JSON file, but it shou
       "locator": "paper Table 4 / local image path / URL section",
       "source_type": "primary",
       "url": null,
-      "local_path": "D:/.../images/table_004.png"
+      "local_path": "D:/.../images/table_004.png",
+      "browser_evidence": null
+    },
+    {
+      "id": "r1",
+      "marker": "R1",
+      "kind": "webpage",
+      "title": "NVIDIA Blog article title",
+      "locator": "official blog article body, captured with Codex Browser",
+      "source_type": "primary",
+      "url": "https://example.com/article",
+      "local_path": "sources/web/nvidia-blog/article.md",
+      "browser_evidence": {
+        "capture_method": "Codex in-app Browser / Browser plugin rendered page extraction",
+        "local_path": "sources/web/nvidia-blog/article.md",
+        "metadata_path": "sources/web/nvidia-blog/article.json",
+        "screenshot_path": "sources/web/nvidia-blog/screenshots/article-region.png",
+        "image_manifest_path": "sources/web/nvidia-blog/images.json",
+        "selected_container": "article.post",
+        "captured_at": "2026-06-03T00:00:00+08:00"
+      }
     }
   ],
   "assets": [
     {
       "id": "table_004",
       "role": "original_evidence",
-      "path": "review/assets/table_004.png",
+      "path": "assets/table_004.png",
       "source_citation": "t4",
       "caption_takeaway": "The source table provides KV cache, TTFT, and throughput values used in the reconstructed chart."
+    },
+    {
+      "id": "webimg_001",
+      "role": "original_web_image",
+      "path": "assets/webimg_001.png",
+      "source_citation": "r1",
+      "page_url": "https://example.com/article",
+      "source_url": "https://example.com/uploads/source-image.png",
+      "capture_method": "Codex in-app Browser / Browser plugin page asset download",
+      "download_status": "ok",
+      "content_type": "image/png",
+      "bytes": 123456,
+      "alt": "Original alt text when available",
+      "caption": "Original figcaption when available",
+      "nearby_text": "Heading or paragraph near the image in article order.",
+      "inferred_meaning": "One Chinese sentence explaining what this image likely shows based on DOM context.",
+      "meaning_confidence": "high | medium | low",
+      "usage_policy": "original | summarize_rebuild | background_only | discard",
+      "caption_takeaway": "Chinese report-facing takeaway if this image is used."
     }
   ],
   "kpis": [
@@ -157,6 +234,11 @@ Do not force every report to use every block. Pick the minimum set that makes th
 - Preserve units, task conditions, model names, hardware, date, and benchmark setup next to the values.
 - If a value is calculated, record the formula in `charts[].derived_fields` or in a nearby note.
 - If a chart is reconstructed from a source table or image, include both the chart contract and the original evidence asset or citation.
+- For webpage sources, every cited URL needs a local Browser evidence package: rendered正文 text, article metadata/image inventory, at least one screenshot, and downloaded正文 images when the page is media-rich.
+- Keep `sources/web/<slug>/images/` for original webpage images only. Do not count `full-page`, `article-region`, or `rendered-evidence` screenshots as downloaded webpage images.
+- In `report-data.json`, point citations to the local article/screenshot/image manifest paths. For any webpage image shown in the HTML, add an `assets[]` item with its local `path`, original `source_url`, nearby context, and usage policy.
+- Before presenting the HTML review, run `scripts/validate_web_evidence_package.py`; for media-rich pages use `--require-images always --min-image-sources 1`.
+- Use `source_discovery` to preserve the positive research path: which primary, adjacent-route, and boundary sources were considered; which were captured; and which drafting-time citation gaps required new crawling. This is not a substitute for visible citations, but it prevents the agent from treating validation as a reason to delete comparison claims.
 - Keep source ids stable. The HTML body can show quiet numeric footnotes, but the data model should preserve `S/F/T/R` style markers for audit.
 - Do not include hidden judge rubrics, forward-test expectations, or main-agent strategy in this file.
 

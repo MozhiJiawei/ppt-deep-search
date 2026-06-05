@@ -13,6 +13,16 @@ The kit borrows the strongest transferable parts of Tufte-style reports:
 
 It is guidance and infrastructure, not a rigid template. Keep our Chinese-first outline and HIL approval gates.
 
+## Data-Smart Report Standard
+
+Use the kit to make technical evidence inspectable, not to decorate the page.
+
+- For every major technical claim, ask whether the reader would understand it better through a number, source figure, table, benchmark condition, comparison matrix, timeline, or architecture diagram.
+- Prefer small, precise visuals over broad infographics: KPI strips for headline specs, matrices for route comparison, compact tables for exact lookup, reconstructed charts for measurable deltas, and decision registers for validation gates.
+- Pair reconstructed charts or derived tables with original evidence: source screenshot, local browser-captured image, source table excerpt, or a nearby clickable reference.
+- Keep chart contracts explicit in scratch notes or `report-data.json`: question, data source, unit, condition, transformation, and boundary.
+- If the available evidence is qualitative or incomplete, make that visible with a boundary/open-question table instead of manufacturing numeric confidence.
+
 ## Default Dependencies
 
 Keep the artifact lightweight:
@@ -257,6 +267,7 @@ Rules:
 
 - Never let a rebuilt chart impersonate an original figure.
 - Keep extraction notes in `report-data.json` and `research_audit.md`; show only the reader-useful transformation note in HTML.
+- If the source evidence comes from a webpage, the `<img>` must point to a local asset captured through the Codex in-app Browser / Browser plugin under `review/assets/`, not the remote webpage URL. Keep the original URL and browser-use capture details in `report-data.json`.
 
 ## Method Mini-Brief
 
@@ -456,6 +467,8 @@ Before showing the report:
 - Does the title answer one decision question?
 - Does every chart have a chart contract, units, condition, and claim caption?
 - Is every reconstructed chart paired with original evidence or a direct reference?
+- Are all webpage citations backed by local Codex in-app Browser / Browser plugin evidence files in `report-data.json`?
+- Are all report-displayed webpage images local files under `review/assets/` rather than remote URLs or `data:` URLs?
 - Are method cards developed enough to explain mechanism, evidence, boundary, and relationship?
 - Are citations quiet, clickable, and complete?
 - Are tables/matrices used when exact comparison matters more than chart shape?
