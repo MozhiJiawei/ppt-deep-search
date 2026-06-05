@@ -4,10 +4,10 @@ title: PPT 深度研究
 description: 在生成 PPT 前进行观点对齐、故事线规划和证据审计。
 entry: docs/index.md
 nav:
-  - title: 概览
-    path: docs/index.md
+  - title: 能力展示
+    path: docs/reference.md
   - title: 使用方式
     path: docs/usage.md
-  - title: 参考
-    path: docs/reference.md
+  - title: 架构概览
+    path: docs/index.md
 status: bootstrap
