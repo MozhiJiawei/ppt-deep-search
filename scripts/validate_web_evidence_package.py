@@ -38,7 +38,6 @@ GOOD_CAPTURE_FRAGMENTS = (
 )
 
 IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp", ".gif", ".svg"}
-SCREENSHOT_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp"}
 IMAGE_MANIFEST_NAMES = ("images.json", "images-manifest.json", "page-assets-inventory.json")
 SCREENSHOT_NAME_FRAGMENTS = (
     "screenshot",
@@ -189,7 +188,6 @@ def validate_report_data(
     data: Any,
     base_dir: Path,
     *,
-    require_screenshots: bool,
     require_images: str,
     min_image_sources: int,
 ) -> list[str]:
@@ -249,22 +247,6 @@ def validate_report_data(
             if not alternate_jsons:
                 errors.append(f"web citation {cid} missing structured article metadata JSON in {source_dir}")
 
-        screenshot_values = [
-            str(evidence.get("screenshot_path") or "").strip(),
-            str(evidence.get("article_region_path") or "").strip(),
-            str(evidence.get("fullpage_screenshot_path") or "").strip(),
-        ]
-        screenshots = [
-            _resolve_artifact_path(value, base_dir)
-            for value in screenshot_values
-            if value
-        ]
-        screenshots.extend(_files_with_ext(source_dir / "screenshots", SCREENSHOT_EXTENSIONS))
-        screenshots.extend(path for path in _files_with_ext(source_dir, SCREENSHOT_EXTENSIONS) if path.name.lower() in {"fullpage.png", "page-full.png", "article-region.png", "fullpage-screenshot.png"})
-        existing_screenshots = [path for path in screenshots if path.exists()]
-        if require_screenshots and not existing_screenshots:
-            errors.append(f"web citation {cid} missing rendered screenshot artifact")
-
         original_image_files = _original_image_files(source_dir)
         image_manifest_exists = any((source_dir / name).exists() for name in IMAGE_MANIFEST_NAMES)
         if original_image_files:
@@ -286,11 +268,9 @@ def self_test() -> int:
         review = root / "review"
         src = root / "sources" / "web" / "good"
         (src / "images").mkdir(parents=True)
-        (src / "screenshots").mkdir()
         review.mkdir()
         (src / "article.md").write_text("Rendered article text", encoding="utf-8")
         (src / "article.json").write_text("{}", encoding="utf-8")
-        (src / "screenshots" / "article-region.png").write_bytes(b"\x89PNG\r\n")
         (src / "images" / "hero.png").write_bytes(b"\x89PNG\r\n")
         (src / "images.json").write_text(json.dumps({
             "images": [{
@@ -307,7 +287,6 @@ def self_test() -> int:
                 "browser_evidence": {
                     "capture_method": "Codex Browser/browser-use rendered page extraction",
                     "local_path": "sources/web/good/article.md",
-                    "screenshot_path": "sources/web/good/screenshots/article-region.png",
                 },
             }]
         }
@@ -318,7 +297,6 @@ def self_test() -> int:
                 "browser_evidence": {
                     "capture_method": "Custom Playwright script plus raw capture; browser-use tool unavailable",
                     "local_path": "sources/web/good/article.md",
-                    "screenshot_path": None,
                 },
             }]
         }
@@ -329,22 +307,18 @@ def self_test() -> int:
                 "browser_evidence": {
                     "capture_method": "Codex Browser/browser-use rendered page extraction",
                     "local_path": "sources/web/good/article.md",
-                    "screenshot_path": "sources/web/good/screenshots/article-region.png",
                 },
             }]
         }
         screenshot_src = root / "sources" / "web" / "screenshot-only"
         (screenshot_src / "images").mkdir(parents=True)
-        (screenshot_src / "screenshots").mkdir()
         (screenshot_src / "article.md").write_text("Rendered article text", encoding="utf-8")
         (screenshot_src / "article.json").write_text("{}", encoding="utf-8")
-        (screenshot_src / "screenshots" / "full-page.png").write_bytes(b"\x89PNG\r\n")
         (screenshot_src / "images" / "full-page-rendered-evidence.png").write_bytes(b"\x89PNG\r\n")
         screenshot_only["citations"][0]["browser_evidence"]["local_path"] = "sources/web/screenshot-only/article.md"
-        screenshot_only["citations"][0]["browser_evidence"]["screenshot_path"] = "sources/web/screenshot-only/screenshots/full-page.png"
-        good_errors = validate_report_data(good, review, require_screenshots=True, require_images="always", min_image_sources=1)
-        bad_errors = validate_report_data(bad, review, require_screenshots=True, require_images="never", min_image_sources=0)
-        screenshot_errors = validate_report_data(screenshot_only, review, require_screenshots=True, require_images="always", min_image_sources=1)
+        good_errors = validate_report_data(good, review, require_images="always", min_image_sources=1)
+        bad_errors = validate_report_data(bad, review, require_images="never", min_image_sources=0)
+        screenshot_errors = validate_report_data(screenshot_only, review, require_images="always", min_image_sources=1)
         if good_errors:
             print("[ERROR] valid fixture failed:")
             print("\n".join(good_errors))
@@ -365,7 +339,6 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Validate rendered webpage evidence packages referenced by report-data.json.")
     parser.add_argument("json_file", nargs="?", type=Path)
     parser.add_argument("--self-test", action="store_true")
-    parser.add_argument("--require-screenshots", action="store_true", help="Require each cited webpage to have a rendered page/article screenshot.")
     parser.add_argument("--require-images", choices=("never", "when-indexed", "always"), default="when-indexed")
     parser.add_argument("--min-image-sources", type=int, default=0, help="Require images from at least this many cited webpage source packages.")
     args = parser.parse_args()
@@ -384,7 +357,6 @@ def main() -> int:
     errors = validate_report_data(
         data,
         args.json_file.parent,
-        require_screenshots=args.require_screenshots,
         require_images=args.require_images,
         min_image_sources=args.min_image_sources,
     )

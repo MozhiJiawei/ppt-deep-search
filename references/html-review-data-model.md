@@ -101,7 +101,6 @@ For a very small text-only source, the agent may skip the JSON file, but it shou
         "capture_method": "Codex in-app Browser / Browser plugin rendered page extraction",
         "local_path": "sources/web/nvidia-blog/article.md",
         "metadata_path": "sources/web/nvidia-blog/article.json",
-        "screenshot_path": "sources/web/nvidia-blog/screenshots/article-region.png",
         "image_manifest_path": "sources/web/nvidia-blog/images.json",
         "selected_container": "article.post",
         "captured_at": "2026-06-03T00:00:00+08:00"
@@ -234,9 +233,9 @@ Do not force every report to use every block. Pick the minimum set that makes th
 - Preserve units, task conditions, model names, hardware, date, and benchmark setup next to the values.
 - If a value is calculated, record the formula in `charts[].derived_fields` or in a nearby note.
 - If a chart is reconstructed from a source table or image, include both the chart contract and the original evidence asset or citation.
-- For webpage sources, every cited URL needs a local Browser evidence package: rendered正文 text, article metadata/image inventory, at least one screenshot, and downloaded正文 images when the page is media-rich.
+- For webpage sources, every cited URL needs a local Browser evidence package: rendered正文 text, article metadata/image inventory, and downloaded正文 images when the page is media-rich.
 - Keep `sources/web/<slug>/images/` for original webpage images only. Do not count `full-page`, `article-region`, or `rendered-evidence` screenshots as downloaded webpage images.
-- In `report-data.json`, point citations to the local article/screenshot/image manifest paths. For any webpage image shown in the HTML, add an `assets[]` item with its local `path`, original `source_url`, nearby context, and usage policy.
+- In `report-data.json`, point citations to the local article and image manifest paths. For any webpage image shown in the HTML, add an `assets[]` item with its local `path`, original `source_url`, nearby context, and usage policy.
 - Before presenting the HTML review, run `scripts/validate_web_evidence_package.py`; for media-rich pages use `--require-images always --min-image-sources 1`.
 - Use `source_discovery` to preserve the positive research path: which primary, adjacent-route, and boundary sources were considered; which were captured; and which drafting-time citation gaps required new crawling. This is not a substitute for visible citations, but it prevents the agent from treating validation as a reason to delete comparison claims.
 - Keep source ids stable. The HTML body can show quiet numeric footnotes, but the data model should preserve `S/F/T/R` style markers for audit.

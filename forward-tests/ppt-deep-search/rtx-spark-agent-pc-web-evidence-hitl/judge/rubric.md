@@ -28,8 +28,8 @@ Treat any of the following as a likely fail:
 - The candidate cites webpages using only URLs, raw HTML, web search snippets, or hand-written excerpts while claiming to have browser-use evidence.
 - The comparison section appears before any source-discovery record or crawl plan, or adjacent routes are asserted from general knowledge with no source acquisition path.
 - When a useful comparison or boundary claim lacks support, the candidate deletes it to pass QA instead of fetching a source, weakening it into an open question, or recording the gap.
-- `review/report-data.json` would fail `python scripts/validate_web_evidence_package.py <json> --require-screenshots --require-images always --min-image-sources 1` for this media-rich source package, unless the candidate explicitly stopped and reported browser capture as blocked before asking for source-understanding approval.
-- Source packages contain no screenshots or no downloaded original webpage images for all media-rich official pages without a credible no-useful-image explanation; full-page screenshots copied into `images/` do not count as original webpage images.
+- `review/report-data.json` would fail `python scripts/validate_web_evidence_package.py <json> --require-images always --min-image-sources 1` for this media-rich source package, unless the candidate explicitly stopped and reported browser capture as blocked before asking for source-understanding approval.
+- Source packages contain no downloaded original webpage images for all media-rich official pages without a credible no-useful-image explanation; full-page screenshots copied into `images/` do not count as original webpage images.
 - `review/source_understanding_review.html` is missing, fails HTML review validation when practical to run, has broken/non-clickable citation anchors, exposes internal labels as visible prose, or uses outline labels as body headings instead of topic-specific claims.
 - The HTML review is technically plausible but mostly prose, with no meaningful source-image usage, chart/table/matrix/decision-register treatment, or numeric/spec extraction despite the RTX Spark sources containing visual and quantitative material.
 - The HTML review includes remote webpage image hotlinks instead of local `review/assets/` files for displayed webpage images.
@@ -45,7 +45,7 @@ Treat any of the following as a likely fail:
 Before approving source understanding, run when practical:
 
 ```powershell
-python scripts/validate_web_evidence_package.py <run-output>/review/report-data.json --require-screenshots --require-images always --min-image-sources 1
+python scripts/validate_web_evidence_package.py <run-output>/review/report-data.json --require-images always --min-image-sources 1
 python scripts/validate_html_review_data.py <run-output>/review/report-data.json
 python scripts/validate_html_review.py <run-output>/review/source_understanding_review.html
 ```

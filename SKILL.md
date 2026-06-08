@@ -15,7 +15,7 @@ This skill is modeled as a research dialogue, not a one-shot summarizer. The dur
 
 When creating a temporary HTML review page, optimize for two outcomes:
 
-1. **Trustworthy by inspection**: the reader should be able to see why the report is credible without opening every source. Put original source images, rendered webpage screenshots, quoted/source-located evidence, and quiet clickable citations close to the claims they support. Use local browser-captured assets for webpage evidence, keep citation anchors intact, and make source provenance visible enough that the human can audit the argument.
+1. **Trustworthy by inspection**: the reader should be able to see why the report is credible without opening every source. Put original source images, quoted/source-located evidence, and quiet clickable citations close to the claims they support. Use local browser-captured article/main正文 packages for webpage evidence, keep citation anchors intact, and make source provenance visible enough that the human can audit the argument.
 2. **Data-smart technical judgment**: when the material is technical, make the report reason with data, not only prose. Extract numbers, specs, benchmark conditions, release dates, architecture constraints, tables, figures, diagrams, or metric comparisons. Turn them into readable KPI strips, matrices, reconstructed charts, source-image pairs, decision registers, or compact tables when they clarify the decision. Do not add decorative charts; every chart or table should answer a technical question and carry source, unit, condition, and boundary.
 
 The workflow exists to serve these goals. If a process step produces a formally complete but untrustworthy, citation-light, image-light, or prose-only technical report, keep researching and revising. If drafting reveals that an important claim needs a new citation, source image, or comparison dataset, dynamically return to source discovery and browser capture instead of deleting the claim just to pass validation.
@@ -157,7 +157,7 @@ Source understanding starts with source discovery, not HTML writing. Before craw
 - `Primary sources`: the source package or official/original materials that directly define the object.
 - `Adjacent-route sources`: sources for comparable products, methods, platforms, standards, or research lines that a technical reader would expect in the "已有做法与缺口" section.
 - `Boundary/check sources`: sources that can verify dates, naming, availability, benchmark conditions, security claims, pricing/procurement, or other overclaim risks.
-- `Candidate visuals`: source figures, screenshots, product images, diagrams, tables, or benchmark charts likely to help the human inspect the evidence.
+- `Candidate visuals`: source figures, product images, diagrams, tables, or benchmark charts likely to help the human inspect the evidence.
 - `Crawl plan`: which URLs/files will be captured first, why they matter, and what each source is expected to prove or qualify.
 
 Use this map as a thinking artifact, not a long report. The point is to make the agent notice missing adjacent routes and evidence gaps before it starts designing the HTML page. If the user already provided a strong source list, still add the natural adjacent-route and boundary sources a skeptical reader would ask about.
@@ -166,7 +166,7 @@ Before writing the HTML review, inspect the provided source package deeply enoug
 
 - Read the main extracted text/XML for abstract, method, experiments, limitations, and appendix references.
 - Open or OCR/summarize source figures and table images when they contain experimental results, costs, baselines, problem types, or method comparisons. Do not assume all important data is present in the XML text.
-- For every webpage source that may be cited, use `web-article-capture/SKILL.md` to extract article/main正文图文 into `<workspace-root>/sources/web/<source-slug>/`. Treat that package as the source of webpage text, original images, screenshots, and image inventory.
+- For every webpage source that may be cited, use `web-article-capture/SKILL.md` to extract article/main正文图文 into `<workspace-root>/sources/web/<source-slug>/`. Treat that package as the source of webpage text, original images, and image inventory.
 - Build a compact evidence inventory with: key tables/figures, benchmark names, baseline names, metrics, strongest numeric deltas, cost/runtime/token numbers, problem-type splits, and explicit limitations.
 - Cross-check named methods/backbones against source tables or figure captions before using them in user-facing analysis.
 - Put exact locators, table/figure names, and extracted numeric values in the live evidence map and later `research_audit.md`.
@@ -204,7 +204,7 @@ Keep the chat response compact after writing the page: link the HTML path, summa
 Before asking for approval, run the local review-surface hygiene checks when practical:
 
 ```powershell
-python scripts/validate_web_evidence_package.py <workspace-root>/review/report-data.json --require-screenshots --require-images when-indexed
+python scripts/validate_web_evidence_package.py <workspace-root>/review/report-data.json --require-images when-indexed
 python scripts/validate_html_review_data.py <workspace-root>/review/report-data.json
 python scripts/validate_html_review.py <workspace-root>/review/source_understanding_review.html
 ```
@@ -212,7 +212,7 @@ python scripts/validate_html_review.py <workspace-root>/review/source_understand
 For product launches, technical announcements, official blogs, or other media-rich webpages, use the stricter image gate. It exists only to catch the common mistake of counting screenshots as正文 images:
 
 ```powershell
-python scripts/validate_web_evidence_package.py <workspace-root>/review/report-data.json --require-screenshots --require-images always --min-image-sources 1
+python scripts/validate_web_evidence_package.py <workspace-root>/review/report-data.json --require-images always --min-image-sources 1
 ```
 
 If this check fails, revise the HTML before asking for approval.
@@ -415,7 +415,7 @@ The required approval bundle is:
 - Every page's title subtitle.
 - Every page's `分析总结` bullets: choose 1-3 core claims according to the page's real information density.
 - Every page role.
-- Required source figures/tables/screenshots and their usage policy: original, summarize/rebuild, background only, or discard.
+- Required source figures/tables/images and their usage policy: original, summarize/rebuild, background only, or discard.
 - Supplemental research sources, if used, and whether they are primary source, official docs, paper, repository, technical article, or needs verification.
 - Claims that must be preserved.
 - Boundary reminders that the downstream PPT skill must not weaken.

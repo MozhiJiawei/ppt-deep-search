@@ -27,7 +27,7 @@ The page succeeds when it lets the human both trust the evidence and make a shar
 
 The report should expose enough provenance that a skeptical reader can audit the argument from the page itself:
 
-- Put original source images, rendered screenshots, source tables, or quoted/source-located evidence near the claims they support.
+- Put original source images, source tables, or quoted/source-located evidence near the claims they support.
 - Keep citations quiet but visible, clickable, and attached to the specific claim, field, chart, table, or caption they support.
 - For webpage evidence, use local assets and inventories captured through the Codex in-app Browser / Browser plugin. Do not substitute web search, raw HTML fetches, third-party crawlers, or self-written Playwright/Puppeteer/Selenium scripts for this evidence path.
 - When a source cannot be captured or a claim remains weak, name the boundary honestly instead of hiding it.
@@ -85,7 +85,7 @@ Requirements:
 - Do not paste dense citation chains such as `[S1][F4][T2][T4][T5]` into paragraphs. When several sources support one sentence, cite the most important 1-2 markers and list the rest in the reference entry.
 - Keep citations visually quiet: smaller text, superscript, or footnote-style links are acceptable. They must support auditability without interrupting reading.
 - Every visible citation/index marker must be clickable. Clicking a marker in the report body must jump to the matching reference entry. Each reference entry should include a backlink to the first or nearest referring paragraph.
-- Webpage citations must be backed by local Codex in-app Browser / Browser plugin evidence, not only by a URL. Before citing a webpage, use the Browser tool itself to save the rendered article text, article metadata, rendered page/article screenshot, image inventory, and relevant downloaded images under the workspace, then point `report-data.json` at those local artifacts. Raw HTML, `curl`, `Invoke-WebRequest`, search-result snippets, third-party crawlers, self-written Playwright/Puppeteer/Selenium scripts, or hand-written excerpts are not substitutes for this package.
+- Webpage citations must be backed by local Codex in-app Browser / Browser plugin evidence, not only by a URL. Before citing a webpage, use `web-article-capture/SKILL.md` to save the rendered article/main正文 text, article metadata, image inventory, and relevant downloaded original images under the workspace, then point `report-data.json` at those local artifacts. Raw HTML, `curl`, `Invoke-WebRequest`, search-result snippets, third-party crawlers, self-written Playwright/Puppeteer/Selenium scripts, hand-written excerpts, or rendered screenshots are not substitutes for this package.
 - Move internal evidence classification to a hidden/details section, appendix, or `research_audit.md`; it must not dominate the report.
 - Treat the required outline as the hidden logic job of each section, not as the visible heading. Visible report headings should be claim-like conclusions, not topic labels. For example, use `R-CLA 值得进入受控 serving 实验` instead of `结论先行`, `KV cache 已从计算优化问题变成容量约束` instead of `问题为什么重要`, and `R-CLA 的差异在训练期鲁棒性，而不是又一种 token pruning` instead of `已有做法与缺口`.
 - The side navigation is allowed to use fixed logical labels because it serves wayfinding, not persuasion. A good default navigation set is: `结论先行` / `问题为什么重要` / `已有做法与缺口` / `关键机制` / `实验信号与边界` / `下一步验证` / `参考资料`.
@@ -214,7 +214,7 @@ Requirements:
 - Every factual claim in the page must map to a quiet citation marker such as a superscript number, footnote link, or compact marker. The marker must resolve to `[S1]`, `[F2]`, `[T1]`, or `[R3]` style entries in the reference section, but the main report should not look like a source-marker chain.
 - `S` means textual/source document, `F` means figure/image, `T` means table/data, `R` means supplemental research.
 - References must include enough locator detail for audit: source title, URL or local path, section/page/figure/table when available, access date for web sources, and whether the item is primary or supplemental.
-- For webpage references, include both the original URL and the local browser-use evidence locator. The local locator must point into a rendered browser-use evidence package that includes article text, structured metadata, and at least one rendered screenshot. For media-rich pages, it should also include downloaded source images and an image manifest.
+- For webpage references, include both the original URL and the local browser-use evidence locator. The local locator must point into a `web-article-capture` package that includes article/main正文 text, structured metadata, and image inventory. For media-rich pages, it should also include downloaded original source images and an image manifest.
 - Local absolute paths are allowed in this review page and in `research_audit.md`; keep final `ppt_content_brief.md` cleaner.
 - Implement citation navigation with stable HTML anchors:
   - Body marker: `<sup id="cite-ref-t4-1"><a href="#ref-t4">4</a></sup>`
@@ -250,7 +250,7 @@ Transferable visual habits:
 
 ### Original Images
 
-Use original source figures, table captures, screenshots, or product images when the user must inspect the actual evidence.
+Use original source figures, table captures, or product images when the user must inspect the actual evidence.
 
 Requirements:
 
@@ -312,9 +312,8 @@ Before showing the page to the user, check:
 - Every factual claim maps to a citation or to an open question in Chinese.
 - The references section is complete enough to audit.
 - Every webpage URL cited in the report has a matching local browser-use evidence artifact in `report-data.json`.
-- Every webpage URL cited in the report has a rendered screenshot artifact; a `raw.html` file or manually written article excerpt alone is not enough.
 - Every webpage image displayed in the report is a local `review/assets/` file with a matching `assets[].source_citation`.
-- Run `scripts/validate_web_evidence_package.py <workspace-root>/review/report-data.json --require-screenshots --require-images when-indexed` before approval, and use `--require-images always --min-image-sources 1` for media-rich web source packages.
+- Run `scripts/validate_web_evidence_package.py <workspace-root>/review/report-data.json --require-images when-indexed` before approval, and use `--require-images always --min-image-sources 1` for media-rich web source packages.
 - The page asks one clear approval/correction question.
 
 ## Rejection Triggers
@@ -331,7 +330,7 @@ Revise before showing the report if any of these appear in the visible main body
 - Remote webpage image hotlinks in report figures, such as `<img src="https://...">`, instead of local browser-use evidence assets.
 - Webpage facts or source images cited only by URL, with no local browser-use evidence artifact in `report-data.json`.
 - Capture methods that admit `raw HTML`, `curl`, `Invoke-WebRequest`, `web search`, third-party crawler packages, self-written Playwright/Puppeteer/Selenium scripts, or `browser-use unavailable` while still presenting the source as browser-use evidence.
-- Media-rich web source packages that contain no screenshots or no downloaded original webpage images without an explicit no-useful-image explanation. A rendered full-page or article-region screenshot copied into `images/` does not count as a downloaded webpage image.
+- Media-rich web source packages that contain no downloaded original webpage images without an explicit no-useful-image explanation. A rendered full-page or article-region screenshot copied into `images/` does not count as a downloaded webpage image.
 - Paragraphs that mix Chinese and avoidable English glue words when a natural Chinese phrase exists.
 - A first viewport that begins with audit process rather than the topic's conclusion and strongest evidence.
 - Visual captions that describe provenance instead of telling the reader what to notice.
