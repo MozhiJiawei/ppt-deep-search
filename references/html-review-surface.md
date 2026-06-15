@@ -1,341 +1,132 @@
 # HTML Review Surface
 
-This reference defines the temporary human-review HTML page used during source understanding. It is a Chinese-first research report for human review, not an internal audit dump and not the downstream PPT Content Brief.
+Scope map:
 
-Use it when the source-understanding stage needs more than a compact chat summary: papers, technical news, product announcements, repository analysis, incident reports, benchmarks, or mixed source packages.
+- Owns purpose, outcome standard, research autonomy, source discovery, and output package for HTML reviews.
+- Does not own visible prose details; use `html-review-expression.md`.
+- Does not own citations or captured webpage source rules; use `html-review-evidence.md`.
+- Does not own approval checks; use `html-review-quality.md`.
 
-Load `references/html-review-data-model.md`, `references/html-review-report-kit.md`, and `references/html-review-pattern-library.md` together with this file. This file defines the content standard and outline; the data model defines the staging contract for extracted facts, the report kit defines reusable Tufte-style report blocks and preview behavior, and the pattern library contains additional repo-local visual, chart, evidence-pair, and citation patterns. Do not depend on external skill source at runtime.
+This is the entry contract for the temporary source-understanding HTML review.
+The page is a Chinese-first technical report for human approval, not an audit
+dump and not the downstream PPT Content Brief.
 
 ## Purpose
 
-The page must help a human quickly judge whether the agent understands the technical issue, the evidence, the competitive context, the method, the results, and the boundaries. It should read like a polished technical report that a decision maker would willingly open, not like a scratchpad.
+Use the HTML review when source understanding needs inspectable evidence:
+papers, product announcements, technical news, repository analysis, incidents,
+benchmarks, or mixed source packages.
 
-It should answer:
+The page must help the human decide whether the agent understands:
 
-- What problem is being discussed?
-- What changed, was proposed, or was discovered?
-- Why does it matter to the target reader?
-- What evidence supports it?
-- What is uncertain, limited, or contested?
-- What follow-up research or deck direction should happen next?
+- the problem;
+- the source evidence;
+- the comparison context;
+- the method or mechanism;
+- the results and boundaries;
+- the next research or deck-planning move.
+
+## Related References
+
+These files are also listed in `SKILL.md`; this section restates their roles for readers already inside the HTML review contract.
+
+Always load:
+
+- `references/html-review-expression.md`
+
+Load by need:
+
+- `references/html-review-outline.md` for the default narrative spine.
+- `references/html-review-evidence.md` for citations, captured webpage source
+  packages, and source-image rules.
+- `references/html-review-visuals.md` for source images, diagrams, charts, and
+  reusable visual habits.
+- `references/html-review-quality.md` before approval.
+- `references/html-review-data-model.md` when using `report-data.json`, copied
+  assets, reconstructed charts, KPI strips, method comparisons, or more than
+  two cited quantitative claims.
+- `references/html-review-report-kit.md` when reusable CSS, report rhythm,
+  chart/table/source-image blocks, preview behavior, or Chart.js defaults help.
+- `references/html-review-pattern-library.md` when using method cards,
+  evidence pairs, reconstructed chart blocks, or citation anchor patterns.
+
+Load only what the current review needs.
 
 ## Outcome Standard
 
-The page succeeds when it lets the human both trust the evidence and make a sharper technical judgment.
+The page succeeds when it lets the human both trust the evidence and make a
+sharper technical judgment.
 
-### Trustworthy By Inspection
+Trustworthy by inspection:
 
-The report should expose enough provenance that a skeptical reader can audit the argument from the page itself:
+- Put original source images, report-specific page captures, tables, or quoted evidence near the
+  claims they support.
+- Keep citations quiet, clickable, and close to the claim, chart, table, or
+  caption they support.
+- Use local browser-captured assets for webpage evidence.
+- Name weak or missing evidence as a boundary instead of hiding it.
 
-- Put original source images, rendered screenshots, source tables, or quoted/source-located evidence near the claims they support.
-- Keep citations quiet but visible, clickable, and attached to the specific claim, field, chart, table, or caption they support.
-- For webpage evidence, use local assets and inventories captured through the Codex in-app Browser / Browser plugin. Do not substitute web search, raw HTML fetches, third-party crawlers, or self-written Playwright/Puppeteer/Selenium scripts for this evidence path.
-- When a source cannot be captured or a claim remains weak, name the boundary honestly instead of hiding it.
+Data-smart technical judgment:
 
-### Data-Smart Technical Judgment
+- Extract numbers, units, benchmark conditions, system constraints, dates,
+  architecture layers, compatibility limits, and adoption signals.
+- Use KPI strips, matrices, decision registers, evidence tables, reconstructed
+  charts, source-image pairs, timelines, or diagrams when they clarify the
+  decision.
+- Do not create decorative charts. Every chart or table should answer a
+  technical question and preserve source, unit, condition, and boundary.
 
-For papers, technical announcements, benchmarks, product specs, architecture reports, and engineering incidents, prose is not enough. The report should actively look for data and make it useful:
+## Research Autonomy
 
-- Extract numbers, units, experimental conditions, system constraints, release dates, architecture layers, benchmark baselines, security claims, compatibility limits, and adoption or availability signals.
-- Prefer KPI strips, comparison matrices, decision registers, evidence tables, reconstructed charts, source-image pairs, timelines, or architecture diagrams when they make the reasoning clearer.
-- Every chart or table should answer a named technical question. Preserve units, conditions, source rows, and uncertainty; pair reconstructed visuals with original evidence or a direct reference.
-- Do not make decorative charts. If the source has no reliable numeric basis, use a boundary table or open-question register rather than inventing quantitative confidence.
-
-## Research Autonomy Standard
-
-The outline is a floor, not a form to mechanically fill. The agent must behave like a researcher preparing a useful briefing: decide what extra context, comparisons, figures, definitions, timelines, diagrams, and evidence are needed for this topic to become understandable and decision-ready.
+The required outline is a floor, not a template. The agent should behave like a
+researcher preparing a useful briefing.
 
 Requirements:
 
-- Do not merely follow the required outline section by section. Use the outline to ensure coverage, then add the topic-specific material that the reader would naturally need.
-- Expand beyond the provided source when the source alone is too narrow to explain the problem, prior art, market/technical context, or implications. Use primary or high-quality supplemental sources where possible.
-- Add definitions, background diagrams, method maps, timelines, benchmark context, glossary notes, or architecture sketches when they reduce reader confusion.
-- Ask what a skeptical reader would challenge, then proactively answer the top objections with evidence, boundaries, or open questions.
-- Ask what an expert reader would expect to see, then include the missing comparison, metric, baseline, caveat, or related method when it matters.
-- Prefer self-directed synthesis over template compliance: if a section would be thin, combine it with a stronger section and create a more useful topic-specific section instead.
-- The final page should feel authored: it should have a clear point of view, selected evidence, and a deliberate reading path, not equal-weight notes under every heading.
+- Add definitions, background diagrams, timelines, benchmark context, glossary
+  notes, or architecture sketches when they reduce reader confusion.
+- Use primary or high-quality supplemental sources when the provided source is
+  too narrow.
+- Answer likely skeptical objections with evidence, boundaries, or open
+  questions.
+- Include missing comparisons, metrics, baselines, caveats, or related methods
+  when expert readers would expect them.
+- Prefer a clear authored synthesis over equal-weight notes under every heading.
 
-Reject the report if it feels like the agent filled headings without discovering or explaining anything the user did not already hand it.
+Reject a report that merely fills headings without explaining anything beyond
+the user's input.
 
 ## Source Discovery Before Writing
 
-Before drafting the report, create a source map and crawl plan. The report should not begin from a blank template; it should begin from a researched understanding of what sources are needed.
-
-Requirements:
-
-- List the primary sources that directly define the object under discussion.
-- List adjacent-route sources for comparison objects the reader would naturally ask about. For example, a local Agent PC report should look for sources on adjacent AI PC, existing local RTX AI, cloud/frontier agents, DGX or workstation routes, security runtimes, and relevant developer tooling before writing the comparison section.
-- List boundary/check sources for naming, release dates, availability, benchmark conditions, safety/security claims, procurement status, pricing, or other overclaim risks.
-- Decide which sources need rendered browser capture, which can be local files, and which are only background.
-- Record the map under the workspace so the audit can explain why the report compared these alternatives and not others.
-
-When drafting reveals a missing source, loop back to discovery and capture. Do not solve missing evidence by deleting a useful comparison, removing citations, or reducing the section to generic prose. Either fetch the missing source, or preserve the idea as an open question/boundary with honest wording.
-
-## Report-Writing Standard
-
-The visible page body must be Chinese-first and report-like.
-
-Requirements:
-
-- Use Chinese section titles and Chinese narrative by default. Preserve English only for method names, model names, datasets, metrics, commands, URLs, and source titles.
-- Lead with a decision-grade conclusion, not an audit label. Prefer language like `这篇论文值得进入下一轮 serving 实验，但不能直接作为上线结论` over `当前理解` or `证据状态`.
-- Make the main body read as a coherent report: thesis, context, comparison, mechanism, evidence, risk, next decision. Avoid raw work-log language.
-- Do not expose internal labels in visible prose: `paper evidence`, `inference`, `needs_verification`, `source-original`, `agent-diagram`, `agent-chart`, `source-derived`, `审计`, `证据状态`, `claim/evidence`, `locator`, or `QA`.
-- Do not put bracket citations after every sentence in the main body. Use a small superscript-style citation marker or concise footnote marker where needed, then put full locator details in the references section.
-- Do not paste dense citation chains such as `[S1][F4][T2][T4][T5]` into paragraphs. When several sources support one sentence, cite the most important 1-2 markers and list the rest in the reference entry.
-- Keep citations visually quiet: smaller text, superscript, or footnote-style links are acceptable. They must support auditability without interrupting reading.
-- Every visible citation/index marker must be clickable. Clicking a marker in the report body must jump to the matching reference entry. Each reference entry should include a backlink to the first or nearest referring paragraph.
-- Webpage citations must be backed by local Codex in-app Browser / Browser plugin evidence, not only by a URL. Before citing a webpage, use the Browser tool itself to save the rendered article text, article metadata, rendered page/article screenshot, image inventory, and relevant downloaded images under the workspace, then point `report-data.json` at those local artifacts. Raw HTML, `curl`, `Invoke-WebRequest`, search-result snippets, third-party crawlers, self-written Playwright/Puppeteer/Selenium scripts, or hand-written excerpts are not substitutes for this package.
-- Move internal evidence classification to a hidden/details section, appendix, or `research_audit.md`; it must not dominate the report.
-- Treat the required outline as the hidden logic job of each section, not as the visible heading. Visible report headings should be claim-like conclusions, not topic labels. For example, use `R-CLA 值得进入受控 serving 实验` instead of `结论先行`, `KV cache 已从计算优化问题变成容量约束` instead of `问题为什么重要`, and `R-CLA 的差异在训练期鲁棒性，而不是又一种 token pruning` instead of `已有做法与缺口`.
-- The side navigation is allowed to use fixed logical labels because it serves wayfinding, not persuasion. A good default navigation set is: `结论先行` / `问题为什么重要` / `已有做法与缺口` / `关键机制` / `实验信号与边界` / `下一步验证` / `参考资料`.
-- The in-body section heading serves persuasion and must communicate the section's conclusion. If space is tight, pair the fixed navigation label with a claim-like in-body heading rather than reusing the navigation label as the heading.
-- Avoid English headings such as `Executive Abstract`, `Problem Domain`, `References` unless the source or user explicitly requires English.
-- The first viewport should feel like an executive summary, not a chat transcript or intermediate reasoning dump.
-
-Bad visible copy:
+Before drafting, create:
 
 ```text
-1. Executive Abstract
-当前理解：这篇 paper 把 KV cache 优化从...
-证据状态：paper evidence / inference / needs_verification
-[S1][F4][T2][T4][T5]
+<workspace-root>/sources/source-discovery.md
 ```
 
-Better visible copy:
+Include:
+
+- primary sources;
+- adjacent-route comparison sources;
+- boundary/check sources;
+- candidate visuals;
+- crawl and capture plan.
+
+When drafting reveals missing evidence, loop back to discovery and capture. Do
+not remove useful comparisons only to pass validation. Fetch the source or mark
+the idea as an open question or boundary.
+
+## Output Package
+
+Create:
 
 ```text
-R-CLA 值得进入下一轮 serving 实验，但还不是上线结论
-R-CLA 值得进入下一轮 serving 实验：它把 KV cache 优化从“删哪些 token”扩展到“哪些层可以共享 KV”。论文中的 Table 2/4/5 同时给出质量稳定性、缓存降幅和 batch capacity 信号，但这些结果仍需要在本地 backend 上复测。¹
+<workspace-root>/review/
+  report-data.json
+  source_understanding_review.html
+  assets/
 ```
 
-## Required Outline
-
-Use this outline as the default narrative spine. These names describe the job of each section; do not mechanically use them as visible headings. Write the actual headings in Chinese, adapted to the topic, and make them claim-like conclusions whenever possible. Keep the underlying jobs.
-
-### 1. 结论先行
-
-Open with a crisp claim: the current problem, what the source or actor did, what problem it addresses, and what effect or tradeoff is supported by evidence.
-
-Requirements:
-
-- State the core conclusion in the first viewport.
-- Include the strongest concrete evidence available: metric, benchmark, date, adoption signal, incident number, cost/runtime/token number, or source figure/table.
-- Separate confirmed facts from inference.
-- Make the reader want to continue, but do not overclaim.
-
-### 2. 问题为什么重要
-
-Explain the problem space before explaining the proposed solution.
-
-Requirements:
-
-- Define the system, workflow, user, or market context.
-- Explain why the problem is hard now.
-- Identify the constraints that matter: latency, cost, accuracy, reliability, security, regulation, developer experience, deployment, interoperability, or business impact.
-- Use one explanatory diagram if the domain has multiple actors, layers, or flows.
-
-### 3. 已有做法与缺口
-
-Show how similar problems are currently handled.
-
-Requirements:
-
-- Compare 3-5 relevant prior methods, products, research lines, standards, or industry practices. If fewer than 3 truly relevant alternatives exist, explain why in the report.
-- Use supplemental research when the provided source is too narrow.
-- Explain what each alternative optimizes for, where it struggles, and why it is or is not a fair comparison to the current source.
-- For each comparison object, provide an abstract-style mini-summary with: `一句话定位`, `核心机制`, `主要证据或代表结果`, `适用边界`, and `与本文/本对象的关键差异`.
-- Each comparison object needs its own source basis. Do not use one citation at the end of the card as a token compliance marker if the card contains several sourced assertions. Put quiet citations near the specific fields they support, especially `核心机制`, `主要证据或代表结果`, and `适用边界`.
-- Each comparison object must include at least one visual summary, not merely share one visual for the entire section. Good options: source figure, simplified mechanism diagram, tiny flow, axis marker in a method map, evidence card, sparkline/bar, or compact mini-table.
-- Include one synthesis visual for the section after the mini-briefs: comparison matrix, method map, layer stack, quadrant, small-multiple cards, timeline, or tradeoff chart. The visual must help the reader compare methods, not merely decorate the page.
-- Prefer a structured comparison over a long prose list. A good default is 3-5 method cards, each with its own mini visual, plus one matrix that compares optimization axis, required model change, serving-time impact, evidence strength, and deployment risk.
-- Do not treat a quick web search as sufficient. For each selected alternative, use a primary or high-quality source when available, and cite it in the references section.
-- State selection criteria: why these 3-5 objects are the right comparison set for the target reader.
-- Analyze tradeoffs, not just capabilities. For every alternative, name what it buys, what it costs, what deployment assumption it makes, and which user/serving scenario would make it attractive.
-- Explicitly connect the comparison back to the current source: after every mini-brief, state whether the current source is complementary, substitutive, orthogonal, or weaker/stronger on a specific axis.
-
-Minimum mini-brief shape:
-
-```text
-方法名 / 产品名 / 研究线
-一句话定位：它用什么方式解决什么问题。
-图解摘要：1 个小图、源图、流程、矩阵标记或证据卡。
-核心机制：关键技术动作，不超过 3 句。
-主要证据：1-2 个代表性指标、发现、产品事实或标准条款。
-适用边界：什么时候有效，什么时候风险变高。
-与本文差异：优化轴、代价、部署条件、证据强度或组合关系。
-```
-
-Depth gate:
-
-- A comparison object is underdeveloped if it has only a name, a one-sentence description, or a generic "improves performance" claim.
-- A comparison object is underdeveloped if it has no primary/high-quality source, no mechanism explanation, no evidence, or no boundary.
-- A comparison object is underdeveloped if the reader cannot tell why it was selected instead of another adjacent method.
-
-### 4. 关键机制
-
-Explain the source's method, product move, architecture, or core technical idea.
-
-Requirements:
-
-- Name the key mechanism in plain language.
-- Show how the mechanism works with a diagram when relationships matter.
-- Identify which part is genuinely new, which part is borrowed or standard, and which part is an implementation detail.
-- Keep source-derived architecture separate from agent-inferred simplification.
-
-### 5. 实验信号与边界
-
-Present what worked, what did not, and where the evidence stops.
-
-Requirements:
-
-- Show benefits with source-grounded numbers where available.
-- Show constraints and downsides with the same prominence as benefits.
-- Use Pareto-style visuals when the evidence has competing axes such as accuracy vs. cost, quality vs. latency, throughput vs. memory, or capability vs. complexity.
-- If Pareto/frontier language is used, define the axes and cite the data behind each plotted point.
-- Weak or missing evidence must be stated in reader-facing Chinese, such as `仍需本地验证` or `论文没有覆盖这一点`; reserve the internal label `needs_verification` for the audit appendix or `research_audit.md`.
-
-### 6. 下一步验证
-
-End with what should be checked next.
-
-Requirements:
-
-- List open questions, missing evidence, and likely follow-up sources.
-- Separate practical next steps from speculative research directions.
-- State what user approval or correction is needed before moving to SCQA and page planning.
-
-### 7. 参考资料
-
-End with a reference section.
-
-Requirements:
-
-- Every factual claim in the page must map to a quiet citation marker such as a superscript number, footnote link, or compact marker. The marker must resolve to `[S1]`, `[F2]`, `[T1]`, or `[R3]` style entries in the reference section, but the main report should not look like a source-marker chain.
-- `S` means textual/source document, `F` means figure/image, `T` means table/data, `R` means supplemental research.
-- References must include enough locator detail for audit: source title, URL or local path, section/page/figure/table when available, access date for web sources, and whether the item is primary or supplemental.
-- For webpage references, include both the original URL and the local browser-use evidence locator. The local locator must point into a rendered browser-use evidence package that includes article text, structured metadata, and at least one rendered screenshot. For media-rich pages, it should also include downloaded source images and an image manifest.
-- Local absolute paths are allowed in this review page and in `research_audit.md`; keep final `ppt_content_brief.md` cleaner.
-- Implement citation navigation with stable HTML anchors:
-  - Body marker: `<sup id="cite-ref-t4-1"><a href="#ref-t4">4</a></sup>`
-  - Reference entry: `<li id="ref-t4">[T4] Table 4 ... <a href="#cite-ref-t4-1">↩</a></li>`
-  - If one reference is cited multiple times, use unique body ids such as `cite-ref-t4-1`, `cite-ref-t4-2`; the reference backlink may return to the first occurrence or include multiple backlinks.
-  - Source figures and table captions must use the same clickable citation pattern, not plain text labels.
-  - Validate that all `href="#..."` targets exist and all reference ids are unique before showing the page.
-
-## Evidence Rules
-
-- Treat source materials as primary evidence; use external research to contextualize, not to overwrite source boundaries.
-- For news or recent entities, verify with current web research and use concrete dates.
-- Numeric claims, comparisons, rankings, dates, causal claims, and benchmark wins require citations.
-- If a claim has no locator, either remove it from the visible report or phrase it as an open question in Chinese. Track the internal status as `needs_verification` only in the audit appendix or `research_audit.md`.
-- Quote sparingly. Prefer paraphrase plus locator.
-- Keep provenance for each visual in image metadata, captions, an appendix, or `research_audit.md`; do not show raw provenance labels in the main report body.
-- Citation links are part of evidence quality. Broken anchors, non-clickable source markers, duplicate ids, or references with no reachable body marker count as report defects.
-- Missing citations should trigger source acquisition, not citation removal. If a sentence is important enough to shape the reader's comparison or decision, find the source or rewrite it as an open question/boundary. Do not silently drop source-demanding claims just to make validation pass.
-
-## Visual Rules
-
-Use visuals only when they explain faster than prose.
-
-The report should borrow from strong external report skills without becoming dependent on their full implementation. Keep our outline and evidence standards, and use the repo-local contracts in `references/html-review-data-model.md`, `references/html-review-report-kit.md`, and `references/html-review-pattern-library.md` for reusable report data, shell, narrative-data blocks, reconstructed charts, method cards, chart contracts, and citation anchor patterns.
-
-Transferable visual habits:
-
-- From SenseNova-style reports: use a calm long-form reading surface, clear side navigation, Chinese-first headings, source images placed near the relevant explanation, and a first viewport that reads like an executive technical brief.
-- From Tufte-style reports: integrate narrative and data tightly; use a `report-data.json` staging model for extracted numbers and source assets; use chart-plus-aside, table-plus-interpretation, small multiples, compact evidence cards, and low-noise charts when they help the reader compare or decide.
-- Do not require any single drawing tool. The agent may use source images, Mermaid, inline SVG, HTML/CSS diagrams, Chart.js, hand-authored tables, or other lightweight methods.
-- Tool choice is secondary to auditability: reconstructed visuals must identify their source data, units, conditions, and relationship to the original evidence.
-- If Chart.js or web fonts are loaded from a CDN, preview through `scripts/serve_html_review.py` so the report is tested in a browser-like localhost environment rather than only as a local file.
-
-### Original Images
-
-Use original source figures, table captures, screenshots, or product images when the user must inspect the actual evidence.
-
-Requirements:
-
-- Preserve figure/table labels when possible.
-- Add a short Chinese caption explaining what the user should notice.
-- Do not redraw source evidence as if it were original data.
-- If cropping or annotating, keep a path to the original image and label the derivative in metadata or audit notes.
-- For webpage sources, display local copies of the original正文 images downloaded through Browser/browser-use. Screenshots are useful audit evidence, but they are not a substitute for original webpage images.
-- Do not hotlink remote webpage images. Copy selected local evidence images into `review/assets/` and reference those files.
-
-### Explanatory Diagrams
-
-Use explanatory architecture, mechanism, flow, sequence, layer, quadrant, nested, tree, pyramid, or swimlane diagrams when relationships matter.
-
-Requirements:
-
-- Choose one dominant diagram grammar. Do not hybridize multiple diagram types in one figure.
-- Keep diagrams sparse enough to inspect: usually 4-9 nodes; split if larger.
-- Use accent on 1-2 focal elements only.
-- Diagrams may simplify relationships, but the audit notes must record whether the diagram is source-derived or agent-interpreted. The visible caption should explain the idea in reader language.
-
-### Professional Data Charts
-
-Use professional quantitative charts when the data can be traced to sources. Borrow Tufte-style discipline: high data-ink ratio, few colors, clear units, minimal decoration, and a caption that states the takeaway.
-
-Good fits:
-
-- Pareto/frontier plots
-- accuracy vs. cost / latency / memory charts
-- benchmark comparison bars
-- ablation curves
-- timeline charts
-- heatmaps or matrices
-
-Requirements:
-
-- Store the chart data table or extraction note near the output artifact.
-- Label axes with units and conditions.
-- Do not chart values copied from memory; cite each data source.
-- When reconstructing a chart from a source table or figure, pair it with the original evidence or a direct reference so the reader can audit the transformation.
-- Use any lightweight implementation that fits the artifact: inline SVG, Chart.js, HTML/CSS charts, or tables. Avoid heavy dependencies unless the user explicitly approves them.
-
-## Quality Gate
-
-Before showing the page to the user, check:
-
-- The first viewport states the core conclusion and strongest evidence in Chinese.
-- Side navigation may use fixed logical outline labels for wayfinding. In-body section headings are not merely the outline labels. They should state the section's conclusion or decision implication.
-- The report contains autonomous research value beyond the user's provided outline: at least one useful comparison set, explanatory frame, background diagram, decision matrix, timeline, skeptical objection answer, or non-obvious synthesis.
-- No main-body heading is left in English unless intentionally preserved.
-- The main body does not contain raw internal labels such as `evidence status`, `paper evidence`, `inference`, `needs_verification`, `source-original`, `agent-chart`, or `QA`.
-- Citation markers are visually quiet and do not appear as long bracket chains.
-- Citation/index markers are clickable and jump to `参考资料`; reference entries include backlinks.
-- All HTML anchor ids used by citations are unique, and every `href="#id"` points to an existing element.
-- The problem domain is understandable without reading the original source first.
-- Alternatives are compared, not merely named.
-- The method/mechanism section has an explanatory visual when relationships matter.
-- Results include tradeoffs, limitations, and weak evidence.
-- Every factual claim maps to a citation or to an open question in Chinese.
-- The references section is complete enough to audit.
-- Every webpage URL cited in the report has a matching local browser-use evidence artifact in `report-data.json`.
-- Every webpage URL cited in the report has a rendered screenshot artifact; a `raw.html` file or manually written article excerpt alone is not enough.
-- Every webpage image displayed in the report is a local `review/assets/` file with a matching `assets[].source_citation`.
-- Run `scripts/validate_web_evidence_package.py <workspace-root>/review/report-data.json --require-screenshots --require-images when-indexed` before approval, and use `--require-images always --min-image-sources 1` for media-rich web source packages.
-- The page asks one clear approval/correction question.
-
-## Rejection Triggers
-
-Revise before showing the report if any of these appear in the visible main body:
-
-- English default section headings such as `Executive Abstract`, `Problem Domain`, `Current State`, or `References` when the user expects Chinese.
-- Mechanical outline headings used as in-body titles, such as `结论先行`, `问题为什么重要`, `已有做法与缺口`, `关键机制`, `实验信号与边界`, or `下一步验证`, when they appear without a topic-specific claim. These labels are acceptable in side navigation.
-- Work-log phrases such as `当前理解`, `我现在的判断`, `证据状态`, `source understanding`, `approval bundle`, `QA passed`, or `落盘`.
-- Raw evidence labels such as `paper evidence`, `source`, `inference`, `needs_verification`, `source-original`, `source-cropped`, `agent-diagram`, `agent-chart`.
-- Dense bracket citation chains with three or more markers in a row.
-- Plain, non-clickable citation markers such as `[S1]` or `[T4]` in visible paragraphs or figure captions.
-- Broken reference navigation: citation links that do nothing, links that jump to the wrong reference, missing reference ids, duplicate ids, or references with no backlink.
-- Remote webpage image hotlinks in report figures, such as `<img src="https://...">`, instead of local browser-use evidence assets.
-- Webpage facts or source images cited only by URL, with no local browser-use evidence artifact in `report-data.json`.
-- Capture methods that admit `raw HTML`, `curl`, `Invoke-WebRequest`, `web search`, third-party crawler packages, self-written Playwright/Puppeteer/Selenium scripts, or `browser-use unavailable` while still presenting the source as browser-use evidence.
-- Media-rich web source packages that contain no screenshots or no downloaded original webpage images without an explicit no-useful-image explanation. A rendered full-page or article-region screenshot copied into `images/` does not count as a downloaded webpage image.
-- Paragraphs that mix Chinese and avoidable English glue words when a natural Chinese phrase exists.
-- A first viewport that begins with audit process rather than the topic's conclusion and strongest evidence.
-- Visual captions that describe provenance instead of telling the reader what to notice.
-- Mechanical outline compliance: every required heading exists, but the content only paraphrases the source, repeats the user's prompt, or lacks topic-specific expansion.
-- No autonomous synthesis: the report does not add a comparison set, decision frame, background explanation, expert caveat, skeptical objection answer, or other non-obvious research value.
-
-If any trigger is needed for auditability, move it to `research_audit.md`, a `<details>` audit appendix, HTML comments, or structured metadata outside the visible report flow.
+The page may propose implications and next questions, but it must not replace
+later SCQA, page-count, table-of-contents, page-viewpoint, or final approval
+gates.

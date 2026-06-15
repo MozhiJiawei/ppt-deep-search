@@ -1,5 +1,12 @@
 # Pyramid Principle Doctrine
 
+Scope map:
+
+- Owns top-level storyline doctrine and HITL sequence.
+- Covers non-negotiable rules, pyramid shape, chapter claims, and approval discipline.
+- Does not define final file format; use `ppt-content-brief-format.md`.
+- Does not define approval prompt details; use `dialogue-and-approval.md`.
+
 This doctrine is the highest-level guidance for `ppt-deep-search`. Follow it before any workflow detail in `SKILL.md`.
 
 ## Core Belief
@@ -8,7 +15,8 @@ A PPT Content Brief is not a summary of source material. It is a pyramid-shaped 
 
 The deck should answer the reader's governing question first, express that answer as a standalone top-level summary page, then support it with a small number of necessary arguments, page-level evidence, and implications.
 
-Deep source understanding serves audience-facing expression. Original source quotes, tables, figures, and numeric claims provide credibility, but they are not the storyline by themselves. Translate source evidence into the reader's decision logic: what they should believe, why it matters for their context, what evidence makes it credible, and what boundary keeps the claim honest. Never choose between "faithful to the source" and "logical for the audience"; a strong brief must do both.
+Deep source understanding serves audience-facing expression. Original source quotes, tables, figures, and numeric claims provide credibility, but they are not the storyline by themselves. Translate source evidence into the reader's decision logic: what they should believe, why it
+matters for their context, what evidence makes it credible, and what boundary keeps the claim honest. Never choose between "faithful to the source" and "logical for the audience"; a strong brief must do both.
 
 ## Non-Negotiable Rules
 

@@ -30,11 +30,14 @@
 
 正文内容：
 
-- 为什么相关：这份 deck 的起点不是“论文提出了一个新系统”，而是“我们的多模型 serving 是否也存在类似资源浪费”。Aegaeon 的生产 workload 显示，779 个模型中 94.1% 属于低频长尾，只贡献 1.35% of 167.6M requests，却占用 17.7% of 30K GPUs。这个数字组合把问题从抽象的 GPU utilization 拉回到模型市场的资源驻留：长尾模型为了随时可服务而常驻资源，热门模型又会出现短时 request burst，导致 dedicated / reserved capacity 很难同时兼顾成本和 SLO。
+- 为什么相关：这份 deck 的起点不是“论文提出了一个新系统”， 而是“我们的多模型 serving 是否也存在类似资源浪费”。 Aegaeon 的生产 workload 显示， 779 个模型中 94.1% 属于低频长尾， 只贡献 1.35% of 167.6M requests， 却占用 17.7% of 30K GPUs。 这个数字组合把问题从抽象的 GPU utilization 拉回到模型市场的资源驻留：长尾模型为了随时可服务而常驻资源， 热门模型又会出现短时 request burst， 导致 dedicated / reserved
+  capacity 很难同时兼顾成本和 SLO。
 - 为什么相关：对领导评估来说，Page 4 应先判断我们的 workload 是否像这个场景：模型数量是否足够多，流量 skew 是否明显，top models 是否有 burst，低频模型是否仍占用常驻 GPU，平均 request duration 是否让 active model count 长时间偏高。如果 workload 不匹配，后续 token-level pooling 的收益会被天然压缩；如果匹配，Aegaeon 的机制值得进入更具体的 serving component 复测。
-- 为什么可试：Aegaeon 的技术抓手不是泛泛地“把更多模型放到一张 GPU”，而是把 scale decision 从 request granularity 推到 token boundary。request-level autoscaling 往往要等已有 request 完整结束才能释放 active model；token-level autoscaling 则尝试在 token 之间 preempt active model，让 pending model 更早进入服务。这个机制可以拆成可测组件：token-level scheduler、prefill scheduling、decoding scheduling、model switching path、KV cache movement/synchronization、engine lifecycle reuse。
+- 为什么可试：Aegaeon 的技术抓手不是泛泛地“把更多模型放到一张 GPU”， 而是把 scale decision 从 request granularity 推到 token boundary。 request-level autoscaling 往往要等已有 request 完整结束才能释放 active model； token-level autoscaling 则尝试在 token 之间 preempt active model， 让 pending model 更早进入服务。 这个机制可以拆成可测组件：token-level
+  scheduler、prefill scheduling、decoding scheduling、model switching path、KV cache movement/synchronization、engine lifecycle reuse。
 - 为什么可试：prefill 和 decoding 的分离是这套机制能被复测的关键。prefill 面向 Time-To-First-Token，decoding 面向 Time-Between-Tokens；如果我们只看 end-to-end latency 或平均 throughput，就会误判它的 SLO 价值。Page 5 应要求本地复测同时看 TTFT、TBT、SLO violation、model switching latency 和 GPU utilization，而不是只跑一个 throughput benchmark。
-- 为什么谨慎：Alibaba Cloud Model Studio beta deployment 是本 deck 最强的生产相关信号：论文报告服务 tens of models，参数规模从 1.8B 到 72B，GPU 需求从 1,192 降到 213，约 82% saving。这个数字可以支撑“值得排进 architecture evaluation 优先级”，但不能直接变成“我们也会省 82%”。我们的 serving stack 可能有不同模型组合、engine implementation、KV cache layout、memory manager、routing policy、fallback policy 和 SLO 定义，因此收益必须经本地 gate 证明。
+- 为什么谨慎：Alibaba Cloud Model Studio beta deployment 是本 deck 最强的生产相关信号：论文报告服务 tens of models， 参数规模从 1.8B 到 72B， GPU 需求从 1,192 降到 213， 约 82% saving。 这个数字可以支撑“值得排进 architecture evaluation 优先级”， 但不能直接变成“我们也会省 82%”。 我们的 serving stack 可能有不同模型组合、engine implementation、KV cache
+  layout、memory manager、routing policy、fallback policy 和 SLO 定义， 因此收益必须经本地 gate 证明。
 - 为什么谨慎：最终建议的行动不是上线承诺，而是受控复测：先确认 workload similarity，再验证 token-boundary preemption 是否能在本地 SLO 定义下稳定运行，最后用小规模 before/after 数据看 SLO violation、GPU utilization、goodput/arrival-rate capacity 和 fallback 成本。只有这些 gate 通过后，才适合进入适配方案和收益 forecast。
 
 参考图片：
@@ -115,12 +118,14 @@
 
 正文内容：
 
-- 调度抓手：Aegaeon 的机制页要回答“为什么不是又一种普通 pooling”。request-level autoscaling 的限制是等待完整 request 结束：当 GPU 上所有 instances 都被 active models 占住时，新模型请求必须等某个 active request 完成，导致 head-of-line blocking。token-level autoscaling 把决策点推进到 token boundary，允许 active model 在生成 token 之间被 preemptively scale down，并让 pending model 更早 scale up。
+- 调度抓手：Aegaeon 的机制页要回答“为什么不是又一种普通 pooling”。 request-level autoscaling 的限制是等待完整 request 结束：当 GPU 上所有 instances 都被 active models 占住时， 新模型请求必须等某个 active request 完成， 导致 head-of-line blocking。 token-level autoscaling 把决策点推进到 token boundary， 允许 active model 在生成 token 之间被 preemptively
+  scale down， 并让 pending model 更早 scale up。
 - 调度抓手：Figure 2 可以作为核心对比图。上半部分 request-level 路径里，Model C arrival 后仍要等待 Model A/B 的 request-level completion；下半部分 token-level 路径里，不同模型在 token 序列之间交替进入 GPU。对领导读者来说，这张图的价值是说明“可试点”落在 serving scheduler 的 decision granularity，而不是抽象的系统架构愿景。
 - 调度抓手：论文用 active-model 分析解释为什么 request-level pooling 难以突破 2-3 models/GPU：长 request service time 会把很多稀疏模型变成 active models。token-level preemption 的目标，是在不等完整 request 结束的情况下，缩短 pending model 的等待时间并提高 pool 的可服务模型数。
 - SLO 抓手：prefill 与 decoding 分离是本页第二个机制点。prefill 处理 prompt 并生成 first token，主要关联 TTFT；decoding 每步只处理新 token，主要关联 TBT。Aegaeon 因此分别使用 grouped FCFS 和 weighted round-robin，目标是在不同阶段优化不同 SLO 风险。我们的复测也必须按 TTFT/TBT 拆开，否则可能把 first-token delay 与 token interval violation 混在一起。
 - SLO 抓手：Page 5 应强调，token-level preemption 不是免费动作。每次 scale down / scale up 都可能带来 model loading、KV cache swap-out/swap-in、garbage collection、engine reinitialization 和 synchronization。只有在这些动作被压低并能与执行重叠时，token-boundary scheduling 才能变成 capacity improvement，而不是新的 latency source。
-- 工程约束：论文声称通过 component reuse、explicit memory management、fine-grained KV cache synchronization 将 autoscaling overhead 降低 97%。对我们的 stack 来说，这三个 component 就是复测拆解项：engine reuse 能否避免完整 reinitialization，memory manager 能否缓存/预取 weights 并控制 fragmentation，KV cache sync 能否做到细粒度移动并让非关键操作被 overlap。
+- 工程约束：论文声称通过 component reuse、explicit memory management、fine-grained KV cache synchronization 将 autoscaling overhead 降低 97%。 对我们的 stack 来说， 这三个 component 就是复测拆解项：engine reuse 能否避免完整 reinitialization， memory manager 能否缓存/预取 weights 并控制 fragmentation， KV cache sync
+  能否做到细粒度移动并让非关键操作被 overlap。
 - 工程约束：本页最后应把机制转成可执行实验：测 model switching latency、KV cache movement latency、engine lifecycle breakdown、GPU/host memory cache hit rate、TTFT/TBT violation under preemption、goodput under model count changes。只要这些指标不可测或不可控，Page 6 的好数字就不能转成我们的适配信心。
 
 参考图片：
@@ -190,11 +195,15 @@
 正文内容：
 
 - 准入 gate：Page 7 要把 deck 从“看起来有价值”推进到“下一步怎么拍板”。第一组 gate 是准入条件：我们的 model mix 是否足够长尾，top models 是否有 burst，request duration 是否让 active model count 持续偏高，当前 reserved GPU policy 是否带来 measurable idle capacity，模型参数规模是否覆盖需要 TP / multi-GPU 的大模型，以及是否存在不能被 preempt 的高优先级服务。
-- 准入 gate：SLO 定义必须先统一。Aegaeon 使用 TTFT 与 TBT framing，SLO attainment 以 token generation times meeting deadlines 来定义。我们的产品可能使用 TTFT、TPOT/TBT、end-to-end latency、streaming smoothness、tail latency 或 violation penalty。复测前应明确哪些 SLO 是 hard constraints，哪些是 degradation budget，哪些模型或请求类型可被 preempt。
-- 工程 gate：KV cache movement/sync 是迁移风险最高的 serving component。复测应测量 KV cache swap-out/swap-in volume、同步延迟、cache block movement list、GPU/CPU memory layout compatibility、与当前 attention/kernel/runtime 的兼容性，以及 fine-grained synchronization 是否能把非关键操作 overlap 掉。若 KV cache movement 不可控，token-level preemption 会把 capacity gain 变成 latency risk。
-- 工程 gate：engine lifecycle/reuse 决定 model switching latency。Aegaeon 的优化依赖 component reuse、explicit memory management 和 model/cache 预取；我们的 runtime 要逐项 profile tokenizer、communication group、distributed executor、model loading、profiling / optimization、scheduler state、log / metrics components。复测应给出 before/after switching latency breakdown，而不是只报告最终 goodput。
+- 准入 gate：SLO 定义必须先统一。 Aegaeon 使用 TTFT 与 TBT framing， SLO attainment 以 token generation times meeting deadlines 来定义。 我们的产品可能使用 TTFT、TPOT/TBT、end-to-end latency、streaming smoothness、tail latency 或 violation penalty。 复测前应明确哪些 SLO 是 hard constraints， 哪些是 degradation budget，
+  哪些模型或请求类型可被 preempt。
+- 工程 gate：KV cache movement/sync 是迁移风险最高的 serving component。 复测应测量 KV cache swap-out/swap-in volume、同步延迟、cache block movement list、GPU/CPU memory layout compatibility、与当前 attention/kernel/runtime 的兼容性， 以及 fine-grained synchronization 是否能把非关键操作 overlap 掉。 若 KV cache movement 不可控，
+  token-level preemption 会把 capacity gain 变成 latency risk。
+- 工程 gate：engine lifecycle/reuse 决定 model switching latency。 Aegaeon 的优化依赖 component reuse、explicit memory management 和 model/cache 预取； 我们的 runtime 要逐项 profile tokenizer、communication group、distributed executor、model loading、profiling / optimization、scheduler state、log / metrics
+  components。 复测应给出 before/after switching latency breakdown， 而不是只报告最终 goodput。
 - 工程 gate：model switching latency 必须和 token-level scheduling 放在同一个实验里看。一个切换动作如果比 token interval 或 TBT budget 大很多，调度策略再好也会制造 violation；如果切换动作足够小并能与 execution overlap，token-level pooling 才可能提高 effective model count。
-- 决策 gate：小规模复测建议分三步：第一步离线 replay workload，验证 model mix、request skew 和 burst pattern；第二步在 staging serving stack 中测 token-level preemption 的 TTFT/TBT/SLO violation、KV cache movement、engine lifecycle 和 switching latency；第三步做小规模 live shadow 或 canary，观察 GPU utilization、goodput/arrival-rate capacity、fallback 成本和异常恢复。
+- 决策 gate：小规模复测建议分三步：第一步离线 replay workload， 验证 model mix、request skew 和 burst pattern； 第二步在 staging serving stack 中测 token-level preemption 的 TTFT/TBT/SLO violation、KV cache movement、engine lifecycle 和 switching latency； 第三步做小规模 live shadow 或 canary， 观察 GPU
+  utilization、goodput/arrival-rate capacity、fallback 成本和异常恢复。
 - 决策 gate：领导可拍板的下一步不是“适配 Aegaeon”，而是“批准一个 bounded evaluation”。进入下一轮的成功条件应包括：SLO violation 不扩大到不可接受范围，GPU utilization 或 goodput 有可解释提升，fallback path 不破坏服务稳定性，切换成本可被稳定控制，且结果能区分 workload fit 与 mechanism fit。
 - 决策 gate：如果复测失败，也应产出可用结论：workload 不像、SLO 口径不兼容、KV cache movement 太贵、engine reuse 不成立、或 model switching latency 超过 TBT budget。这样的失败结论仍能帮助团队避免把 Alibaba Cloud 的 82% saving 错当成本地收益承诺。
 

@@ -1,8 +1,16 @@
 # PPT Content Brief Format
 
+Scope map:
+
+- Owns the final `ppt_content_brief.md` contract.
+- Covers required headings, field meanings, skeleton whitelist, density, body support mapping, and downstream validation.
+- Does not own HITL approval flow; use `dialogue-and-approval.md`.
+- Does not own viewpoint approval; use `ppt-viewpoint-planning.md`.
+
 This file defines the downstream-facing output contract for `ppt-deep-search`.
 
-The final delivery artifact is `ppt_content_brief.md`. It must contain only structured text that a PPT maker can directly quote, adapt, or place into slides. Internal reasoning, evidence chains, source analysis, approval records, and QA notes belong in `research_audit.md`, not in the PPT content brief.
+The final delivery artifact is `ppt_content_brief.md`. It must contain only structured text that a PPT maker can directly quote, adapt, or place into slides. Internal reasoning, evidence chains, source analysis, approval records, and QA notes belong in `research_audit.md`, not in
+the PPT content brief.
 
 ## Artifact Split
 
@@ -39,7 +47,8 @@ For a 1-page output, omit `## Table of Contents` and `## Page Content`.
 - `内容来源`
 - `关联审计文件`
 
-These fields are for downstream orientation. Keep them compact and PPT-relevant. Do not put source analysis, evidence discussion, approval history, or local absolute paths in metadata. Absolute filesystem paths are allowed only in Markdown image references under `参考图片`; use source names such as `Aegaeon paper package` here and put other exact file paths in `research_audit.md`.
+These fields are for downstream orientation. Keep them compact and PPT-relevant. Do not put source analysis, evidence discussion, approval history, or local absolute paths in metadata. Absolute filesystem paths are allowed only in Markdown image references under `参考图片`; use
+source names such as `Aegaeon paper package` here and put other exact file paths in `research_audit.md`.
 
 ## Table Of Contents Contract
 
@@ -95,21 +104,28 @@ Each page must include only these fields:
 - `参考图片`: Markdown image references that associate source figures with absolute filesystem paths, plus nearby neutral prose about what each figure shows.
 - `备注`: optional speaker note or non-obtrusive caveat that may be used in notes/footnotes.
 
-Do not include internal fields such as `页面角色`, `支撑的章节论点`, `Claim / Evidence / Implication`, `Evidence`, `Source Locator`, `Source Usage Policy`, `Approval Log`, `边界提醒`, or `信息密度说明` in `ppt_content_brief.md`.
+Do not invent extra unbulleted fields such as `页面角色：`, `支撑的章节论点：`, `证据边界：`, `Source Locator:`, or `visual_strategy:` in `ppt_content_brief.md`. Put that material in `research_audit.md` or turn it into ordinary prose under an allowed field such as `正文内容` or `备注`.
 
 ## Page Field Meanings
 
 - `所属章节`: use to map the page to a table-of-contents item. It must exactly match one `小标题`.
-- `页面标题`: use as slide title. It should be a short object label or hook and readable as visible slide copy.
-- `标题说明`: use as subtitle or lead sentence. It should be a high-signal quantitative sentence with scenario, measurable benefit/cost, experimental condition, or decision implication. `页面标题` and `标题说明` share one visible title line in the downstream slide, so their combined length must fit, and the title should be less than half the length of the explanation.
-- `分析总结`: use as the high-visibility summary band. Each bullet must be a real core claim in the form `小标题：解释`. Summary pages usually carry more compression and can use 2-3 bullets. Chapter content pages are usually more focused and often need only 1-2 bullets. A good bullet is short, independently meaningful, evidence-bearing when possible, and provable by the page body. Choose multiple bullets only when they are orthogonal decision dimensions, such as result plus deployment scope, benefit plus cost, scenario plus boundary, or mechanism plus engineering proof. If candidate bullets describe the same cause-effect chain, use one stronger bullet and put support details in `正文内容`.
-- `正文内容`: use as the main content pool for the slide. It should be specific enough for the PPT maker to write blocks, captions, and explanatory paragraphs without inventing substance. Make the body support each selected `分析总结` claim with mechanisms, facts, comparisons, examples, implications, and cautions. The support mapping must be explicit: every `分析总结` label should appear again in `正文内容` as a support anchor, followed by the concrete material that proves or qualifies that claim. When body prose depends on a source figure, mention it neutrally as part of the explanation, for example `Figure X 说明...` or `Figure X 展示...`, instead of weakening the figure into optional or candidate wording.
-- `参考图片`: use to identify the source image file for visual material. Write each entry as a Markdown image reference with an absolute filesystem path, for example `![Figure 1: 方法总览](D:\absolute\path\final\images\picture_003.png)`, then keep nearby neutral prose such as `Figure 1 展示...` or `Figure 1 说明...`. This should not prescribe layout, template, font, color, column count, or mandatory insertion.
+- `页面标题`: use as slide title. It should be a short claim hook, not an abstract theme, method name, or generic object label.
+- `标题说明`: use as subtitle or lead sentence. It should be a high-signal quantitative sentence with scenario, measurable benefit/cost, experimental condition, or decision implication. `页面标题` and `标题说明` share one visible title line in the downstream slide, so their combined length
+  must fit, and the title should be less than half the length of the explanation.
+- `分析总结`: use as the high-visibility summary band. Each bullet must be a real core claim in the form `小标题：解释`. Summary pages usually carry more compression and can use 2-3 bullets. Chapter content pages are usually more focused and often need only 1-2 bullets. A good bullet is
+  short, independently meaningful, evidence-bearing when possible, and provable by the page body. Choose multiple bullets only when they are orthogonal decision dimensions, such as result plus deployment scope, benefit plus cost, scenario plus boundary, or mechanism plus
+  engineering proof. If candidate bullets describe the same cause-effect chain, use one stronger bullet and put support details in `正文内容`.
+- `正文内容`: use as the main content pool for the slide. It should be specific enough for the PPT maker to write blocks, captions, and explanatory paragraphs without inventing substance. Make the body support each selected `分析总结` claim with mechanisms, facts, comparisons, examples,
+  implications, and cautions. The support mapping must be explicit: every `分析总结` label should appear again in `正文内容` as a support anchor, followed by the concrete material that proves or qualifies that claim. When body prose depends on a source figure, mention it neutrally as
+  part of the explanation, for example `Figure X 说明...` or `Figure X 展示...`, instead of weakening the figure into optional or candidate wording.
+- `参考图片`: use to identify the source image file for visual material. Write each entry as a Markdown image reference with an absolute filesystem path, for example `![Figure 1: 方法总览](D:\absolute\path\final\images\picture_003.png)`, then keep nearby neutral prose such as `Figure 1
+  展示...` or `Figure 1 说明...`. This should not prescribe layout, template, font, color, column count, or mandatory insertion.
 - `备注`: use for speaker notes, footnotes, or cautious wording. Keep it short and useful.
 
 ## Density Rules
 
-The QA hard minimum is `1200` counted content characters for `## Summary Page` and `900` counted content characters per chapter content page, counted mainly from `分析总结`, `正文内容`, `参考图片`, and `备注`. The summary page is the highest-density page in the deck: it should compress the top-level conclusion, chapter logic, decision implications, key numbers or mechanisms, visual cue, and boundary wording into one PPT-ready page. A strong technical or decision content page usually lands around `1200-1800` counted characters.
+The QA hard minimum is `1200` counted content characters for `## Summary Page` and `900` counted content characters per chapter content page, counted mainly from `分析总结`, `正文内容`, `参考图片`, and `备注`. The summary page is the highest-density page in the deck: it should compress the
+top-level conclusion, chapter logic, decision implications, key numbers or mechanisms, visual cue, and boundary wording into one PPT-ready page. A strong technical or decision content page usually lands around `1200-1800` counted characters.
 
 The lower threshold exists because internal evidence and audit text no longer live inside the final PPT content file. Do not pad. Good density comes from:
 
@@ -137,50 +153,32 @@ If a page is thin, enrich `正文内容` with source-grounded explanation or sup
 
 The body may include extra bullets after the label-anchored support, but those extra bullets should elaborate mechanisms, comparisons, implications, or boundaries for the approved claims.
 
-## Banned Content In PPT Content Brief
+## Skeleton Whitelist
 
-The final PPT content file must not contain internal audit language or rendering implementation language.
+The final PPT content file uses a fixed skeleton. The QA gate validates the skeleton by whitelist, not by scanning every word in the file. This keeps internal planning labels out of the handoff while allowing normal source names, image paths, and reader-facing prose.
 
-Banned internal/audit tokens:
+Allowed headings:
 
-- `Claim`
-- `Evidence`
-- `Implication`
-- `Evidence Map`
-- `Source Locator`
-- `Source Usage Policy`
-- `Approval Log`
-- `needs_verification`
-- `user_judgment`
-- `supplemental research`
-- `primary source`
-- `inference`
-- `边界提醒`
-- `证据边界`
-- `证据状态`
-- `误读风险`
+- `# PPT Content Brief`
+- `## Deck Metadata`
+- `## Summary Page`
+- `## Table of Contents`
+- `## Page Content`
+- `### Page N: 页面标题`
 
-Banned local path pattern outside `参考图片` Markdown image references:
+Allowed top-level, unindented field labels:
 
-- Windows absolute paths such as `D:\...`
-- Unix absolute source paths such as `/mnt/...` or `/home/...`
+- `## Deck Metadata`: `主题`, `目标读者`, `页数口径`, `核心结论`, `内容来源`, `关联审计文件`
+- `## Table of Contents`: `01 小标题：...` and `说明`
+- `## Summary Page`: `页码`, `页面标题`, `标题说明`, `分析总结`, `正文内容`, `参考图片`, `备注`
+- `### Page N: 页面标题`: `所属章节`, `页面标题`, `标题说明`, `分析总结`, `正文内容`, `参考图片`, `备注`
 
-Banned rendering/layout tokens:
+Rules:
 
-- `visual_anchor.kind`
-- `visual_anchor_renderer`
-- `contentLayout`
-- `renderer`
-- `expected_renderer`
-- `visual_strategy`
-- `template:`
-- `字号`
-- `字体`
-- `配色`
-- `几栏`
-- `两栏`
-- `三栏`
-- `四栏`
+- Do not add new top-level `XXX：` fields outside this whitelist.
+- Put audit, evidence-chain, approval, and rendering notes in `research_audit.md`, not as new fields in `ppt_content_brief.md`.
+- Content bullets may still use reader-facing labels such as `降本结果：...` when they are the approved `分析总结` claim labels or their `正文内容` support anchors.
+- Local absolute paths are allowed only as Markdown image URLs under `参考图片`, for example `![Figure 1](D:\absolute\path\image.png)`.
 
 ## Research Audit File
 
@@ -207,6 +205,7 @@ A PPT generation skill should validate:
 - `Table of Contents` uses short title plus one-sentence explanation.
 - `Summary Page` exists before `Page Content` and contains PPT-ready title, subtitle, analysis summary, body content, visual reference, and notes.
 - Each page has all required page fields.
+- Headings and unbulleted `XXX：` fields use only the skeleton whitelist; no extra audit, evidence-chain, approval, or rendering fields appear in the final handoff.
 - Each content page has `所属章节`, and it matches one table-of-contents `小标题`.
 - `分析总结` has 1-3 directly usable Chinese labeled statements.
 - `页面标题`, `标题说明`, and `分析总结` are concise enough to work as visible slide copy.
@@ -217,8 +216,6 @@ A PPT generation skill should validate:
 - `正文内容` repeats every `分析总结` label as a support anchor, so the PPT maker can see which body material supports which visible claim.
 - Each page meets the content-density threshold.
 - Expected page count for QA means total PPT pages. `--expected-pages 1` means Summary Page only; `--expected-pages 7` means Page 1 cover, Page 2 summary, Page 3 contents, and Page 4-7 chapter content pages.
-- Banned internal/audit tokens do not appear.
-- Banned rendering/layout tokens do not appear.
 - `关联审计文件` points to a `research_audit.md` file for verification if needed.
 - Local absolute paths appear only in `参考图片` Markdown image references; other exact paths belong in `research_audit.md`.
 

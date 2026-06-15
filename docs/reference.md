@@ -31,10 +31,14 @@
 
 | 案例 | 用户任务 | 协作结果 | 可读交付件 |
 | --- | --- | --- | --- |
-| Aegaeon GPU Pooling | 把一篇 LLM serving / GPU pooling 论文整理成决策型 PPT 内容简报 | 已完成，结论是“先评估，再承诺收益” | [内容简报](showcase/aegaeon-gpu-pooling/ppt_content_brief.md) / [证据审计](showcase/aegaeon-gpu-pooling/research_audit.md) / [研究理解网页](showcase/aegaeon-gpu-pooling/review/source_understanding_review.html) |
-| RTX Spark Agent PC | 基于 NVIDIA/Microsoft 官方网页材料，判断 RTX Spark 是否应被看作本地 personal-agent 平台 | 已完成，中途修正过网页正文污染和路径问题 | [内容简报](showcase/rtx-spark-agent-pc/ppt_content_brief.md) / [证据审计](showcase/rtx-spark-agent-pc/research_audit.md) / [研究理解网页](showcase/rtx-spark-agent-pc/review/source_understanding_review.html) |
-| Stochastic KV Routing | 把 KV cache 路由论文整理成是否值得进入 serving 实验的技术判断 | 已完成，结论是“先复测，再谈上线” | [内容简报](showcase/stochastic-kv-routing/ppt_content_brief.md) / [证据审计](showcase/stochastic-kv-routing/research_audit.md) / [研究理解网页](showcase/stochastic-kv-routing/review/source_understanding_review.html) |
-| TiDAR Hybrid Decoding | 把 diffusion/autoregression 混合解码论文整理成复现实验判断 | 已完成，定位为 controlled-replication candidate | [内容简报](showcase/tidar-hybrid-decoding/ppt_content_brief.md) / [证据审计](showcase/tidar-hybrid-decoding/research_audit.md) / [研究理解网页](showcase/tidar-hybrid-decoding/review/source_understanding_review.html) |
+| Aegaeon GPU Pooling | 把一篇 LLM serving / GPU pooling 论文整理成决策型 PPT 内容简报 | 已完成， 结论是“先评估， 再承诺收益” | [内容简报](showcase/aegaeon-gpu-pooling/ppt_content_brief.md) / [证据审计](showcase/aegaeon-gpu-pooling/research_audit.md) /
+[研究理解网页](showcase/aegaeon-gpu-pooling/review/source_understanding_review.html) |
+| RTX Spark Agent PC | 基于 NVIDIA/Microsoft 官方网页材料， 判断 RTX Spark 是否应被看作本地 personal-agent 平台 | 已完成， 中途修正过网页正文污染和路径问题 | [内容简报](showcase/rtx-spark-agent-pc/ppt_content_brief.md) / [证据审计](showcase/rtx-spark-agent-pc/research_audit.md) /
+[研究理解网页](showcase/rtx-spark-agent-pc/review/source_understanding_review.html) |
+| Stochastic KV Routing | 把 KV cache 路由论文整理成是否值得进入 serving 实验的技术判断 | 已完成， 结论是“先复测， 再谈上线” | [内容简报](showcase/stochastic-kv-routing/ppt_content_brief.md) / [证据审计](showcase/stochastic-kv-routing/research_audit.md) /
+[研究理解网页](showcase/stochastic-kv-routing/review/source_understanding_review.html) |
+| TiDAR Hybrid Decoding | 把 diffusion/autoregression 混合解码论文整理成复现实验判断 | 已完成， 定位为 controlled-replication candidate | [内容简报](showcase/tidar-hybrid-decoding/ppt_content_brief.md) / [证据审计](showcase/tidar-hybrid-decoding/research_audit.md) /
+[研究理解网页](showcase/tidar-hybrid-decoding/review/source_understanding_review.html) |
 | Goal-Oriented RAG Memory | 把 agentic memory / RAG memory 论文整理成 PPT 内容简报 | 暂无可展示运行记录 | 暂无 |
 
 ## Aegaeon GPU Pooling

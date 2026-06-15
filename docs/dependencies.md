@@ -24,7 +24,7 @@ python skills/ppt-deep-search/verify_dependencies.py
 | --- | --- |
 | Python 版本 | Python 3.9+ |
 | 仓库文件 | 深度研究、HTML review、web evidence 相关脚本和参考文档是否存在 |
-| 自检 | `ppt_content_brief`、HTML review、web evidence package 等校验器是否能通过 self-test |
+| 自检 | `ppt_content_brief`、HTML review、web source package mapping 等校验器是否能通过 self-test |
 | 外部服务 | 默认不需要外部服务；只有任务本身要求补充网页资料时才需要联网 |
 
 ## 判断标准

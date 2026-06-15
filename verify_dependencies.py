@@ -30,11 +30,22 @@ def main() -> int:
         root / "scripts" / "validate_html_review.py",
         root / "scripts" / "validate_html_review_data.py",
         root / "scripts" / "validate_web_evidence_package.py",
+        root / "scripts" / "validate_markdown_size.py",
         root / "agents" / "openai.yaml",
+        root / "references" / "pyramid-principle.md",
+        root / "references" / "ppt-content-brief-format.md",
+        root / "references" / "research-audit-format.md",
         root / "references" / "html-review-surface.md",
+        root / "references" / "html-review-expression.md",
+        root / "references" / "html-review-outline.md",
+        root / "references" / "html-review-evidence.md",
+        root / "references" / "html-review-visuals.md",
+        root / "references" / "html-review-quality.md",
         root / "references" / "html-review-data-model.md",
         root / "references" / "html-review-report-kit.md",
         root / "references" / "html-review-pattern-library.md",
+        root / "references" / "dialogue-and-approval.md",
+        root / "references" / "ppt-viewpoint-planning.md",
         root / "scripts" / "serve_html_review.py",
         root / "web-article-capture" / "SKILL.md",
         root / "web-article-capture" / "scripts" / "validate_capture_package.py",
@@ -42,7 +53,18 @@ def main() -> int:
         root / "web-article-capture" / "forward-tests" / "nvidia-pc" / "candidate" / "prompt.md",
         root / "web-article-capture" / "forward-tests" / "nvidia-pc" / "candidate" / "input" / "urls.txt",
         root / "web-article-capture" / "forward-tests" / "nvidia-pc" / "judge" / "rubric.md",
+        root / "forward-tests" / "ppt-deep-search" / "README.md",
+        root / "forward-tests" / "ppt-deep-search" / "main-agent-prompt.md",
     ]
+    for case_dir in sorted((root / "forward-tests" / "ppt-deep-search").glob("*-hitl")):
+        required.extend(
+            [
+                case_dir / "main-agent-prompt.md",
+                case_dir / "candidate" / "prompt.md",
+                case_dir / "judge" / "rubric.md",
+                case_dir / "case-manifest.json",
+            ]
+        )
     missing = [str(path.relative_to(root)) for path in required if not path.exists()]
     if missing:
         print("[ERROR] Missing required files:")
@@ -53,6 +75,35 @@ def main() -> int:
     if sys.version_info < (3, 9):
         print(f"[ERROR] Python 3.9+ is required; found {sys.version.split()[0]}")
         return 1
+
+    markdown_size_self_test = subprocess.run(
+        [sys.executable, str(root / "scripts" / "validate_markdown_size.py"), "--self-test"],
+        cwd=root,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    if markdown_size_self_test.returncode != 0:
+        print("[ERROR] Markdown size validator self-test failed:")
+        safe_print((markdown_size_self_test.stdout + markdown_size_self_test.stderr).strip())
+        return 1
+    safe_print(markdown_size_self_test.stdout.strip())
+
+    markdown_size_check = subprocess.run(
+        [sys.executable, str(root / "scripts" / "validate_markdown_size.py"), str(root)],
+        cwd=root,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    if markdown_size_check.returncode != 0:
+        safe_print((markdown_size_check.stdout + markdown_size_check.stderr).strip())
+        return 1
+    safe_print(markdown_size_check.stdout.strip())
 
     html_review_self_test = subprocess.run(
         [sys.executable, str(root / "scripts" / "validate_html_review.py"), "--self-test"],
@@ -83,6 +134,21 @@ def main() -> int:
         safe_print((html_review_data_self_test.stdout + html_review_data_self_test.stderr).strip())
         return 1
     safe_print(html_review_data_self_test.stdout.strip())
+
+    ppt_content_brief_self_test = subprocess.run(
+        [sys.executable, str(root / "scripts" / "validate_ppt_content_brief.py"), "--self-test"],
+        cwd=root,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    if ppt_content_brief_self_test.returncode != 0:
+        print("[ERROR] PPT Content Brief validator self-test failed:")
+        safe_print((ppt_content_brief_self_test.stdout + ppt_content_brief_self_test.stderr).strip())
+        return 1
+    safe_print(ppt_content_brief_self_test.stdout.strip())
 
     web_evidence_self_test = subprocess.run(
         [sys.executable, str(root / "scripts" / "validate_web_evidence_package.py"), "--self-test"],

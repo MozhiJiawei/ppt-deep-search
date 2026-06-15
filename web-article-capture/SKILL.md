@@ -1,6 +1,7 @@
 ---
 name: web-article-capture
-description: Use Codex in-app Browser to extract article/main webpage text and original inline images into compact source packages for downstream agents. Use when Codex needs browser-rendered webpage capture for source grounding, media-rich official pages, article text, webpage image assets, or reusable web source packages.
+description: >-
+  Extract article/main webpage text and original inline images into compact source packages for downstream agents. Use when Codex needs browser-rendered webpage capture for source grounding, media-rich official pages, article text, webpage image assets, or reusable web source packages.
 ---
 
 # Web Article Capture

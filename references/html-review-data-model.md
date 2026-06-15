@@ -1,10 +1,18 @@
 # HTML Review Data Model
 
-This reference defines the optional-but-preferred intermediate data model for the temporary source-understanding HTML report.
+Scope map:
+
+- Owns the required `review/report-data.json` staging model.
+- Defines source discovery, citations, assets, KPI, section, chart, comparison, and decision records.
+- Defines supported block types, data rules, and output directory shape.
+- Does not define visible prose; use `html-review-expression.md`.
+- Does not define final PPT format; use `ppt-content-brief-format.md`.
+
+This reference defines the intermediate data model for the temporary source-understanding HTML report.
 
 Use it together with `references/html-review-surface.md` and `references/html-review-pattern-library.md`.
 
-The goal is to make the HTML report data-first instead of hand-wavy. Before writing complex report HTML, normalize the most important facts, extracted numbers, source images, comparison objects, and chart contracts into:
+The goal is to make the HTML report data-first instead of hand-wavy. Before writing report HTML, normalize the most important facts, extracted numbers, source images, comparison objects, and chart contracts into:
 
 ```text
 .tmp/ppt-deep-search/<task-name>/review/report-data.json
@@ -16,16 +24,16 @@ This file is not a downstream PPT artifact. It is a staging model for producing 
 
 ## When To Create It
 
-Create `report-data.json` when the source-understanding report includes any of these:
+Create `report-data.json` for every source-understanding HTML review. Small text-only reports may use a minimal file, but they should not skip the artifact.
 
-- reconstructed charts from source tables, benchmarks, APIs, or screenshots
+Populate richer fields when the report includes any of these:
+
+- reconstructed charts from source tables, benchmarks, APIs, or captured visual material
 - KPI strips or numeric summary cards
 - method comparison cards
 - original source figures/tables copied into `review/assets/`
 - Pareto/frontier, tradeoff, heatmap, matrix, or small-multiple visuals
 - more than two cited quantitative claims
-
-For a very small text-only source, the agent may skip the JSON file, but it should still follow the same mental contract.
 
 ## Required Shape
 
@@ -35,8 +43,14 @@ For a very small text-only source, the agent may skip the JSON file, but it shou
     "title": "Chinese decision-grade report title",
     "question": "The one decision question the report answers",
     "audience": "Target reader",
+    "reader_lens": {
+      "reader_role": "Who will inspect the report.",
+      "reader_knows": "What they probably already understand.",
+      "reader_cares_about": "What would make the source matter to them.",
+      "reader_next_decision": "What they need to approve, reject, test, or clarify after reading."
+    },
     "generated_at": "2026-06-03T00:00:00+08:00",
-    "source_package": "local path, URL, or source description",
+    "source_package": "local source package root or non-web source description",
     "source_discovery_path": "sources/source-discovery.md"
   },
   "source_discovery": {
@@ -85,25 +99,21 @@ For a very small text-only source, the agent may skip the JSON file, but it shou
       "locator": "paper Table 4 / local image path / URL section",
       "source_type": "primary",
       "url": null,
-      "local_path": "D:/.../images/table_004.png",
-      "browser_evidence": null
+      "local_path": "D:/.../images/table_004.png"
     },
     {
       "id": "r1",
       "marker": "R1",
       "kind": "webpage",
       "title": "NVIDIA Blog article title",
-      "locator": "official blog article body, captured with Codex Browser",
+      "locator": "official blog article body captured in source.md",
       "source_type": "primary",
       "url": "https://example.com/article",
-      "local_path": "sources/web/nvidia-blog/article.md",
-      "browser_evidence": {
-        "capture_method": "Codex in-app Browser / Browser plugin rendered page extraction",
-        "local_path": "sources/web/nvidia-blog/article.md",
-        "metadata_path": "sources/web/nvidia-blog/article.json",
-        "screenshot_path": "sources/web/nvidia-blog/screenshots/article-region.png",
-        "image_manifest_path": "sources/web/nvidia-blog/images.json",
-        "selected_container": "article.post",
+      "local_path": "sources/web/nvidia-blog/source.md",
+      "web_capture": {
+        "package_path": "sources/web/nvidia-blog",
+        "source_md": "sources/web/nvidia-blog/source.md",
+        "images_dir": "sources/web/nvidia-blog/images",
         "captured_at": "2026-06-03T00:00:00+08:00"
       }
     }
@@ -234,11 +244,12 @@ Do not force every report to use every block. Pick the minimum set that makes th
 - Preserve units, task conditions, model names, hardware, date, and benchmark setup next to the values.
 - If a value is calculated, record the formula in `charts[].derived_fields` or in a nearby note.
 - If a chart is reconstructed from a source table or image, include both the chart contract and the original evidence asset or citation.
-- For webpage sources, every cited URL needs a local Browser evidence package: rendered正文 text, article metadata/image inventory, at least one screenshot, and downloaded正文 images when the page is media-rich.
-- Keep `sources/web/<slug>/images/` for original webpage images only. Do not count `full-page`, `article-region`, or `rendered-evidence` screenshots as downloaded webpage images.
-- In `report-data.json`, point citations to the local article/screenshot/image manifest paths. For any webpage image shown in the HTML, add an `assets[]` item with its local `path`, original `source_url`, nearby context, and usage policy.
-- Before presenting the HTML review, run `scripts/validate_web_evidence_package.py`; for media-rich pages use `--require-images always --min-image-sources 1`.
-- Use `source_discovery` to preserve the positive research path: which primary, adjacent-route, and boundary sources were considered; which were captured; and which drafting-time citation gaps required new crawling. This is not a substitute for visible citations, but it prevents the agent from treating validation as a reason to delete comparison claims.
+- For webpage sources, every cited URL should point to a local `web-article-capture` source package directory. Consume only that package's `source.md` and `images/` contract here.
+- Keep captured package `images/` directories for original webpage images referenced by `source.md`.
+- In `report-data.json`, point citations to the captured package directory and `source.md`. For any webpage image shown in the HTML, add an `assets[]` item with the displayed local `path`, original package image path, original image URL when known, nearby context, and usage policy.
+- Before presenting the HTML review, run the HTML review data validators. Run the `web-article-capture` package validator separately for captured source package directories when practical.
+- Use `source_discovery` to preserve the positive research path: which primary, adjacent-route, and boundary sources were considered; which were captured; and which drafting-time citation gaps required new crawling. This is not a substitute for visible citations, but it prevents
+  the agent from treating validation as a reason to delete comparison claims.
 - Keep source ids stable. The HTML body can show quiet numeric footnotes, but the data model should preserve `S/F/T/R` style markers for audit.
 - Do not include hidden judge rubrics, forward-test expectations, or main-agent strategy in this file.
 

@@ -45,9 +45,11 @@ Use `main-agent-prompt.md` for the exact orchestration wording.
 
 ## Human-In-The-Loop Semantics
 
-Unlike one-shot downstream PPT generation tests, this suite tests a human-in-the-loop Skill. The main agent must act as the human stakeholder when the child agent asks questions. It should answer with product intent, audience preference, judgment calls, and corrections, while avoiding strategy coaching or judge-rubric leakage.
+Unlike one-shot downstream PPT generation tests, this suite tests a human-in-the-loop Skill. The main agent must act as the human stakeholder when the child agent asks questions. It should answer with product intent, audience preference, judgment calls, and corrections, while
+avoiding strategy coaching or judge-rubric leakage.
 
-The main agent is not allowed to treat the child agent as a fire-and-forget worker. The first useful child-agent response should be a question, an approval gate, or an explicit statement that the research frame is already fully specified. If the child agent silently assumes approvals, that behavior is the test result, not something to repair by adding more candidate prompt text.
+The main agent is not allowed to treat the child agent as a fire-and-forget worker. The first useful child-agent response should be a question, an approval gate, or an explicit statement that the research frame is already fully specified. If the child agent silently assumes
+approvals, that behavior is the test result, not something to repair by adding more candidate prompt text.
 
 ## Minimal Prompt Principle
 
@@ -59,7 +61,8 @@ Forward tests measure whether the runtime Skill can elicit and shape the brief t
 - the required output directory under `.tmp/forward-tests/<case-id>/<run-id>/`;
 - at most one short user-requested reminder sentence for that run.
 
-Do not include strategy explanations, judging criteria, expected answer structure, evidence-selection policy, approval scripts, or summaries of previous failures in the child-agent dispatch prompt. Keep those in `fixture-manifest.md`, `judge/rubric.md`, or the main agent's judgment context only.
+Do not include strategy explanations, judging criteria, expected answer structure, evidence-selection policy, approval scripts, or summaries of previous failures in the child-agent dispatch prompt. Keep those in `fixture-manifest.md`, `judge/rubric.md`, or the main agent's
+judgment context only.
 
 In Codex, also keep the child context isolated:
 

@@ -15,7 +15,8 @@ Validate whether `ppt-deep-search` can run its normal human-in-the-loop workflow
 - `ppt_content_brief.md`, suitable as the downstream PPT maker's slide-content source;
 - `research_audit.md`, preserving source grounding, approvals, boundaries, and evidence policy.
 
-The test is not a one-shot web summary. The child agent should ask the human stakeholder for missing audience, thesis, page-count, viewpoint, and constraint decisions according to `SKILL.md`. During source understanding, it must use rendered browser evidence packages rather than raw HTML or search snippets.
+The test is not a one-shot web summary. The child agent should ask the human stakeholder for missing audience, thesis, page-count, viewpoint, and constraint decisions according to `SKILL.md`. During source understanding, it must use `web-article-capture` source packages rather than
+raw HTML or search snippets.
 
 ## Candidate-Facing Assets
 
@@ -37,7 +38,7 @@ Do not pass `judge/` to the candidate agent.
 ## Contamination Rules
 
 - Do not pass `fixture-manifest.md`, `judge/`, or this case's `main-agent-prompt.md` to the child agent.
-- Do not tell the child agent the desired scores, judge rubric, known failure mode, or expected browser-evidence package contents.
+- Do not tell the child agent the desired scores, judge rubric, known failure mode, or expected source-package contents.
 - Do not summarize a complete deck outline to the child agent before it asks for human decisions.
 - The main agent may answer child-agent questions with stakeholder preferences and approvals.
 
@@ -54,8 +55,8 @@ Expected artifacts:
 - `sources/source-discovery.md` or equivalent source-discovery record listing primary sources, adjacent-route sources, boundary/check sources, candidate visuals, and crawl plan;
 - `review/source_understanding_review.html`;
 - `review/report-data.json`;
-- `sources/web/<source-slug>/` rendered evidence packages with article text, metadata, screenshots, image inventory, and local images for media-rich sources;
+- `sources/web/<source-slug>/` source packages with `source.md` and `images/` for media-rich sources;
 - `ppt_content_brief.md`;
 - `research_audit.md`;
 - saved approval bundle or baselines when produced by the Skill;
-- validation output showing the evidence package, HTML review, and final brief passed repository QA scripts, or a clear blocker note explaining why browser capture could not be completed.
+- validation output showing the source package mapping, HTML review, and final brief passed repository QA scripts, or a clear blocker note explaining why source capture could not be completed.

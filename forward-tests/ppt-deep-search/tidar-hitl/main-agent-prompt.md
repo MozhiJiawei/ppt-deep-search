@@ -55,7 +55,11 @@ After dispatch, wait for the child agent's first substantive response.
 - If it requests approval, approve only when the proposal preserves the handoff contract; otherwise ask for a concrete adjustment.
 - If it writes final `ppt_content_brief.md` or `research_audit.md` before any stakeholder answer, stop the child agent and record a HITL workflow failure.
 - If the source-understanding HTML uses outline labels as body headings instead of claim-like section conclusions, request a revision before approval. Navigation labels may remain logical and fixed; body headings must be topic-specific claims.
-- When the child provides `review/source_understanding_review.html`, run `python scripts/validate_html_review.py <html>` before approving Stage 1.5 when practical. If it fails, request a revision. Do not force a specific visual component pattern if the report communicates the evidence well.
+- When the child provides `review/source_understanding_review.html`, also inspect
+  `review/report-data.json`, then run `python scripts/validate_html_review_data.py <report-data.json>`
+  and `python scripts/validate_html_review.py <html>` before approving Stage 1.5 when practical.
+  If either fails, request a revision. Do not force a specific visual component pattern
+  if the report communicates the evidence well.
 - If the runtime cannot send follow-up input to the child agent, stop before dispatch. This case is invalid without interactive child-agent control.
 - Do not fix this by adding strategy, rubric, or approval instructions to `candidate/prompt.md`.
 

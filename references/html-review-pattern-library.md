@@ -1,8 +1,16 @@
 # HTML Review Pattern Library
 
+Scope map:
+
+- Owns optional HTML review patterns such as report shells, narrative-data pairs, evidence pairs, reconstructed charts, method cards, and citation anchors.
+- Does not own report-level purpose; use `html-review-surface.md`.
+- Does not own data staging; use `html-review-data-model.md`.
+- Stable boilerplate may move to assets or scripts when it becomes deterministic.
+
 This library contains repo-local patterns for the temporary source-understanding HTML report. It borrows proven report habits from prior experiments, but the patterns here are owned by this skill and do not require external skill code.
 
-Use this file together with `references/html-review-surface.md`, `references/html-review-data-model.md`, and `references/html-review-report-kit.md`. The surface file defines the report standard and outline; the data model and report kit define the preferred Tufte-style staging and block infrastructure; this file defines additional reusable presentation patterns that help the agent meet that standard.
+Use this file together with `references/html-review-surface.md`, `references/html-review-expression.md`, `references/html-review-data-model.md`, and `references/html-review-report-kit.md`. The surface file defines the report standard and outline; the expression contract defines
+reader-facing visible prose; the data model and report kit define the preferred Tufte-style staging and block infrastructure; this file defines additional reusable presentation patterns that help the agent meet that standard.
 
 ## Report Shell
 
@@ -15,7 +23,9 @@ Required traits:
 - Left sticky navigation on desktop; navigation above content on mobile.
 - Main content width wide enough for figures and tables, but not so wide that paragraphs become hard to read.
 - First viewport contains the conclusion, strongest evidence, and why the reader should care.
-- Side navigation can use fixed logical labels such as `结论先行`, `问题为什么重要`, `已有做法与缺口`, `关键机制`, `实验信号与边界`, `下一步验证`, and `参考资料`. In-body section headings state conclusions, not outline jobs; headings such as `问题为什么重要` should be rewritten into topic-specific claims such as `KV cache 已从计算优化问题变成容量约束`.
+- The visible prose follows `html-review-expression.md`: it serves the reader's next decision and keeps internal process outside the main reading flow.
+- Side navigation can use fixed logical labels such as `结论先行`, `问题为什么重要`, `已有做法与缺口`, `关键机制`, `实验信号与边界`, `下一步验证`, and `参考资料`. In-body section headings state conclusions, not outline jobs; headings such as `问题为什么重要` should be rewritten into topic-specific claims such as `KV cache
+  已从计算优化问题变成容量约束`.
 - Tables, figures, charts, and source images sit near the paragraph that interprets them.
 - Print mode removes navigation, progress UI, shadows, and decorative backgrounds.
 
@@ -100,6 +110,7 @@ Recommended behavior:
 
 - Left side carries the visual or table; right side carries interpretation.
 - The aside is not an audit log. It should read like a report sidebar.
+- The aside should satisfy the figure/table contract in `html-review-expression.md`: what to notice, what claim it supports, and what it does not prove.
 - Every paragraph should earn its place: result, condition, caveat, or implication.
 - On mobile, collapse to one column.
 
@@ -163,8 +174,8 @@ Rules:
 - Do not let the reconstructed chart replace the original evidence.
 - Do not imply a visual is an original figure when it was rebuilt by the agent.
 - If a data point is calculated, preserve the formula or extraction note in `research_audit.md` and cite the source rows in the visible report.
-- Prefer one reconstructed chart plus one original evidence block over a pile of screenshots.
-- For webpage evidence, pair the reconstructed or selected visual with the local Codex Browser/browser-use asset and keep the remote source URL in `report-data.json`. Do not use remote `<img src="https://...">` hotlinks in the report.
+- Prefer one reconstructed chart plus one original evidence block over a pile of redundant captures.
+- For webpage evidence, pair the reconstructed or selected visual with an asset copied or derived from a `web-article-capture` source package, and keep the original webpage URL plus local package mapping in `report-data.json`. Do not use remote `<img src="https://...">` hotlinks in the report.
 
 ## Method Mini-Brief Card
 
@@ -265,10 +276,11 @@ Validation requirements:
 Before showing the HTML report, inspect it for these structural signs:
 
 - At least one side navigation or clear table of contents for long reports.
+- Visible prose follows the reader-facing expression contract instead of exposing workflow narration.
 - Side navigation uses stable logical labels; body headings are claim-like and topic-specific.
 - At least one `evidence-pair` or equivalent narrative-data block when the report includes quantitative results.
-- At least one original-evidence link, figure, table, screenshot, or reference near any reconstructed visual.
-- Webpage references and displayed webpage images are backed by local browser-use artifacts, with `report-data.json` mapping each cited URL/image to the local file.
-- No visible internal labels such as `agent-chart`, `source-original`, `QA`, `needs_verification`, or `inference`.
+- At least one original-evidence link, figure, table, captured source image, or reference near any reconstructed visual.
+- Webpage references and displayed webpage images trace back to local `web-article-capture` source packages, with `report-data.json` mapping each cited URL/image to the package and report asset.
+- The visible report does not expose raw data-model fields, QA status, or agent work-log labels as reader-facing prose.
 - Citation anchors are clickable and not just bracket text.
 - The `已有做法与缺口` section contains developed mini-briefs, not only a comparison table.

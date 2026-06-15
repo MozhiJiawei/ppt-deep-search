@@ -55,7 +55,11 @@ After dispatch, wait for the child agent's first substantive response.
 - If it requests approval, approve only when the proposal preserves the handoff contract; otherwise ask for a concrete adjustment.
 - If it writes final `ppt_content_brief.md` or `research_audit.md` before any stakeholder answer, stop the child agent and record a HITL workflow failure.
 - If the source-understanding HTML uses outline labels as body headings instead of claim-like section conclusions, request a revision before approval. Navigation labels may remain logical and fixed; body headings must be topic-specific claims.
-- When the child provides `review/source_understanding_review.html`, run `python scripts/validate_html_review.py <html>` before approving Stage 1.5 when practical. If it fails, request a revision. Do not force a specific visual component pattern if the report communicates the evidence well.
+- When the child provides `review/source_understanding_review.html`, also inspect
+  `review/report-data.json`, then run `python scripts/validate_html_review_data.py <report-data.json>`
+  and `python scripts/validate_html_review.py <html>` before approving Stage 1.5 when practical.
+  If either fails, request a revision. Do not force a specific visual component pattern
+  if the report communicates the evidence well.
 - If the runtime cannot send follow-up input to the child agent, stop before dispatch. This case is invalid without interactive child-agent control.
 - Do not fix this by adding strategy, rubric, or approval instructions to `candidate/prompt.md`.
 
@@ -66,7 +70,8 @@ When the child agent asks questions, answer as a realistic PPT requester:
 - Target reader: technical product / infrastructure decision makers evaluating whether this paper's cache-sharing idea is worth a deeper serving experiment.
 - Desired use: a pre-PPT content brief for an internal technical evaluation deck.
 - Page count: prefer 6-7 total PPT pages; cover and contents count if the child agent asks.
-- Thesis direction: depth-wise KV sharing looks strategically interesting because it attacks cache memory along a different axis than temporal eviction, but deployment value depends on training/fine-tuning cost, TTFT/throughput tradeoffs, and whether the retained-quality evidence transfers to the reader's serving environment.
+- Thesis direction: depth-wise KV sharing looks strategically interesting because it attacks cache memory along a different axis than temporal eviction, but deployment value depends on training/fine-tuning cost, TTFT/throughput tradeoffs, and whether the retained-quality evidence
+  transfers to the reader's serving environment.
 - Evidence taste: prefer source figures and named metrics first; accept mechanism diagrams only when the paper figures are insufficient for the argument.
 - Tone: decision-oriented Chinese, with English method/model/dataset names preserved.
 

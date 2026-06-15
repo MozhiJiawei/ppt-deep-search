@@ -4,7 +4,7 @@
 
 Task: create a PPT-ready content brief for an internal architecture evaluation deck on whether RTX Spark should be treated as a new Windows local personal-agent PC platform category or mostly a marketing/spec update.
 
-Workspace root: `docs/showcase/published-run`
+Workspace root: `docs/showcase/rtx-spark-agent-pc`
 
 Target reader: technical architecture / AI engineering leaders.
 
@@ -16,48 +16,49 @@ Final artifact: total 6-page internal architecture evaluation deck content brief
 
 ## Source Understanding
 
-Approved source-understanding judgment: RTX Spark is best interpreted as an anchor of a Windows local personal-agent stack, not simply a high-TOPS AI PC. The strongest basis is the combination of NVIDIA official wording, Microsoft-side unified-stack confirmation, RTX Spark silicon/memory claims, Windows security primitives, NVIDIA OpenShell policy/runtime routing, and the CUDA/RTX local AI ecosystem story.
+Approved source-understanding judgment: RTX Spark is best interpreted as an anchor of a Windows local personal-agent stack, not simply a high-TOPS AI PC. The strongest basis is the combination of NVIDIA official wording, Microsoft-side unified-stack confirmation, RTX Spark
+silicon/memory claims, Windows security primitives, NVIDIA OpenShell policy/runtime routing, and the CUDA/RTX local AI ecosystem story.
 
 Approved source-understanding HTML:
 
-- `docs/showcase/published-run`
-- `docs/showcase/published-run`
+- `docs/showcase/rtx-spark-agent-pc/review/source_understanding_review.html`
+- `docs/showcase/rtx-spark-agent-pc/review/report-data.json`
 
 Source discovery map:
 
-- `docs/showcase/published-run`
+- `docs/showcase/rtx-spark-agent-pc/review/report-data.json`
 
 Browser/web-article-capture source packages:
 
-- NVIDIA Newsroom press release: `docs/showcase/published-run`
-- NVIDIA RTX Spark product page: `docs/showcase/published-run`
-- NVIDIA Blog: `docs/showcase/published-run`
-- Microsoft Build Live: `docs/showcase/published-run`
-- NVIDIA GTC Taipei keynote page: `docs/showcase/published-run`
+- NVIDIA Newsroom press release: `docs/showcase/rtx-spark-agent-pc/sources/web/nvidia-news-rtx-spark-windows-agents`
+- NVIDIA RTX Spark product page: `docs/showcase/rtx-spark-agent-pc/sources/web/nvidia-rtx-spark-product`
+- NVIDIA/Microsoft local-cloud devices blog: `docs/showcase/rtx-spark-agent-pc/sources/web/nvidia-blog-windows-local-cloud-devices`
+- NVIDIA developer personal agents blog: `docs/showcase/rtx-spark-agent-pc/sources/web/nvidia-dev-personal-ai-agents-windows`
+- Windows agent security blog: `docs/showcase/rtx-spark-agent-pc/sources/web/windows-dev-security-ai-agents`
+- Microsoft Build Live: `docs/showcase/rtx-spark-agent-pc/sources/web/microsoft-build-live-blog-entry-4927`
+- Windows Experience RTX Spark blog: `docs/showcase/rtx-spark-agent-pc/sources/web/windows-experience-rtx-spark`
+- NVIDIA OpenShell blog: `docs/showcase/rtx-spark-agent-pc/sources/web/nvidia-openshell-secure-agents`
+- NVIDIA GTC Taipei keynote page: `docs/showcase/rtx-spark-agent-pc/sources/web/nvidia-gtc-taipei-2026-keynote`
 
 Evidence mirror paths used by report-data:
 
-- `docs/showcase/published-run`
-- `docs/showcase/published-run`
-- `docs/showcase/published-run`
-- `docs/showcase/published-run`
-- `docs/showcase/published-run`
-- `docs/showcase/published-run`
-- `docs/showcase/published-run`
-- `docs/showcase/published-run`
-- `docs/showcase/published-run`
+- `docs/showcase/rtx-spark-agent-pc/review/assets/nvidia-rtx-spark-news.png`
+- `docs/showcase/rtx-spark-agent-pc/review/assets/rtx-spark-agent-pc.jpg`
+- `docs/showcase/rtx-spark-agent-pc/review/assets/microsoft-unified-stack-rtx-spark.png`
+- `docs/showcase/rtx-spark-agent-pc/review/assets/windows-agent-security.png`
+- `docs/showcase/rtx-spark-agent-pc/review/assets/nvidia-openshell.png`
 
 QA status before approval:
 
 - `python web-article-capture/scripts/validate_capture_package.py <run-output>/sources/web --require-images always`: passed.
-- `python scripts/validate_web_evidence_package.py <run-output>/review/report-data.json --require-screenshots --require-images always --min-image-sources 1`: passed.
+- `python scripts/validate_web_evidence_package.py <run-output>/review/report-data.json --require-images always --min-image-sources 1`: passed.
 - `python scripts/validate_html_review_data.py <run-output>/review/report-data.json`: passed.
 - `python scripts/validate_html_review.py <run-output>/review/source_understanding_review.html`: passed.
-- Pollution keyword scan over `sources/web/*/source.md`: no hits after cleanup.
 
 ## Executive Thesis
 
-RTX Spark should be framed as a Windows local personal-agent stack anchor. It combines hardware, memory, CUDA/RTX software ecosystem, Microsoft Windows security primitives, and NVIDIA OpenShell policy/runtime routing. It is not enough to describe it as a high-TOPS AI PC, because that misses the OS/runtime control problem that personal agents introduce on a user's primary device.
+RTX Spark should be framed as a Windows local personal-agent stack anchor. It combines hardware, memory, CUDA/RTX software ecosystem, Microsoft Windows security primitives, and NVIDIA OpenShell policy/runtime routing. It is not enough to describe it as a high-TOPS AI PC, because
+that misses the OS/runtime control problem that personal agents introduce on a user's primary device.
 
 The deck must preserve a strong but bounded decision: evaluate it as a platform direction; do not call it a proven category, a procurement recommendation, or an official Chinese product name.
 
@@ -99,20 +100,28 @@ Chapter claim 3: `定门槛` — current evidence supports architecture evaluati
 
 | Claim | Evidence | Implication |
 | --- | --- | --- |
-| RTX Spark is better evaluated as platform anchor than high-TOPS AI PC | NVIDIA says world's first Windows PCs purpose-built for personal agents; Microsoft says unified accelerated computing stack with RTX Spark Windows PCs and DGX Station for Windows | Deck title and summary should use platform language, not pure spec comparison |
+| RTX Spark is better evaluated as platform anchor than high-TOPS AI PC | NVIDIA says world's first Windows PCs purpose-built for personal agents; Microsoft says unified accelerated computing stack with RTX Spark Windows PCs and DGX Station for Windows | Deck title and summary
+should use platform language, not pure spec comparison |
 | Chinese `Agent 原生电脑` is a paraphrase, not official product name | Official sources use English wording around personal agents and Windows PCs; source request itself notes Chinese title is media paraphrase | Page 4 must prevent naming inflation |
-| Hardware is necessary but insufficient | NVIDIA lists 1 PFLOP FP4, up to 128GB unified memory, 120B-parameter LLMs, up to 1M tokens context; product page positions agents, AI development, creation, gaming | Page 5 should combine silicon with OS/runtime/economy, not isolate specs |
-| Windows trust layer and OpenShell are central to the platform story | NVIDIA Newsroom and Blog describe identity, containment, policy, end-to-end security capabilities, OpenShell policy, privacy routing, and local/cloud routing | Architecture leaders should assess policy/control surfaces and security model |
-| Current evidence supports evaluation, not procurement | Sources are official announcements, partner statements, product pages, local inference optimization chart, and Microsoft live blog; no independent workflow benchmark or supply/procurement validation | Page 6 should recommend benchmark/security/supply gates |
+| Hardware is necessary but insufficient | NVIDIA lists 1 PFLOP FP4, up to 128GB unified memory, 120B-parameter LLMs, up to 1M tokens context; product page positions agents, AI development, creation, gaming | Page 5 should combine silicon with OS/runtime/economy, not isolate
+specs |
+| Windows trust layer and OpenShell are central to the platform story | NVIDIA Newsroom and Blog describe identity, containment, policy, end-to-end security capabilities, OpenShell policy, privacy routing, and local/cloud routing | Architecture leaders should assess
+policy/control surfaces and security model |
+| Current evidence supports evaluation, not procurement | Sources are official announcements, partner statements, product pages, local inference optimization chart, and Microsoft live blog; no independent workflow benchmark or supply/procurement validation | Page 6 should
+recommend benchmark/security/supply gates |
 
 ## Evidence Map
 
 | Evidence id | Source | Locator | Key extracted facts | Type | Strength | PPT relevance |
 | --- | --- | --- | --- | --- | --- | --- |
-| R1 | NVIDIA Newsroom press release | `sources/web/nvidia-news-windows-pcs-agents/source.md`, News Summary and Purpose-Built sections | world’s first Windows PCs purpose-built for personal agents; 1 petaflop AI performance; up to 128GB unified memory; Windows security primitives; OpenShell; fall availability | source | strong | Must use for official wording and boundary |
-| R2 | NVIDIA RTX Spark product page | `sources/web/nvidia-rtx-spark-product/source.md`, Superchip and Agents sections | 6,144 cores; 20-core CPU; 1 Petaflop; 128GB memory; agents work alongside user; CUDA stack | source | strong | Use for platform/mechanism page and original images |
-| R3 | NVIDIA Blog | `sources/web/nvidia-blog-rtx-ai-garage/source.md`, Local Agentic AI and llama.cpp sections | OpenShell on Windows; identity/policy/privacy routing; llama.cpp up to 2x / 1.6x optimization; DGX Spark relation | source | medium-strong | Use for platform and evaluation gates |
-| R4 | Microsoft Build Live | `sources/web/microsoft-build-live-blog-4927/source.md`, NVIDIA/Microsoft unified stack, Surface Dev Box, Windows AI APIs | unified accelerated computing stack; RTX Spark Windows PCs; DGX Station for Windows; Surface RTX Spark Dev Box; FCC boundary | source | strong | Use for Microsoft-side confirmation and procurement boundary |
+| R1 | NVIDIA Newsroom press release | `sources/web/nvidia-news-windows-pcs-agents/source.md`, News Summary and Purpose-Built sections | world’s first Windows PCs purpose-built for personal agents; 1 petaflop AI performance; up to 128GB unified memory; Windows security
+primitives; OpenShell; fall availability | source | strong | Must use for official wording and boundary |
+| R2 | NVIDIA RTX Spark product page | `sources/web/nvidia-rtx-spark-product/source.md`, Superchip and Agents sections | 6,144 cores; 20-core CPU; 1 Petaflop; 128GB memory; agents work alongside user; CUDA stack | source | strong | Use for platform/mechanism page and original
+images |
+| R3 | NVIDIA Blog | `sources/web/nvidia-blog-rtx-ai-garage/source.md`, Local Agentic AI and llama.cpp sections | OpenShell on Windows; identity/policy/privacy routing; llama.cpp up to 2x / 1.6x optimization; DGX Spark relation | source | medium-strong | Use for platform and
+evaluation gates |
+| R4 | Microsoft Build Live | `sources/web/microsoft-build-live-blog-4927/source.md`, NVIDIA/Microsoft unified stack, Surface Dev Box, Windows AI APIs | unified accelerated computing stack; RTX Spark Windows PCs; DGX Station for Windows; Surface RTX Spark Dev Box; FCC boundary |
+source | strong | Use for Microsoft-side confirmation and procurement boundary |
 | R5 | NVIDIA GTC Taipei keynote page | `sources/web/nvidia-gtc-taipei-keynote/source.md` | June 1 Taipei keynote context and program schedule | source | medium | Background only unless event context is needed |
 
 ## Source Usage Policy
