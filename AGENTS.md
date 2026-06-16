@@ -14,7 +14,8 @@ Tool mapping:
 - LS: use ls via shell_command
 - WebFetch/WebSearch: use curl or Context7 for library docs
 - AskUserQuestion/Question: present choices as a numbered list in chat and wait for a reply number. For multi-select (multiSelect: true), accept comma-separated numbers. Never skip or auto-configure - always wait for the user's response before proceeding.
-- Task (subagent dispatch) / Subagent / Parallel: for forward tests, use Codex subagent capability, specifically `multi_agent_v1.spawn_agent` when available; do not fall back to solving the candidate task in the main thread. Outside forward tests, run sequentially in main thread unless true parallel tool calls are needed, in which case use multi_tool_use.parallel
+- Task (subagent dispatch) / Subagent / Parallel: for forward tests, use Codex subagent capability, specifically `multi_agent_v1.spawn_agent` when available; do not fall back to solving the candidate task in the main thread. Outside forward tests, run sequentially in main thread
+  unless true parallel tool calls are needed, in which case use multi_tool_use.parallel
 - TaskCreate/TaskUpdate/TaskList/TaskGet/TaskStop/TaskOutput (Claude Code task-tracking, current): use update_plan (Codex's task-tracking primitive)
 - TodoWrite/TodoRead (Claude Code task-tracking, legacy - deprecated, replaced by Task* tools): use update_plan
 - Skill: open the referenced SKILL.md and follow it
@@ -28,6 +29,23 @@ This repository contains the `ppt-deep-search` skill and its forward tests. Trea
 Before changing runtime behavior, read `docs/architecture_design.md`. It is the development-time architecture contract for maintainers and coding agents. `SKILL.md` is runtime guidance; do not use it as the primary place for development-time architecture notes.
 
 When runtime behavior changes, update the affected references, QA scripts, and forward-test instructions together. A behavior rule that is easy to check should become an executable QA gate rather than relying only on prose.
+
+## Markdown Size Gate
+
+Before submitting code or skill-document changes, run:
+
+```text
+python scripts/validate_markdown_size.py .
+```
+
+This gate is intentionally generic. It checks only Markdown size budgets:
+line count, total characters, and maximum single-line characters.
+
+If it fails, review the document architecture as a whole before editing.
+Do not satisfy the gate by shaving one sentence from one file. Keep entry
+files focused on core workflow, routing, and hard boundaries; move detailed
+guidance, schemas, long examples, and reusable material into smaller focused
+references, scripts, or assets.
 
 ## What "Run Forward" Means
 
@@ -68,7 +86,8 @@ Good dispatch:
 你已经是 candidate child；不要再 spawn 子 agent。需要审批时等待主 agent。
 ```
 
-If an agent receives a parent dispatch prompt that already names a `Candidate Prompt`, `Candidate Input`, and required `.tmp/forward-tests/<case-id>/<run-id>/` output directory, that agent is the candidate child agent for the forward run. In that role, do not try to start another subagent. Read the candidate-facing files and repository `SKILL.md`, run the Skill's HIL workflow normally, ask the parent/human for approvals when required, and write artifacts to the provided output directory.
+If an agent receives a parent dispatch prompt that already names a `Candidate Prompt`, `Candidate Input`, and required `.tmp/forward-tests/<case-id>/<run-id>/` output directory, that agent is the candidate child agent for the forward run. In that role, do not try to start another
+subagent. Read the candidate-facing files and repository `SKILL.md`, run the Skill's HIL workflow normally, ask the parent/human for approvals when required, and write artifacts to the provided output directory.
 
 The child agent must write all artifacts under:
 
@@ -78,7 +97,8 @@ The child agent must write all artifacts under:
 
 If the child writes to another temporary location, correct the child immediately and require the artifacts to be copied or regenerated under the required output directory.
 
-In Codex, "child agent" means the subagent interface exposed by `multi_agent_v1`, not a separate Codex App conversation thread created with `codex_app.create_thread`. Background conversation threads are useful for other coordination tasks, but they are not the forward-test runner for this repository.
+In Codex, "child agent" means the subagent interface exposed by `multi_agent_v1`, not a separate Codex App conversation thread created with `codex_app.create_thread`. Background conversation threads are useful for other coordination tasks, but they are not the forward-test runner
+for this repository.
 
 ## Forward-Test Boundaries
 
@@ -103,7 +123,8 @@ The main agent's stakeholder answers should be realistic, but not permissive.
 - If a defect is fixable through ordinary stakeholder feedback, request a concrete revision and wait for the child to update the artifact before approval.
 - Do not approve HIL HTML if visible body headings are only outline/navigation labels such as `结论先行`, `问题为什么重要`, `已有做法与缺口`, `关键机制`, `实验信号与边界`, or `下一步验证` without topic-specific claim headings. These labels are acceptable in side navigation; body headings must state conclusions.
 - Do not approve HIL HTML if it claims to use a visual/evidence pattern but the artifact does not actually contain the corresponding structure, source evidence, captions, and citation anchors.
-- When the child produces `review/source_understanding_review.html`, run `python scripts/validate_html_review.py <html>` before approval when practical. Treat failures as revision requests, not as warnings. This is a hygiene guardrail only; do not require a specific visual component pattern when the report solves the communication problem another way.
+- When the child produces `review/source_understanding_review.html`, run `python scripts/validate_html_review.py <html>` before approval when practical. Treat failures as revision requests, not as warnings. This is a hygiene guardrail only; do not require a specific visual
+  component pattern when the report solves the communication problem another way.
 - After the child finishes, always write `.tmp/forward-tests/<case-id>/<run-id>/judgment.md` using the case rubric before reporting the run complete to the user.
 
 ## Case Selection

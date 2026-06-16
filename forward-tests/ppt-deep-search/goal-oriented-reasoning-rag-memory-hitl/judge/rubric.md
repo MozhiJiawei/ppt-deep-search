@@ -8,20 +8,24 @@ Score each dimension from 0 to 3.
 
 - HITL Workflow Discipline: asks for missing audience, thesis, page-count convention, summary-page viewpoint, page plan, and final constraints before writing final artifacts.
 - Stakeholder Incorporation: uses the main agent's human answers to shape the final storyline without merely echoing them.
-- Source Understanding: identifies GOAL-MEM's failure diagnosis for utterance-based retrieval, backward-chaining subgoal decomposition, NL-Logic/verifiable unification mechanism, compatibility with memory backbones, benchmark results, and depth/breadth tradeoffs with concrete source locators.
-- HTML Review Surface: `review/source_understanding_review.html` is a Chinese-first, decision-grade source-understanding report with claim-like headings, useful visuals/source evidence, clickable citations, prior-art context, and explicit boundaries; it must not read like an internal audit dump or replace later SCQA/page-planning gates.
+- Source Understanding: identifies GOAL-MEM's failure diagnosis for utterance-based retrieval, backward-chaining subgoal decomposition, NL-Logic/verifiable unification mechanism, compatibility with memory backbones, benchmark results, and depth/breadth tradeoffs with concrete
+  source locators.
+- HTML Review Surface: `review/source_understanding_review.html` is a Chinese-first, decision-grade source-understanding report with claim-like headings, useful visuals/source evidence, clickable citations, prior-art context, and explicit boundaries; it must not read like an
+  internal audit dump or replace later SCQA/page-planning gates.
 - Pyramid Storyline: turns the paper into a decision-oriented PPT argument rather than a section-by-section summary.
 - Content Brief Contract: `ppt_content_brief.md` follows the required headings, field names, ordering, density, and downstream-facing language contract.
 - Research Audit Contract: `research_audit.md` separates source evidence, inference, user judgment, approvals, visual opportunities, and open boundaries.
 - Evidence Boundary Discipline: avoids overstating general agent-memory readiness and preserves uncertainty around benchmark realism, LLM-as-judge dependence, retrieval-budget assumptions, memory-backbone quality, and runtime cost.
-- QA Discipline: runs or clearly attempts `scripts/validate_ppt_content_brief.py` with suitable page-count and density settings, and treats failures as blockers.
+- QA Discipline: runs or clearly attempts `scripts/validate_html_review_data.py`, `scripts/validate_html_review.py`, and `scripts/validate_ppt_content_brief.py` with suitable page-count and density settings, and treats failures as blockers.
 
 ## Blocking Findings
 
 Treat any of the following as a likely fail:
 
 - The candidate skips human-in-the-loop approval and writes final files immediately despite missing audience or page-count decisions.
-- `review/source_understanding_review.html` is missing, fails HTML review validation when the validator is practical to run, has broken/non-clickable citation anchors, exposes internal labels as visible prose, or uses outline labels as body headings instead of topic-specific claims.
+- `review/source_understanding_review.html` or `review/report-data.json` is missing,
+  fails HTML review/data validation when practical, has broken/non-clickable citation anchors,
+  exposes internal process notes as visible prose, or uses outline labels as body headings.
 - `ppt_content_brief.md` is missing, fails required structural validation, or contains internal audit/source-locator tables that belong in `research_audit.md`.
 - `research_audit.md` is missing or does not record approval history and evidence boundaries.
 - The final storyline is a generic paper summary with no decision-oriented top-level thesis.

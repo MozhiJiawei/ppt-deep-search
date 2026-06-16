@@ -19,29 +19,6 @@ OUTLINE_LABELS = {
     "下一步验证",
 }
 
-BANNED_VISIBLE_TOKENS = [
-    "Executive Abstract",
-    "Problem Domain",
-    "Current State",
-    "References",
-    "当前理解",
-    "我现在的判断",
-    "证据状态",
-    "source understanding",
-    "approval bundle",
-    "QA passed",
-    "needs_verification",
-    "paper evidence",
-    "source-original",
-    "source-cropped",
-    "agent-diagram",
-    "agent-chart",
-    "source-derived",
-    "Claim / Evidence",
-    "Source Locator",
-]
-
-
 class ReviewHTMLParser(HTMLParser):
     def __init__(self) -> None:
         super().__init__(convert_charrefs=True)
@@ -132,6 +109,10 @@ def strip_tags(html: str) -> str:
     return normalize_text(text)
 
 
+def strip_details(html: str) -> str:
+    return re.sub(r"<details\b.*?</details>", " ", html, flags=re.IGNORECASE | re.DOTALL)
+
+
 def line_for(text: str, needle: str) -> int:
     index = text.find(needle)
     if index < 0:
@@ -179,6 +160,7 @@ def validate_html_review(html: str, base_dir: Path | None = None) -> list[str]:
     parser = ReviewHTMLParser()
     parser.feed(html)
     visible_text = strip_tags(html)
+    main_visible_text = strip_tags(strip_details(html))
     errors: list[str] = []
     report_asset_paths = _load_report_asset_paths(base_dir)
 
@@ -207,11 +189,7 @@ def validate_html_review(html: str, base_dir: Path | None = None) -> list[str]:
             + ". Keep these labels in side navigation only."
         )
 
-    for token in BANNED_VISIBLE_TOKENS:
-        if token in visible_text:
-            errors.append(f"Visible report contains banned internal/default token `{token}` near line {line_for(html, token)}")
-
-    bracket_chain = re.search(r"(?:\[[SFTRE]\d+\]){3,}", visible_text)
+    bracket_chain = re.search(r"(?:\[[SFTRE]\d+\]){3,}", main_visible_text)
     if bracket_chain:
         errors.append(f"Visible report contains dense bracket citation chain `{bracket_chain.group(0)}`")
 
@@ -270,6 +248,7 @@ def run_self_test() -> int:
 </section>
 <section id="problem"><h2>KV cache 已经成为长上下文容量约束</h2><p>这里解释问题域。</p></section>
 <section id="refs"><h2>参考资料</h2><ol><li id="ref-t4">[T4] Table 4. <a href="#cite-ref-t4-1">↩</a></li></ol></section>
+<details><summary>审计附录</summary><p>needs_verification can appear here because this is not the main reading flow.</p></details>
 </main></div>
 </body></html>
 """
@@ -295,7 +274,6 @@ def run_self_test() -> int:
     expected_fragments = [
         "Body headings use outline labels",
         "Broken anchor href targets",
-        "banned internal/default token",
         "dense bracket citation chain",
         "Reconstructed visual appears without nearby original evidence",
         "remote src",

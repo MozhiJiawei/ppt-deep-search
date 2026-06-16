@@ -33,45 +33,29 @@ PAGE_FIELDS = [
     "参考图片",
 ]
 
-BANNED_INTERNAL_FIELDS = [
-    "Claim",
-    "Evidence",
-    "Implication",
-    "Evidence Map",
-    "Source Locator",
-    "Source Usage Policy",
-    "Approval Log",
-    "needs_verification",
-    "user_judgment",
-    "supplemental research",
-    "primary source",
-    "inference",
-    "页面角色",
-    "支撑的章节论点",
-    "Claim / Evidence / Implication",
-    "边界提醒",
-    "证据边界",
-    "证据状态",
-    "误读风险",
-    "信息密度说明",
+SUMMARY_FIELDS = [
+    "页码",
+    "页面标题",
+    "标题说明",
+    "分析总结",
+    "正文内容",
+    "参考图片",
+    "备注",
 ]
 
-BANNED_RENDERING_FIELDS = [
-    "visual_anchor.kind",
-    "visual_anchor_renderer",
-    "contentLayout",
-    "renderer",
-    "expected_renderer",
-    "visual_strategy",
-    "template:",
-    "字号",
-    "字体",
-    "配色",
-    "几栏",
-    "两栏",
-    "三栏",
-    "四栏",
-]
+PAGE_FIELDS_ALLOWED = PAGE_FIELDS + ["备注"]
+
+ALLOWED_EXACT_HEADINGS = {
+    "# PPT Content Brief",
+    "## Deck Metadata",
+    "## Summary Page",
+    "## Table of Contents",
+    "## Page Content",
+}
+
+FIELD_LINE_RE = re.compile(r"^(?P<label>[\u4e00-\u9fffA-Za-z][^：:\n]{0,30})[：:]\s*")
+ABSOLUTE_PATH_RE = re.compile(r"[A-Za-z]:\\[^\r\n|,\)\]]+|(?:/mnt|/home|/Users)/[^\r\n|,\)\]]+")
+IMAGE_URL_RE = re.compile(r"!\[[^\]\n]*\]\((?P<url>[^)\n]+)\)")
 
 THEME_LIKE_TITLE_PATTERNS = [
     r"^[A-Za-z0-9][A-Za-z0-9\s/_\-.+@()]+$",
@@ -170,6 +154,168 @@ def toc_titles(text: str) -> list[str]:
 def extract_field(body: str, field: str) -> str:
     match = re.search(rf"^{re.escape(field)}[：:]\s*(.+?)\s*$", body, flags=re.MULTILINE)
     return match.group(1).strip() if match else ""
+
+
+def skeleton_label(line: str) -> str | None:
+    if line[:1].isspace():
+        return None
+    stripped = line.strip()
+    if not stripped or stripped.startswith(("-", "*", ">", "|", "`")):
+        return None
+    if re.match(r"^\d{2}\s+小标题[：:]\s*\S+", stripped):
+        return "小标题"
+    match = FIELD_LINE_RE.match(stripped)
+    return match.group("label").strip() if match else None
+
+
+def validate_allowed_headings(text: str) -> list[str]:
+    errors: list[str] = []
+    for match in re.finditer(r"^(#{1,6})\s+(.+?)\s*$", text, flags=re.MULTILINE):
+        heading = match.group(0).strip()
+        line = line_number_for_offset(text, match.start())
+        if heading in ALLOWED_EXACT_HEADINGS:
+            continue
+        if re.match(r"^###\s+Page\s+\d+\s*:\s+\S.+$", heading):
+            continue
+        errors.append(
+            f"Unapproved PPT Content Brief skeleton heading at line {line}: {heading}. "
+            "Use only the headings defined in references/ppt-content-brief-format.md."
+        )
+    return errors
+
+
+def validate_section_skeleton(
+    section_name: str,
+    body: str,
+    allowed_labels: set[str],
+    start_line: int,
+    *,
+    freeform_fields: set[str] | None = None,
+) -> list[str]:
+    errors: list[str] = []
+    current_field: str | None = None
+    freeform = freeform_fields or set()
+    for index, line in enumerate(body.splitlines(), start=start_line):
+        label = skeleton_label(line)
+        if not label:
+            continue
+        if label in allowed_labels:
+            current_field = label
+            continue
+        if current_field in freeform:
+            continue
+        if label not in allowed_labels:
+            errors.append(
+                f"Unapproved skeleton field in {section_name} at line {index}: {label}：. "
+                f"Allowed fields here: {', '.join(sorted(allowed_labels))}"
+            )
+    return errors
+
+
+def validate_skeleton_whitelist(text: str) -> list[str]:
+    errors = validate_allowed_headings(text)
+
+    metadata = extract_section(text, "## Deck Metadata")
+    if metadata:
+        start_line = line_number_for_offset(text, text.find(metadata))
+        errors.extend(validate_section_skeleton("Deck Metadata", metadata, set(DECK_METADATA_FIELDS), start_line))
+
+    summary = extract_section(text, "## Summary Page")
+    if summary:
+        start_line = line_number_for_offset(text, text.find(summary))
+        errors.extend(
+            validate_section_skeleton(
+                "Summary Page",
+                summary,
+                set(SUMMARY_FIELDS),
+                start_line,
+                freeform_fields={"正文内容", "参考图片", "备注"},
+            )
+        )
+
+    toc = extract_section(text, "## Table of Contents")
+    if toc:
+        start_line = line_number_for_offset(text, text.find(toc))
+        errors.extend(validate_section_skeleton("Table of Contents", toc, {"小标题", "说明"}, start_line))
+
+    page_area = extract_section(text, "## Page Content")
+    if page_area:
+        for page in extract_pages(text):
+            errors.extend(
+                validate_section_skeleton(
+                    page.title,
+                    page.body,
+                    set(PAGE_FIELDS_ALLOWED),
+                    page.start_line + 1,
+                    freeform_fields={"正文内容", "参考图片", "备注"},
+                )
+            )
+        prelude = re.split(r"^###\s+Page\s+\d+\s*:\s+.+$", page_area, maxsplit=1, flags=re.MULTILINE)[0]
+        if prelude.strip():
+            start_line = line_number_for_offset(text, text.find(prelude))
+            errors.extend(validate_section_skeleton("Page Content prelude", prelude, set(), start_line))
+
+    return errors
+
+
+def image_url_spans(text: str) -> list[tuple[int, int]]:
+    return [(match.start("url"), match.end("url")) for match in IMAGE_URL_RE.finditer(text)]
+
+
+def reference_image_block_spans(text: str) -> list[tuple[int, int]]:
+    field_names = set(DECK_METADATA_FIELDS + SUMMARY_FIELDS + PAGE_FIELDS_ALLOWED)
+    spans: list[tuple[int, int]] = []
+    lines = text.splitlines(keepends=True)
+    offset = 0
+    in_block = False
+    block_start = 0
+    for line in lines:
+        stripped = line.strip()
+        label = skeleton_label(line)
+        is_heading = stripped.startswith("#")
+        is_new_field = label in field_names
+        if label == "参考图片":
+            if in_block:
+                spans.append((block_start, offset))
+            in_block = True
+            block_start = offset
+        elif in_block and (is_heading or (is_new_field and label != "参考图片")):
+            spans.append((block_start, offset))
+            in_block = False
+        offset += len(line)
+    if in_block:
+        spans.append((block_start, len(text)))
+    return spans
+
+
+def validate_absolute_path_placement(text: str, allow_absolute_paths: bool) -> list[str]:
+    errors: list[str] = []
+    path_matches = list(ABSOLUTE_PATH_RE.finditer(text))
+    if not path_matches:
+        return errors
+
+    if not allow_absolute_paths:
+        shown = ", ".join(match.group(0) for match in path_matches[:3])
+        if len(path_matches) > 3:
+            shown += ", ..."
+        return [
+            "Absolute local paths found in PPT Content Brief; enable --allow-absolute-paths "
+            f"only when they are Markdown image references under 参考图片: {shown}"
+        ]
+
+    image_spans = image_url_spans(text)
+    reference_spans = reference_image_block_spans(text)
+    for match in path_matches:
+        start, end = match.span()
+        in_image_url = any(span_start <= start and end <= span_end for span_start, span_end in image_spans)
+        in_reference_block = any(span_start <= start and end <= span_end for span_start, span_end in reference_spans)
+        if not (in_image_url and in_reference_block):
+            line = line_number_for_offset(text, start)
+            errors.append(
+                f"Absolute local path at line {line} must appear only as a Markdown image URL under 参考图片: "
+                f"{match.group(0)}"
+            )
+    return errors
 
 
 def extract_analysis_summary_items(section_body: str) -> list[str] | None:
@@ -364,6 +510,7 @@ def validate(
     for heading in REQUIRED_HEADINGS:
         if not re.search(rf"^{re.escape(heading)}\s*$", text, flags=re.MULTILINE):
             errors.append(f"Missing required heading: {heading}")
+    errors.extend(validate_skeleton_whitelist(text))
 
     has_toc = bool(re.search(r"^## Table of Contents\s*$", text, flags=re.MULTILINE))
     has_page_content = bool(re.search(r"^## Page Content\s*$", text, flags=re.MULTILINE))
@@ -416,10 +563,6 @@ def validate(
         )
     )
 
-    for banned in BANNED_INTERNAL_FIELDS + BANNED_RENDERING_FIELDS:
-        if banned.lower() in text.lower():
-            errors.append(f"Banned internal/layout token found in PPT Content Brief: {banned}")
-
     pages = extract_pages(text) if has_page_content else []
     if not pages and requires_chapter_pages:
         errors.append("No page content blocks found. Expected headings like: ### Page 1: 页面标题")
@@ -456,17 +599,7 @@ def validate(
         if body_chars < max(500, min_page_content_chars // 2):
             errors.append(f"{page.title} (line {page.start_line}) 正文内容 is too thin for PPT body material")
 
-    absolute_paths = sorted(
-        set(re.findall(r"[A-Za-z]:\\[^\r\n|,\)\]]+|(?:/mnt|/home|/Users)/[^\r\n|,\)\]]+", text))
-    )
-    if absolute_paths and not allow_absolute_paths:
-        shown = ", ".join(absolute_paths[:3])
-        if len(absolute_paths) > 3:
-            shown += ", ..."
-        errors.append(
-            "Absolute local paths found in PPT Content Brief; put exact source paths in research_audit.md instead: "
-            f"{shown}"
-        )
+    errors.extend(validate_absolute_path_placement(text, allow_absolute_paths))
 
     return errors
 
@@ -660,6 +793,40 @@ def main() -> int:
             visible_copy_limits=visible_copy_limits,
         )
         errors.extend([f"summary-only: {error}" for error in one_page_errors])
+        bad_skeleton = SELF_TEST_BRIEF.replace("所属章节：问题重构", "所属章节：问题重构\n页面角色：章节展开")
+        bad_skeleton_errors = validate(
+            bad_skeleton,
+            args.min_page_content_chars,
+            args.min_summary_content_chars,
+            expected_pages=4,
+            allow_absolute_paths=args.allow_absolute_paths,
+            visible_copy_limits=visible_copy_limits,
+        )
+        if not any("Unapproved skeleton field" in error and "页面角色" in error for error in bad_skeleton_errors):
+            errors.append("bad-skeleton: unapproved field 页面角色： was not rejected")
+        paragraph_anchor = SELF_TEST_BRIEF.replace(
+            "- 问题重构：长程任务的瓶颈不是上下文长度，而是经验无法被记录来源",
+            "问题重构：长程任务的瓶颈不是上下文长度，而是经验无法被记录来源",
+        )
+        paragraph_anchor_errors = validate(
+            paragraph_anchor,
+            args.min_page_content_chars,
+            args.min_summary_content_chars,
+            expected_pages=4,
+            allow_absolute_paths=args.allow_absolute_paths,
+            visible_copy_limits=visible_copy_limits,
+        )
+        if paragraph_anchor_errors:
+            errors.extend([f"paragraph-anchor: {error}" for error in paragraph_anchor_errors])
+        path_fixture = "参考图片：\n- ![Figure](D:\\figures\\hero.png)\n"
+        if validate_absolute_path_placement(path_fixture, allow_absolute_paths=True):
+            errors.append("absolute-path: valid Markdown image path under 参考图片 was rejected")
+        bad_path_without_flag = validate_absolute_path_placement(path_fixture, allow_absolute_paths=False)
+        if not any("Absolute local paths found" in error for error in bad_path_without_flag):
+            errors.append("absolute-path: path without --allow-absolute-paths was not rejected")
+        bad_path_plain = validate_absolute_path_placement("参考图片：\nD:\\figures\\hero.png\n", allow_absolute_paths=True)
+        if not any("Markdown image URL" in error for error in bad_path_plain):
+            errors.append("absolute-path: plain path under 参考图片 was not rejected")
         if errors:
             print("[ERROR] Self-test failed:")
             for error in errors:

@@ -19,7 +19,8 @@
 正文内容：
 - 正交路线：这页要先帮读者换坐标系。token eviction / SnapKV / PyramidKV 这类路线主要回答“哪些 token state 可以少存或晚存”，KV quantization / KIVI 回答“每份 KV state 可以用多低 bit 表示”，GQA/MQA 回答“同一层里多少 query heads 共享 KV heads”。R-CLA 讨论的是另一件事：不同 layer 是否必须各自保留一份 KV，还是可以在相邻层之间共享或复用前层 KV。这让它更像一个新增容量旋钮，而不是替代已有压缩栈的单点方案。
 - 正交路线：因此顶层判断不能写成“R-CLA 比 token eviction 更好”或“R-CLA 取代 quantization”。更准确的表达是：R-CLA 对 serving 团队有复测价值，因为它补上 layer/depth 轴；如果它在本地模型族成立，后续才有资格讨论与 token eviction、KV quantization、paged KV、continuous batching 的组合方式。
-- 工程信号：论文最能打动 serving 读者的是容量数据。Table 4 在 Qwen3-8B-like、36 layers、8 KV heads、bfloat16、单 80GB GPU、batch size 1 条件下显示，8K 输入时 g=4 将 KV cache 从 1170MB 降到 293MB；2K、16K、32K 行也都接近四分之一。Table 5 在 8,192-token context 下进一步给出 batch scaling：batch size 16 时 g=1 超出显存，g=4 仍能以 60,306MB peak memory 完成。
+- 工程信号：论文最能打动 serving 读者的是容量数据。 Table 4 在 Qwen3-8B-like、36 layers、8 KV heads、bfloat16、单 80GB GPU、batch size 1 条件下显示， 8K 输入时 g=4 将 KV cache 从 1170MB 降到 293MB； 2K、16K、32K 行也都接近四分之一。 Table 5 在 8,192-token context 下进一步给出 batch scaling：batch size 16 时 g=1 超出显存， g=4 仍能以 60,306MB peak
+  memory 完成。
 - 工程信号：质量侧不能只看容量。Table 2 在 Llama-3.1-8B、Mistral-7B、Qwen3-8B 与 HotpotQA、MSMarco、RepLiQA、SQuAD v2、TriviaQA 上显示，低 retention 时 R-CLA 通常显著优于 Base；Table 3 说明它比固定 CLA@k 更能跨 retention 档位保持表现。这个信号足够支撑“复测”，但仍应被表述为 QA retention 下的保真线索。
 - 验证门槛：上线前必须同时过三道门槛。第一，质量迁移：内部长上下文、多轮、RAG、工具调用或目标线上任务不能只继承 QA 数据集结论。第二，训练成本：R-CLA 需要训练或微调接入，必须计算 token budget、GPU 成本、收敛速度、版本管理和回滚成本。第三，服务指标：TTFT、decode throughput、peak memory、可跑 batch、cache allocator、scheduler 和 kernel 支持必须在本地 backend 复测。
 参考图片：
@@ -91,7 +92,8 @@
 正文内容：
 - 容量结果：Table 4 是容量判断的第一张主表。在 Qwen3-8B-like、36 layers、8 KV heads、bfloat16、单 80GB GPU、batch size 1 条件下，g=4 在所有列示输入长度上都把 KV cache 降到约四分之一。8K 输入行最适合做页面主数字：g=1 是 1170MB，g=4 是 293MB；TTFT 从 297ms 到 286ms，throughput 从 34.0 tok/s 到 41.6 tok/s。
 - 容量结果：Table 5 把容量收益转成更接近 serving 的 batch scaling 信号。在 8,192-token context 下，batch size 2、4、8 时 g=4 都降低 peak memory 和 KV cache；batch size 16 时 baseline g=1 超出显存，而 g=4 仍以 60,306MB peak memory、4,643MB KV cache、4696ms TTFT、8.0 tok/s 完成。这条数据可以作为“为什么值得复测”的工程钩子。
-- 质量结果：Table 2 说明 R-CLA 不只是省 cache 后让质量崩塌。它在 Llama-3.1-8B、Mistral-7B、Qwen3-8B 上比较 Base 和 R-CLA，并覆盖 HotpotQA、MSMarco、RepLiQA、SQuAD v2、TriviaQA 三档 retention。低 retention 下，R-CLA 通常显著优于 Base；例如 Qwen3-8B 在 HotpotQA 25% retention 下 F1 从 0.011 到 0.098，TriviaQA 25% retention 从 0.005 到 0.131。
+- 质量结果：Table 2 说明 R-CLA 不只是省 cache 后让质量崩塌。 它在 Llama-3.1-8B、Mistral-7B、Qwen3-8B 上比较 Base 和 R-CLA， 并覆盖 HotpotQA、MSMarco、RepLiQA、SQuAD v2、TriviaQA 三档 retention。 低 retention 下， R-CLA 通常显著优于 Base； 例如 Qwen3-8B 在 HotpotQA 25% retention 下 F1 从 0.011 到 0.098， TriviaQA 25% retention 从
+  0.005 到 0.131。
 - 质量结果：Table 3 进一步解释为什么要看随机训练而不只看固定 CLA@k。固定 CLA@2 或 CLA@4 可能在某个 retention 点表现接近，但跨 100%、50%、25% retention 时更容易退化；R-CLA 的价值在于用一个训练过程覆盖多个潜在部署约束，这和“未知硬件约束”场景更匹配。
 - 适用范围：这页必须把“复测”和“上线”分开。Table 4/5 是单卡实验，不覆盖本地 serving backend 的 paged KV、continuous batching、多租户调度、CUDA graph、MoE、speculative decoding 或真实 SLO；Table 2/3 是 QA retention proxy，不等于内部业务任务质量。最稳妥的结论是：容量和质量信号足够立项复测，但还不足以承诺生产收益。
 - 适用范围：页面可以用“强信号 / 待复测”两层表达。强信号是 4x 左右的 KV cache 降幅、batch 16 从 OOM 到可运行、低 retention QA 质量改善；待复测是训练成本、本地任务质量、端到端 TTFT/throughput、cache allocator、调度和与现有压缩栈组合后的结果。

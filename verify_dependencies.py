@@ -1,30 +1,188 @@
 #!/usr/bin/env python3
-"""Verify external dependencies for ppt-deep-search.
+"""Dependency check for ppt-deep-search.
 
-This skill intentionally has a small dependency surface. Repository files,
-validators, fixtures, and self-tests are internal health checks, not user
-environment dependencies, so they are intentionally outside this dependency
-check.
+The skill uses only Python standard library code. This script exists so the
+host AgentWorkspace can verify the skill through a stable entry point.
 """
 
 from __future__ import annotations
 
 import argparse
+import subprocess
 import sys
+from pathlib import Path
+
+
+def safe_print(text: str) -> None:
+    print(text.encode(sys.stdout.encoding or "utf-8", errors="replace").decode(sys.stdout.encoding or "utf-8", errors="replace"))
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Verify external dependencies for ppt-deep-search.")
+    parser = argparse.ArgumentParser(description="Verify ppt-deep-search dependencies.")
     parser.add_argument("--skip-services", action="store_true", help="Accepted for protocol compatibility; no services are used.")
     args = parser.parse_args()
+
+    root = Path(__file__).resolve().parent
+    required = [
+        root / "SKILL.md",
+        root / "docs" / "architecture_design.md",
+        root / "scripts" / "validate_ppt_content_brief.py",
+        root / "scripts" / "validate_html_review.py",
+        root / "scripts" / "validate_html_review_data.py",
+        root / "scripts" / "validate_web_evidence_package.py",
+        root / "scripts" / "validate_markdown_size.py",
+        root / "agents" / "openai.yaml",
+        root / "references" / "pyramid-principle.md",
+        root / "references" / "ppt-content-brief-format.md",
+        root / "references" / "research-audit-format.md",
+        root / "references" / "html-review-surface.md",
+        root / "references" / "html-review-expression.md",
+        root / "references" / "html-review-outline.md",
+        root / "references" / "html-review-evidence.md",
+        root / "references" / "html-review-visuals.md",
+        root / "references" / "html-review-quality.md",
+        root / "references" / "html-review-data-model.md",
+        root / "references" / "html-review-report-kit.md",
+        root / "references" / "html-review-pattern-library.md",
+        root / "references" / "dialogue-and-approval.md",
+        root / "references" / "ppt-viewpoint-planning.md",
+        root / "scripts" / "serve_html_review.py",
+        root / "web-article-capture" / "SKILL.md",
+        root / "web-article-capture" / "scripts" / "validate_capture_package.py",
+        root / "web-article-capture" / "references" / "output-contract.md",
+        root / "web-article-capture" / "forward-tests" / "nvidia-pc" / "candidate" / "prompt.md",
+        root / "web-article-capture" / "forward-tests" / "nvidia-pc" / "candidate" / "input" / "urls.txt",
+        root / "web-article-capture" / "forward-tests" / "nvidia-pc" / "judge" / "rubric.md",
+        root / "forward-tests" / "ppt-deep-search" / "README.md",
+        root / "forward-tests" / "ppt-deep-search" / "main-agent-prompt.md",
+    ]
+    for case_dir in sorted((root / "forward-tests" / "ppt-deep-search").glob("*-hitl")):
+        required.extend(
+            [
+                case_dir / "main-agent-prompt.md",
+                case_dir / "candidate" / "prompt.md",
+                case_dir / "judge" / "rubric.md",
+                case_dir / "case-manifest.json",
+            ]
+        )
+    missing = [str(path.relative_to(root)) for path in required if not path.exists()]
+    if missing:
+        print("[ERROR] Missing required files:")
+        for item in missing:
+            print(f"  - {item}")
+        return 1
 
     if sys.version_info < (3, 9):
         print(f"[ERROR] Python 3.9+ is required; found {sys.version.split()[0]}")
         return 1
 
-    print(f"[OK] Python {sys.version.split()[0]} is available.")
-    print("[OK] No required external packages, services, browsers, or hardware dependencies.")
-    print("[INFO] Network access is task-dependent only when supplemental web sources are requested.")
+    markdown_size_self_test = subprocess.run(
+        [sys.executable, str(root / "scripts" / "validate_markdown_size.py"), "--self-test"],
+        cwd=root,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    if markdown_size_self_test.returncode != 0:
+        print("[ERROR] Markdown size validator self-test failed:")
+        safe_print((markdown_size_self_test.stdout + markdown_size_self_test.stderr).strip())
+        return 1
+    safe_print(markdown_size_self_test.stdout.strip())
+
+    markdown_size_check = subprocess.run(
+        [sys.executable, str(root / "scripts" / "validate_markdown_size.py"), str(root)],
+        cwd=root,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    if markdown_size_check.returncode != 0:
+        safe_print((markdown_size_check.stdout + markdown_size_check.stderr).strip())
+        return 1
+    safe_print(markdown_size_check.stdout.strip())
+
+    html_review_self_test = subprocess.run(
+        [sys.executable, str(root / "scripts" / "validate_html_review.py"), "--self-test"],
+        cwd=root,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    if html_review_self_test.returncode != 0:
+        print("[ERROR] HTML review validator self-test failed:")
+        safe_print((html_review_self_test.stdout + html_review_self_test.stderr).strip())
+        return 1
+    safe_print(html_review_self_test.stdout.strip())
+
+    html_review_data_self_test = subprocess.run(
+        [sys.executable, str(root / "scripts" / "validate_html_review_data.py"), "--self-test"],
+        cwd=root,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    if html_review_data_self_test.returncode != 0:
+        print("[ERROR] HTML review data validator self-test failed:")
+        safe_print((html_review_data_self_test.stdout + html_review_data_self_test.stderr).strip())
+        return 1
+    safe_print(html_review_data_self_test.stdout.strip())
+
+    ppt_content_brief_self_test = subprocess.run(
+        [sys.executable, str(root / "scripts" / "validate_ppt_content_brief.py"), "--self-test"],
+        cwd=root,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    if ppt_content_brief_self_test.returncode != 0:
+        print("[ERROR] PPT Content Brief validator self-test failed:")
+        safe_print((ppt_content_brief_self_test.stdout + ppt_content_brief_self_test.stderr).strip())
+        return 1
+    safe_print(ppt_content_brief_self_test.stdout.strip())
+
+    web_evidence_self_test = subprocess.run(
+        [sys.executable, str(root / "scripts" / "validate_web_evidence_package.py"), "--self-test"],
+        cwd=root,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    if web_evidence_self_test.returncode != 0:
+        print("[ERROR] Web evidence package validator self-test failed:")
+        safe_print((web_evidence_self_test.stdout + web_evidence_self_test.stderr).strip())
+        return 1
+    safe_print(web_evidence_self_test.stdout.strip())
+
+    web_capture_self_test = subprocess.run(
+        [sys.executable, str(root / "web-article-capture" / "scripts" / "validate_capture_package.py"), "--self-test"],
+        cwd=root,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    if web_capture_self_test.returncode != 0:
+        print("[ERROR] Web article capture validator self-test failed:")
+        safe_print((web_capture_self_test.stdout + web_capture_self_test.stderr).strip())
+        return 1
+    safe_print(web_capture_self_test.stdout.strip())
+
+    print("[OK] Python standard library dependencies available.")
+    print("[OK] No required external services, packages, browsers, or hardware dependencies.")
+    print("[OK] HTML review generation may optionally use CDN assets and the local preview server.")
     if args.skip_services:
         print("[OK] --skip-services accepted; no service checks were needed.")
     return 0

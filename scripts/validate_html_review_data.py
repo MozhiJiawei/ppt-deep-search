@@ -43,34 +43,10 @@ def _resolve_artifact_path(path_value: str, base_dir: Path | None) -> Path:
     return base_dir / path
 
 
-def _browser_evidence_for(value: Any) -> dict[str, Any]:
+def _web_capture_for(value: Any) -> dict[str, Any]:
     if _is_obj(value):
         return value
     return {}
-
-
-def _has_browser_capture(value: Any) -> bool:
-    text = str(value or "").lower()
-    good = ("codex browser", "in-app browser", "browser plugin", "browser-use")
-    bad = (
-        "raw capture",
-        "raw html",
-        "web search",
-        "search-result",
-        "browser unavailable",
-        "browser-use tool unavailable",
-        "curl",
-        "invoke-webrequest",
-        "playwright script",
-        "custom playwright",
-        "puppeteer",
-        "selenium",
-        "third-party crawler",
-        "crawl4ai",
-        "firecrawl",
-        "singlefile",
-    )
-    return any(fragment in text for fragment in good) and not any(fragment in text for fragment in bad)
 
 
 def validate(data: Any, base_dir: Path | None = None) -> list[str]:
@@ -108,14 +84,22 @@ def validate(data: Any, base_dir: Path | None = None) -> list[str]:
         if _is_http_url(citation.get("url")):
             if cid:
                 web_citation_ids.add(cid)
-            evidence = _browser_evidence_for(citation.get("browser_evidence"))
-            local_path = str(evidence.get("local_path") or evidence.get("path") or "").strip()
-            if not local_path:
-                errors.append(f"web citation {cid or idx} missing browser_evidence.local_path")
-            elif not _resolve_artifact_path(local_path, base_dir).exists():
-                errors.append(f"web citation {cid or idx} browser_evidence.local_path does not exist: {local_path}")
-            if not _has_browser_capture(evidence.get("capture_method")):
-                errors.append(f"web citation {cid or idx} browser_evidence.capture_method must identify Codex/browser-use capture")
+            capture = _web_capture_for(citation.get("web_capture"))
+            package_path = str(capture.get("package_path") or "").strip()
+            source_md = str(capture.get("source_md") or "").strip()
+            images_dir = str(capture.get("images_dir") or "").strip()
+            if not package_path:
+                errors.append(f"web citation {cid or idx} missing web_capture.package_path")
+            elif not _resolve_artifact_path(package_path, base_dir).is_dir():
+                errors.append(f"web citation {cid or idx} web_capture.package_path does not exist: {package_path}")
+            if not source_md:
+                errors.append(f"web citation {cid or idx} missing web_capture.source_md")
+            elif not _resolve_artifact_path(source_md, base_dir).is_file():
+                errors.append(f"web citation {cid or idx} web_capture.source_md does not exist: {source_md}")
+            if not images_dir:
+                errors.append(f"web citation {cid or idx} missing web_capture.images_dir")
+            elif not _resolve_artifact_path(images_dir, base_dir).is_dir():
+                errors.append(f"web citation {cid or idx} web_capture.images_dir does not exist: {images_dir}")
         kind = str(citation.get("kind", "")).strip().lower()
         marker = str(citation.get("marker", "")).strip().upper()
         if kind in {"figure", "image", "screenshot", "table"} or marker.startswith(("F", "T")):
@@ -146,8 +130,6 @@ def validate(data: Any, base_dir: Path | None = None) -> list[str]:
                 errors.append(f"web asset {label} missing page_url")
             if not _is_http_url(asset.get("source_url")):
                 errors.append(f"web asset {label} missing source_url")
-            if not _has_browser_capture(asset.get("capture_method")):
-                errors.append(f"web asset {label} capture_method must identify Codex/browser-use capture")
 
     for cid in sorted(visual_citation_ids & web_citation_ids):
         if cid not in asset_citation_ids:
@@ -202,9 +184,43 @@ def validate(data: Any, base_dir: Path | None = None) -> list[str]:
 
 
 def self_test() -> int:
+    import tempfile
+
+    tmp = tempfile.TemporaryDirectory()
+    root = Path(tmp.name)
+    review_dir = root / "review"
+    source_dir = root / "sources" / "web" / "good"
+    asset_dir = review_dir / "assets"
+    source_dir.mkdir(parents=True)
+    (source_dir / "images").mkdir()
+    asset_dir.mkdir(parents=True)
+    (source_dir / "source.md").write_text("# Source\n\n![Hero](images/hero.png)\n", encoding="utf-8")
+    (source_dir / "images" / "hero.png").write_bytes(b"png")
+    (asset_dir / "hero.png").write_bytes(b"png")
     good = {
         "meta": {"title": "标题", "question": "是否值得复测？"},
-        "citations": [{"id": "t4", "title": "Table 4", "locator": "paper Table 4"}],
+        "citations": [
+            {"id": "t4", "title": "Table 4", "locator": "paper Table 4"},
+            {
+                "id": "r1",
+                "kind": "webpage",
+                "title": "Official page",
+                "locator": "captured source.md",
+                "url": "https://example.com/article",
+                "web_capture": {
+                    "package_path": "sources/web/good",
+                    "source_md": "sources/web/good/source.md",
+                    "images_dir": "sources/web/good/images",
+                },
+            },
+        ],
+        "assets": [{
+            "id": "hero",
+            "path": "assets/hero.png",
+            "source_citation": "r1",
+            "page_url": "https://example.com/article",
+            "source_url": "https://example.com/hero.png",
+        }],
         "sections": [{"heading_claim": "8K 容量信号支持复测", "blocks": [{"type": "chart_with_aside"}]}],
         "charts": [{
             "id": "kv", "question": "省多少？", "chart_type": "bar", "caption_takeaway": "约 4x",
@@ -223,13 +239,14 @@ def self_test() -> int:
             "title": "Web figure",
             "locator": "web page hero",
             "url": "https://example.com/article",
-            "browser_evidence": {"capture_method": "curl", "local_path": "missing.md"},
+            "web_capture": {"package_path": "sources/web/missing"},
         }],
         "sections": [{"heading_claim": "结论先行", "blocks": [{}]}],
         "charts": [{}],
     }
-    good_errors = validate(good)
-    bad_errors = validate(bad)
+    good_errors = validate(good, review_dir)
+    bad_errors = validate(bad, review_dir)
+    tmp.cleanup()
     if good_errors:
         print("[ERROR] valid fixture failed:")
         print("\n".join(good_errors))
@@ -238,7 +255,7 @@ def self_test() -> int:
         "Missing meta.title",
         "outline label",
         "missing source_citations",
-        "browser_evidence.capture_method",
+        "web_capture.package_path",
         "web visual citation f1 has no matching asset.source_citation",
     ]
     if not all(any(fragment in err for err in bad_errors) for fragment in required):

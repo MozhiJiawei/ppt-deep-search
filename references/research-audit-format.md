@@ -27,8 +27,8 @@ This file defines the internal audit artifact for `ppt-deep-search`.
 - Internal logic fields: page role, supported chapter claim, Claim/Evidence/Implication, boundary reminders, and source usage policy.
 - Evidence source locators: file paths, URLs, page numbers, section names, figure/table ids, or user statements.
 - Source-understanding evidence inventory: key figures/tables/images inspected, benchmark names, baseline names, metrics, numeric deltas, runtime/token/cost values, problem-type splits, and explicit source limitations.
-- For webpage sources, Codex Browser/browser-use evidence package locators: rendered article text, structured article JSON, image index, local source-image paths, selected content container, capture time, and excluded page regions.
-- Webpage image semantic index and usage policy: each selected image's local path, original URL, nearby text/caption, inferred meaning, confidence, whether it was visually inspected, and whether it is original evidence, summarize/rebuild material, background only, or discarded.
+- For webpage sources, `web-article-capture` source package locators: package directory, `source.md`, `images/`, original URL, capture date when available, and any capture notes already recorded in `source.md`.
+- Webpage image usage policy for final outputs: selected package image path, original URL when recorded, nearby text/caption from `source.md`, inferred meaning, confidence, visual-inspection status, and final use such as original evidence, summarize/rebuild material, background only, or discard.
 - Verification status for numeric claims and causal claims.
 - Supplemental research source list and how it supports or qualifies the approved viewpoint.
 - Assumptions, open questions, and claims that should be softened.

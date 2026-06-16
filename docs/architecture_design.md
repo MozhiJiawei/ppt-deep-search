@@ -37,7 +37,7 @@ Two invariants define the system:
 |  comparison context, visual explanations, citations, and boundaries before        |
 |  approving storyline work.                                                       |
 |  Webpage evidence is captured first through Codex Browser/browser-use into        |
-|  local text, image, screenshot, and manifest artifacts consumed by the review.    |
+|  local source text and images consumed by the review.                            |
 +----------------------------------------------------------------------------------+
 
 +----------------------------------------------------------------------------------+
@@ -59,6 +59,10 @@ Two invariants define the system:
 |                                                                                  |
 |  scripts/validate_ppt_content_brief.py validates final handoff structure.         |
 |  scripts/validate_html_review.py validates the temporary HTML review surface.     |
+|  scripts/validate_html_review_data.py validates the review staging model.         |
+|  scripts/validate_web_evidence_package.py validates report-to-capture mapping.    |
+|  scripts/validate_markdown_size.py validates generic Markdown size budgets.       |
+|  web-article-capture/scripts/validate_capture_package.py validates captures.      |
 |  verify_dependencies.py checks the repo contract and standard-library tooling.    |
 +----------------------------------------------------------------------------------+
 ```
@@ -88,17 +92,29 @@ Owned by:
 - `references/pyramid-principle.md`
 - `references/ppt-content-brief-format.md`
 - `references/research-audit-format.md`
+- `references/dialogue-and-approval.md`
+- `references/ppt-viewpoint-planning.md`
 - `references/html-review-surface.md`
+- `references/html-review-expression.md`
+- `references/html-review-outline.md`
+- `references/html-review-evidence.md`
+- `references/html-review-visuals.md`
+- `references/html-review-quality.md`
 - `references/html-review-data-model.md`
 - `references/html-review-report-kit.md`
 - `references/html-review-pattern-library.md`
+- `web-article-capture/`
 
 Responsibilities:
 
 - define what good output means independently of any one run;
+- keep HITL dialogue and final approval separate from content-format contracts;
+- keep visible PPT viewpoint planning separate from final brief file format;
 - keep navigation logic separate from visible persuasive headings;
+- keep reader-facing visible prose separate from audit and data-model concerns;
 - keep source-grounding and citations auditable without polluting visible report prose;
 - define local reusable data contracts, report blocks, and patterns instead of depending on external skill source at runtime.
+- treat `web-article-capture/` as a repo-bundled capture module with its own contract and validator.
 
 Constraints:
 
@@ -116,12 +132,13 @@ Owned by:
 - `references/html-review-report-kit.md`
 - `references/html-review-pattern-library.md`
 - `scripts/validate_html_review.py`
+- `scripts/validate_html_review_data.py`
 - `scripts/serve_html_review.py`
 
 Responsibilities:
 
 - help the human judge whether the agent understands the issue before approving SCQA and page planning;
-- for webpage sources, consume local Codex Browser/browser-use evidence packages rather than live remote URLs or hotlinked images;
+- for webpage sources, consume local `web-article-capture` source packages rather than live remote URLs or hotlinked images;
 - use fixed logical labels for side navigation when useful;
 - use claim-like, topic-specific body headings for persuasion;
 - pair reconstructed visuals with original evidence and clickable citations when reconstruction is used.
@@ -180,12 +197,17 @@ Constraints:
 Owned by:
 
 - `scripts/validate_html_review.py`
+- `scripts/validate_html_review_data.py`
+- `scripts/validate_markdown_size.py`
 - `scripts/validate_ppt_content_brief.py`
+- `scripts/validate_web_evidence_package.py`
+- `web-article-capture/scripts/validate_capture_package.py`
 - `verify_dependencies.py`
 
 Responsibilities:
 
 - turn recurring failure modes into executable gates;
+- keep Markdown instruction files small enough for AI agents to review holistically;
 - keep checks standard-library-only unless a deliberate dependency is approved;
 - provide concise error messages that tell the agent what to fix.
 

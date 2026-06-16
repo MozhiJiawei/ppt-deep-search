@@ -20,7 +20,8 @@ LLM serving / inference infra 工程负责人和技术产品决策者.
 
 Desired belief change:
 
-The audience should believe depth-wise KV sharing is worth controlled reproduction because it is orthogonal to token eviction and KV quantization, but it should not be treated as a direct production rollout recommendation until training/fine-tuning cost, TTFT/throughput impact, quality transfer, and local serving backend behavior are verified.
+The audience should believe depth-wise KV sharing is worth controlled reproduction because it is orthogonal to token eviction and KV quantization, but it should not be treated as a direct production rollout recommendation until training/fine-tuning cost, TTFT/throughput impact,
+quality transfer, and local serving backend behavior are verified.
 
 Final use:
 
@@ -53,7 +54,8 @@ Important primary source observations:
 - Table 2: R-CLA improves QA F1 under cache retention pressure across Llama-3.1-8B, Mistral-7B, and Qwen3-8B, especially at 50% and 25% retention.
 - Table 3: R-CLA is more robust than fixed CLA@2 / CLA@4 variants across retention levels on Llama-3.1-8B QA tasks.
 - Table 1 and Appendix figures: R-CLA can train stably in the reported setup, but fine-tuning can learn more slowly; training/fine-tuning behavior remains a reproduction concern.
-- Limitations section: method requires training resources; posthoc or adapter-like versions remain future work; experiments do not cover overtraining; MoE not evaluated; fine-tuning evaluation focuses on QA tasks; composition with temporal eviction and KV quantization is left to future work.
+- Limitations section: method requires training resources; posthoc or adapter-like versions remain future work; experiments do not cover overtraining; MoE not evaluated; fine-tuning evaluation focuses on QA tasks; composition with temporal eviction and KV quantization is left to
+  future work.
 
 ## Executive Thesis
 
@@ -61,7 +63,8 @@ Approved thesis:
 
 `先复测，再谈上线`
 
-R-CLA is worth controlled reproduction because it adds a layer/depth-axis capacity experiment beyond token/time, bit, and head-axis KV optimizations. The strongest source-backed signals are approximately 4x KV cache reduction under g=4 and batch scaling from OOM to runnable at 8K context. However, the current evidence is insufficient for direct rollout because quality transfer, training cost, local backend TTFT/throughput, and interaction with existing serving optimizations are not yet proven.
+R-CLA is worth controlled reproduction because it adds a layer/depth-axis capacity experiment beyond token/time, bit, and head-axis KV optimizations. The strongest source-backed signals are approximately 4x KV cache reduction under g=4 and batch scaling from OOM to runnable at 8K
+context. However, the current evidence is insufficient for direct rollout because quality transfer, training cost, local backend TTFT/throughput, and interaction with existing serving optimizations are not yet proven.
 
 ## Reader Cognitive Path
 
@@ -153,10 +156,13 @@ Page 7:
 
 | Claim | Evidence | Implication |
 | --- | --- | --- |
-| R-CLA is a layer/depth-axis route, not a replacement for token or bit compression. | Paper introduction and related work distinguish temporal eviction/compression, architectural improvements, and depth-wise redundancy; supplemental H2O/KIVI/GQA/CLA/PyramidKV sources clarify axes. | Page 4 should frame R-CLA as an orthogonal candidate and possible combination item. |
-| R-CLA changes model adaptation, not only runtime behavior. | Figure 4 and method text: during training, layers randomly choose own or previous-layer KV; during inference, fixed deterministic sharing is used. | Page 5 should explain training/fine-tuning cost and version-management implications. |
+| R-CLA is a layer/depth-axis route, not a replacement for token or bit compression. | Paper introduction and related work distinguish temporal eviction/compression, architectural improvements, and depth-wise redundancy; supplemental H2O/KIVI/GQA/CLA/PyramidKV sources clarify
+axes. | Page 4 should frame R-CLA as an orthogonal candidate and possible combination item. |
+| R-CLA changes model adaptation, not only runtime behavior. | Figure 4 and method text: during training, layers randomly choose own or previous-layer KV; during inference, fixed deterministic sharing is used. | Page 5 should explain training/fine-tuning cost and
+version-management implications. |
 | Capacity evidence is strong enough for reproduction. | Table 4: 8K KV cache 1170MB -> 293MB; Table 5: 8K batch 16 g=1 OOM, g=4 runnable. | Page 6 should foreground these numbers. |
-| Quality evidence supports "not obviously collapsing" under retention pressure. | Table 2 and Table 3 show R-CLA outperforms Base or fixed CLA@k across many low-retention QA settings. | Page 6 can say quality signal supports reproduction, while avoiding production-quality claims. |
+| Quality evidence supports "not obviously collapsing" under retention pressure. | Table 2 and Table 3 show R-CLA outperforms Base or fixed CLA@k across many low-retention QA settings. | Page 6 can say quality signal supports reproduction, while avoiding production-quality
+claims. |
 | Direct rollout is not justified. | Limitations mention training resources, no MoE evaluation, QA-focused fine-tuning, and future work for combination with temporal eviction / KV quantization. | Page 7 should define local reproduction gates. |
 
 ## Evidence Map
