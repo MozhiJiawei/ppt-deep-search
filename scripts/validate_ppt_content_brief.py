@@ -21,7 +21,6 @@ DECK_METADATA_FIELDS = [
     "页数口径",
     "核心结论",
     "内容来源",
-    "关联审计文件",
 ]
 
 PAGE_FIELDS = [
@@ -179,7 +178,7 @@ def validate_allowed_headings(text: str) -> list[str]:
             continue
         errors.append(
             f"Unapproved PPT Content Brief skeleton heading at line {line}: {heading}. "
-            "Use only the headings defined in references/ppt-content-brief-format.md."
+            "Use only the headings defined in references/ppt-brief-hitl.md."
         )
     return errors
 
@@ -612,7 +611,6 @@ SELF_TEST_BRIEF = """# PPT Content Brief
 页数口径：1 页内容页，不包含封面和目录页
 核心结论：MIA 的价值在于把记忆从上下文堆叠升级为可治理的认知资产。
 内容来源：论文正文、Figure 2、Table 1、用户补充判断
-关联审计文件：research_audit.md
 
 ## Summary Page
 页码：Page 2
@@ -681,7 +679,6 @@ SELF_TEST_SUMMARY_ONLY_BRIEF = """# PPT Content Brief
 页数口径：1 页总结页，不包含封面和目录页
 核心结论：MIA 的价值在于把记忆从上下文堆叠升级为可治理的认知资产。
 内容来源：论文正文、Figure 2、Table 1、用户补充判断
-关联审计文件：research_audit.md
 
 ## Summary Page
 页码：Page 1

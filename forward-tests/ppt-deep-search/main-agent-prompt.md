@@ -51,6 +51,7 @@ After dispatch, wait for the child agent's first substantive response.
 
 - If it asks a human-facing question or requests approval, answer as the stakeholder using the tendencies below.
 - If it presents a stage proposal and asks for approval, approve only when it is specific enough; otherwise request a concrete correction.
+- Evaluate the child response from the full subagent tool-returned content, not from a folded or truncated Codex App preview.
 - If it creates final `ppt_content_brief.md` or `research_audit.md` before any stakeholder answer from the main agent, stop that case and judge it as a HITL workflow failure.
 - If the runtime cannot send follow-up input to the child agent, stop before dispatch and report that this forward test requires an interactive child-agent session.
 - Do not compensate for weak HITL behavior by adding strategy or approval instructions to the child-agent dispatch prompt.

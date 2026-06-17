@@ -119,6 +119,7 @@ During a forward run:
 The main agent's stakeholder answers should be realistic, but not permissive.
 
 - Approve only stage outputs that satisfy the repository's current `SKILL.md` and references.
+- Evaluate child-agent interaction quality from the full tool-returned message content, not from a folded or truncated Codex App preview.
 - If the child output exposes a defect introduced by the current Skill, record it as a forward-test finding instead of silently compensating with detailed coaching.
 - If a defect is fixable through ordinary stakeholder feedback, request a concrete revision and wait for the child to update the artifact before approval.
 - Do not approve HIL HTML if visible body headings are only outline/navigation labels such as `结论先行`, `问题为什么重要`, `已有做法与缺口`, `关键机制`, `实验信号与边界`, or `下一步验证` without topic-specific claim headings. These labels are acceptable in side navigation; body headings must state conclusions.

@@ -68,8 +68,21 @@ def iter_markdown_files(root: Path, exclude_dirs: set[str]) -> list[Path]:
         rel_parts = path.relative_to(root).parts
         if any(part in exclude_dirs for part in rel_parts):
             continue
+        if is_inside_git_submodule(path, root):
+            continue
         files.append(path)
     return sorted(files)
+
+
+def is_inside_git_submodule(path: Path, root: Path) -> bool:
+    """Skip vendored submodules; parent repo gates should not police them."""
+    for parent in path.parents:
+        if parent == root:
+            return False
+        git_marker = parent / ".git"
+        if git_marker.is_file():
+            return True
+    return False
 
 
 def collect_stats(path: Path) -> MarkdownStats:

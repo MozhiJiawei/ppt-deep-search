@@ -51,6 +51,8 @@ avoiding strategy coaching or judge-rubric leakage.
 The main agent is not allowed to treat the child agent as a fire-and-forget worker. The first useful child-agent response should be a question, an approval gate, or an explicit statement that the research frame is already fully specified. If the child agent silently assumes
 approvals, that behavior is the test result, not something to repair by adding more candidate prompt text.
 
+When judging the child agent's interaction quality, use the full message content returned by the subagent tool. Do not treat a folded or truncated Codex App preview as the complete child response.
+
 ## Minimal Prompt Principle
 
 Forward tests measure whether the runtime Skill can elicit and shape the brief through its normal workflow. The child-agent dispatch prompt should contain only:

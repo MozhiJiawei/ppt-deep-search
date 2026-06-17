@@ -25,31 +25,19 @@ def main() -> int:
     root = Path(__file__).resolve().parent
     required = [
         root / "SKILL.md",
+        root / ".gitmodules",
         root / "docs" / "architecture_design.md",
+        root / "scripts" / "hitl_json_to_brief_skeleton.py",
         root / "scripts" / "validate_ppt_content_brief.py",
-        root / "scripts" / "validate_html_review.py",
-        root / "scripts" / "validate_html_review_data.py",
-        root / "scripts" / "validate_web_evidence_package.py",
         root / "scripts" / "validate_markdown_size.py",
         root / "agents" / "openai.yaml",
-        root / "references" / "pyramid-principle.md",
-        root / "references" / "ppt-content-brief-format.md",
-        root / "references" / "research-audit-format.md",
-        root / "references" / "html-review-surface.md",
-        root / "references" / "html-review-expression.md",
-        root / "references" / "html-review-outline.md",
-        root / "references" / "html-review-evidence.md",
-        root / "references" / "html-review-visuals.md",
-        root / "references" / "html-review-quality.md",
-        root / "references" / "html-review-data-model.md",
-        root / "references" / "html-review-report-kit.md",
-        root / "references" / "html-review-pattern-library.md",
-        root / "references" / "dialogue-and-approval.md",
-        root / "references" / "ppt-viewpoint-planning.md",
-        root / "scripts" / "serve_html_review.py",
+        root / "references" / "evidence-principle.md",
+        root / "references" / "source-understanding-html-ppt.md",
+        root / "references" / "ppt-brief-hitl.md",
         root / "web-article-capture" / "SKILL.md",
         root / "web-article-capture" / "scripts" / "validate_capture_package.py",
         root / "web-article-capture" / "references" / "output-contract.md",
+        root / "html-ppt-skill" / "SKILL.md",
         root / "web-article-capture" / "forward-tests" / "nvidia-pc" / "candidate" / "prompt.md",
         root / "web-article-capture" / "forward-tests" / "nvidia-pc" / "candidate" / "input" / "urls.txt",
         root / "web-article-capture" / "forward-tests" / "nvidia-pc" / "judge" / "rubric.md",
@@ -105,36 +93,6 @@ def main() -> int:
         return 1
     safe_print(markdown_size_check.stdout.strip())
 
-    html_review_self_test = subprocess.run(
-        [sys.executable, str(root / "scripts" / "validate_html_review.py"), "--self-test"],
-        cwd=root,
-        text=True,
-        encoding="utf-8",
-        errors="replace",
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-    )
-    if html_review_self_test.returncode != 0:
-        print("[ERROR] HTML review validator self-test failed:")
-        safe_print((html_review_self_test.stdout + html_review_self_test.stderr).strip())
-        return 1
-    safe_print(html_review_self_test.stdout.strip())
-
-    html_review_data_self_test = subprocess.run(
-        [sys.executable, str(root / "scripts" / "validate_html_review_data.py"), "--self-test"],
-        cwd=root,
-        text=True,
-        encoding="utf-8",
-        errors="replace",
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-    )
-    if html_review_data_self_test.returncode != 0:
-        print("[ERROR] HTML review data validator self-test failed:")
-        safe_print((html_review_data_self_test.stdout + html_review_data_self_test.stderr).strip())
-        return 1
-    safe_print(html_review_data_self_test.stdout.strip())
-
     ppt_content_brief_self_test = subprocess.run(
         [sys.executable, str(root / "scripts" / "validate_ppt_content_brief.py"), "--self-test"],
         cwd=root,
@@ -150,8 +108,8 @@ def main() -> int:
         return 1
     safe_print(ppt_content_brief_self_test.stdout.strip())
 
-    web_evidence_self_test = subprocess.run(
-        [sys.executable, str(root / "scripts" / "validate_web_evidence_package.py"), "--self-test"],
+    hitl_skeleton_self_test = subprocess.run(
+        [sys.executable, str(root / "scripts" / "hitl_json_to_brief_skeleton.py"), "--self-test"],
         cwd=root,
         text=True,
         encoding="utf-8",
@@ -159,30 +117,15 @@ def main() -> int:
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
     )
-    if web_evidence_self_test.returncode != 0:
-        print("[ERROR] Web evidence package validator self-test failed:")
-        safe_print((web_evidence_self_test.stdout + web_evidence_self_test.stderr).strip())
+    if hitl_skeleton_self_test.returncode != 0:
+        print("[ERROR] HITL JSON to brief skeleton self-test failed:")
+        safe_print((hitl_skeleton_self_test.stdout + hitl_skeleton_self_test.stderr).strip())
         return 1
-    safe_print(web_evidence_self_test.stdout.strip())
-
-    web_capture_self_test = subprocess.run(
-        [sys.executable, str(root / "web-article-capture" / "scripts" / "validate_capture_package.py"), "--self-test"],
-        cwd=root,
-        text=True,
-        encoding="utf-8",
-        errors="replace",
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-    )
-    if web_capture_self_test.returncode != 0:
-        print("[ERROR] Web article capture validator self-test failed:")
-        safe_print((web_capture_self_test.stdout + web_capture_self_test.stderr).strip())
-        return 1
-    safe_print(web_capture_self_test.stdout.strip())
+    safe_print(hitl_skeleton_self_test.stdout.strip())
 
     print("[OK] Python standard library dependencies available.")
     print("[OK] No required external services, packages, browsers, or hardware dependencies.")
-    print("[OK] HTML review generation may optionally use CDN assets and the local preview server.")
+    print("[OK] Presentation rendering is not part of ppt-deep-search runtime.")
     if args.skip_services:
         print("[OK] --skip-services accepted; no service checks were needed.")
     return 0
