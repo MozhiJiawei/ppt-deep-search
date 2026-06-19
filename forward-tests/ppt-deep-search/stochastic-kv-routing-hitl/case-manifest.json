@@ -1,7 +1,7 @@
-{
+﻿{
   "id": "stochastic-kv-routing-hitl",
   "title": "Stochastic KV Routing Human-In-The-Loop Brief",
-  "summary": "Checks whether ppt-deep-search can run its normal human-in-the-loop workflow on a parser-derived paper package and produce a grounded PPT Content Brief plus Research Audit.",
+  "summary": "Checks whether ppt-deep-search can run its normal human-in-the-loop workflow on a parser-derived paper package and produce a grounded PPT Content Brief.",
   "source": "Stochastic KV Routing: Enabling Adaptive Depth-Wise Cache Sharing",
   "tags": ["human-in-the-loop", "paper-brief", "kv-cache", "source-grounding"]
 }

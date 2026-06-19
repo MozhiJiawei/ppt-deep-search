@@ -1,4 +1,4 @@
-<!-- BEGIN COMPOUND CODEX TOOL MAP -->
+﻿<!-- BEGIN COMPOUND CODEX TOOL MAP -->
 ## Compound Codex Tool Mapping (Claude Compatibility)
 
 This section maps Claude Code plugin tool references to Codex behavior.
@@ -57,8 +57,9 @@ The main agent must:
 2. Start a child agent using Codex subagent capability, specifically `multi_agent_v1.spawn_agent` when available.
 3. Give the child only the candidate-facing prompt, candidate input path, required output path, run id, and the instruction to follow this repository's `SKILL.md`.
 4. Keep judge files, rubrics, expected outputs, and main-agent strategy hidden from the child.
-5. Act as the human stakeholder during the run: answer approval gates, request revisions, and provide realistic feedback based on the case instructions.
-6. Inspect the child output after completion and write the final judgment under the run output directory.
+5. Act as the human stakeholder during the run: answer only the child agent's explicit choice, clarification, or approval request with minimal realistic input.
+6. Do not coach the child toward better output during the run; inspect the child output after completion and write the final judgment under the run output directory.
+7. Judge strictly as a teacher looking for defects. The goal is to expose problems, not to make the test pass.
 
 ### Forward Dispatch Minimality
 
@@ -109,6 +110,10 @@ During a forward run:
 - Do not solve the candidate task in the main thread.
 - Do not paste judge rubrics, hidden fixtures, or expected answers into the child prompt.
 - Do not coach the child with the main agent's current hypothesis about what a good answer should look like. The point of the forward run is to observe whether the Skill itself elicits and produces the behavior.
+- Do not provide rewrite examples, preferred page titles, expression patterns, rubric dimensions, or repair instructions during stakeholder interaction.
+- If the child asks a numbered question, choose a number. If it asks for intermediate approval, approve it.
+- Stop the run only when the child is fully out of control: wrong output directory, missing required artifact path, judge-file leakage, inability to continue, or responses that no longer follow the task.
+- Judge quality from the final deliverables.
 - Do not use a background conversation thread as a substitute for the required subagent.
 - Do not use a fire-and-forget background worker that cannot receive follow-up input.
 - Do not replace child-agent orchestration with shell sleep loops or a purely local script runner.
@@ -116,16 +121,14 @@ During a forward run:
 
 ## Stakeholder Approval Discipline
 
-The main agent's stakeholder answers should be realistic, but not permissive.
+The main agent's stakeholder answers should be realistic and minimal.
 
-- Approve only stage outputs that satisfy the repository's current `SKILL.md` and references.
+- For choice questions, answer the selected option and only the minimal stakeholder context needed to disambiguate the choice.
+- For intermediate approval gates, approve and let the candidate continue. Do not rewrite the artifact, prescribe a better structure, or teach the child the expected expression principles.
+- Record weak Skill behavior as a finding in the final judgment instead of repairing or blocking it interactively.
 - Evaluate child-agent interaction quality from the full tool-returned message content, not from a folded or truncated Codex App preview.
 - If the child output exposes a defect introduced by the current Skill, record it as a forward-test finding instead of silently compensating with detailed coaching.
-- If a defect is fixable through ordinary stakeholder feedback, request a concrete revision and wait for the child to update the artifact before approval.
-- Do not approve HIL HTML if visible body headings are only outline/navigation labels such as `结论先行`, `问题为什么重要`, `已有做法与缺口`, `关键机制`, `实验信号与边界`, or `下一步验证` without topic-specific claim headings. These labels are acceptable in side navigation; body headings must state conclusions.
-- Do not approve HIL HTML if it claims to use a visual/evidence pattern but the artifact does not actually contain the corresponding structure, source evidence, captions, and citation anchors.
-- When the child produces `review/source_understanding_review.html`, run `python scripts/validate_html_review.py <html>` before approval when practical. Treat failures as revision requests, not as warnings. This is a hygiene guardrail only; do not require a specific visual
-  component pattern when the report solves the communication problem another way.
+- Final judgment must especially inspect title/summary expression, whether `ppt_content_brief.md` contains author-facing rather than audience-facing content, and whether the interaction deviated from HITL.
 - After the child finishes, always write `.tmp/forward-tests/<case-id>/<run-id>/judgment.md` using the case rubric before reporting the run complete to the user.
 
 ## Case Selection

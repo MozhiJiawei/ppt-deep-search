@@ -24,7 +24,7 @@ description: >-
 
 ### 1. 加载证据原则
 
-加载 `references/evidence-principle.md`，作为所有交付件表达的纲领。证据优先级、源图策略、补充证据时机、金字塔表达，以及所有 handoff artifact 的措辞都遵循它。
+同时加载 `references/evidence-principle.md` 和 `references/evidence-examples.md`，作为所有交付件表达的纲领和示例库。证据优先级、源图策略、补充证据时机、金字塔表达，以及所有 handoff artifact 的措辞都遵循这两个文件。
 
 ### 2. 确认受众
 

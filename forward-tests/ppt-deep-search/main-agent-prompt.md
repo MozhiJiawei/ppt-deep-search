@@ -1,4 +1,4 @@
-# Main Agent Prompt: Run PPT Deep Search Forward Tests
+﻿# Main Agent Prompt: Run PPT Deep Search Forward Tests
 
 Your job is to orchestrate forward tests, not to solve PPT deep-search tasks yourself.
 
@@ -44,31 +44,43 @@ Run only that one case.
 - Do not reveal judge-only files, prior generated outputs, or other case directories to a child agent.
 - Judge each completed case with its case rubric when present.
 - Write judgments under `.tmp/forward-tests/<case-id>/<run-id>/judgment.md`.
+- Judge strictly. Your goal is to find issues in the Skill and delivered artifacts, not to help the child pass the test.
 
 ## Interactive Run Protocol
 
 After dispatch, wait for the child agent's first substantive response.
 
-- If it asks a human-facing question or requests approval, answer as the stakeholder using the tendencies below.
-- If it presents a stage proposal and asks for approval, approve only when it is specific enough; otherwise request a concrete correction.
+- If it asks a human-facing question, answer only the question it asked. For numbered choices, choose the number and add at most one short stakeholder preference if needed.
+- If it requests intermediate approval, approve it and let the workflow continue.
+- Stop the run only when the child is fully out of control: wrong output directory, missing required artifact path, judge-file leakage, inability to continue, or responses that no longer follow the task.
+- Do not provide rewrite examples, expression patterns, page-title fixes, rubric dimensions, or detailed repair instructions.
 - Evaluate the child response from the full subagent tool-returned content, not from a folded or truncated Codex App preview.
-- If it creates final `ppt_content_brief.md` or `research_audit.md` before any stakeholder answer from the main agent, stop that case and judge it as a HITL workflow failure.
+- If it creates final `ppt_content_brief.md` before any stakeholder answer from the main agent, stop that case and judge it as a HITL workflow failure.
 - If the runtime cannot send follow-up input to the child agent, stop before dispatch and report that this forward test requires an interactive child-agent session.
 - Do not compensate for weak HITL behavior by adding strategy or approval instructions to the child-agent dispatch prompt.
+- Do not coach, reject, or block weak intermediate semantics into a better artifact. Let the child proceed; judge quality from the final deliverables.
 
 ## Human Stakeholder Role
 
 This repository is human-in-the-loop. When the child agent asks for approval, clarification, or choice, answer as the human stakeholder.
 
-Act with these tendencies:
+Act with these tendencies only when the child explicitly asks for stakeholder preference. Do not volunteer them as coaching:
 
 - Prefer a decision-oriented PPT brief for technical product and infrastructure leaders, not a generic paper summary.
 - Prefer a 6-7 page total PPT unless the child agent gives a strong reason to change page count.
 - Push the storyline toward "what deployment or architecture decision should the reader make after understanding the paper?"
 - Accept source-grounded caution. If evidence is thin, ask the child agent to mark boundaries instead of overstating.
 - Prefer concise Chinese visible slide copy with English technical names preserved where useful.
-- Approve the child agent's stage output only after it states the reader, thesis, page count convention, summary-page viewpoint, chapter/page plan, and hard downstream constraints clearly enough.
-- Correct vague wording such as "提升效率" or "优化性能" by asking for the concrete mechanism, metric, or serving constraint behind the claim.
+- Approve intermediate stage outputs so the candidate can finish.
+- If wording, page logic, or visible-copy semantics are weak, let them stand for final judgment; do not reject them or supply better wording.
+
+## Final Judgment Focus
+
+In final judging, inspect semantics strictly:
+
+- Whether `页面标题`、`标题说明`、`分析总结` express page judgments clearly and concretely.
+- Whether `ppt_content_brief.md` contains only content intended for the final audience, not author notes, production guidance, audit traces, or downstream-processing instructions.
+- Whether the interaction followed the Skill's HITL flow without skipping gates, over-asking, or drifting away from the task.
 
 Do not use these tendencies to tell the child agent how to pass the judge rubric. Treat them as normal stakeholder preferences.
 

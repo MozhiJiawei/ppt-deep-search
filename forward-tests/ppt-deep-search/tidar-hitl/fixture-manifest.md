@@ -1,4 +1,4 @@
----
+﻿---
 date: 2026-06-03
 fixture: tidar-hitl
 source_package: TiDAR parser output
@@ -10,10 +10,9 @@ This fixture preserves a parser-derived paper package for `TiDAR: Think in Diffu
 
 ## Goal
 
-Validate whether `ppt-deep-search` can run its normal human-in-the-loop workflow and produce two durable handoff files:
+Validate whether `ppt-deep-search` can run its normal human-in-the-loop workflow and produce one durable handoff file:
 
-- `ppt_content_brief.md`, suitable as the downstream PPT maker's slide-content source;
-- `research_audit.md`, preserving source grounding, approvals, boundaries, and evidence policy.
+- `ppt_content_brief.md`, suitable as the downstream PPT maker's slide-content source.
 
 The test is not a one-shot paper summary. The child agent should ask the human stakeholder for missing audience, thesis, page-count, viewpoint, and constraint decisions according to `SKILL.md`. The main agent answers those questions as the human.
 
@@ -55,6 +54,5 @@ The candidate should write final artifacts under a run-specific workspace such a
 Expected artifacts:
 
 - `ppt_content_brief.md`;
-- `research_audit.md`;
 - saved approval bundle or baselines when produced by the Skill;
 - validation output showing the brief passed the repository QA script, or a clear blocker note explaining why it could not.

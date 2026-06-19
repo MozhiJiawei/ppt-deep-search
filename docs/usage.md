@@ -8,7 +8,7 @@
 
 - 从论文、网页、Markdown、仓库分析、PDF、笔记或原始材料中整理 PPT 观点。
 - 在正式做 PPTX 之前，先确认读者认知路径、SCQA、章节逻辑和页面观点。
-- 把来源证据、推理边界、用户审批和 QA 记录保存在审计文件中，避免下游 PPT 文案混入内部工作记录。
+- 把来源证据、推理边界、用户审批和 QA 记录保存在工作过程或 baselines 中，避免下游 PPT 文案混入内部工作记录。
 
 不要用它做 PPTX 视觉渲染、版式模板、字体配色、导出或视觉 QA。这些属于下游 PPT 制作 skill。
 
@@ -17,12 +17,12 @@
 默认走 human-in-the-loop：
 
 1. 确认目标读者、读者当前判断、希望改变的判断、最终用途和来源集合。
-2. 做 source understanding，必要时生成 `review/source_understanding_review.html`，让用户先审研究理解、证据、比较对象和边界。
+2. 做 source understanding，让用户先审研究理解、证据、比较对象和边界。
 3. 确认 SCQA 和顶层 summary page 表达，包括 `页面标题`、`标题说明`、`分析总结`。
 4. 单独确认页数口径，不提前生成目录。
 5. 确认 Table of Contents，目录最多 3 个章节项，目录项是导航文案，不是证据地图。
 6. 按章节逐步确认页面观点层：页面标题、标题说明、分析总结、正文支撑和参考图片策略。
-7. 确认最终硬约束后，写入 `ppt_content_brief.md` 和 `research_audit.md`。
+7. 确认最终硬约束后，写入 `ppt_content_brief.md`。
 
 每个阶段都有两个门：先获得用户 approval，再把该阶段基线保存到 `<workspace-root>/baselines/`。已批准的基线不能被静默重写；如果后续证据要求调整，需要重新请用户确认并记录在 `Approval Log`。
 
@@ -34,10 +34,9 @@
 - forward-test 路径：`.tmp/forward-tests/<case-id>/<run-id>/`
 - 用户指定输出目录时，以用户指定目录为准
 
-所有临时笔记、baseline、HTML review、资产和 QA 输出都放在这个目录下。最终交付物固定为：
+所有临时笔记、baseline、资产和 QA 输出都放在这个目录下。最终交付物固定为：
 
 - `<workspace-root>/ppt_content_brief.md`
-- `<workspace-root>/research_audit.md`
 
 ## 交付物
 
@@ -48,7 +47,7 @@
 - Table of Contents
 - Page Content
 
-`research_audit.md` 是内部审计文件，保存不该进入 PPT 文案的内容：
+不该进入 PPT 文案的内部信息应留在工作过程或 baselines 中，不写进 `ppt_content_brief.md`：
 
 - 读者和信念变化
 - source understanding
@@ -59,24 +58,9 @@
 - assumptions/open questions
 - approval log
 
-如果任务需要网页来源，先使用仓库内 `web-article-capture/SKILL.md` 生成本地 source package。HTML review 和 audit 只消费该目录中的 `source.md` 与 `images/`，并在 `report-data.json` 中记录最终报告引用和资产映射。不要用搜索摘要、raw HTML、`curl` 抓取结果或手写网页摘录替代这个 source package。
+如果任务需要网页来源，优先使用可信来源包或仓库内 `web-article-capture/SKILL.md` 获取网页正文和图片证据。不要用搜索摘要、raw HTML、`curl` 抓取结果或手写网页摘录替代可追溯来源。
 
 ## 校验命令
-
-HTML review 写完、请求用户 approval 前，尽量运行：
-
-```powershell
-python scripts/validate_web_evidence_package.py <workspace-root>/review/report-data.json --require-images when-indexed
-python scripts/validate_html_review_data.py <workspace-root>/review/report-data.json
-python scripts/validate_html_review.py <workspace-root>/review/source_understanding_review.html
-```
-
-如果是产品发布、技术公告、官方博客等多图网页，使用更严格的图片门：
-
-```powershell
-python scripts/validate_web_evidence_package.py <workspace-root>/review/report-data.json --require-images always --min-image-sources 1
-python web-article-capture/scripts/validate_capture_package.py <captured-source-root> --require-images when-referenced
-```
 
 最终 brief 写完后，按页数口径运行：
 

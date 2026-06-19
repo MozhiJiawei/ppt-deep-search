@@ -1,7 +1,7 @@
-{
+﻿{
   "id": "tidar-hitl",
   "title": "TiDAR Hybrid Decoding Human-In-The-Loop Brief",
-  "summary": "Checks whether ppt-deep-search can run its normal human-in-the-loop workflow on a parser-derived model architecture paper package and produce a grounded PPT Content Brief plus Research Audit.",
+  "summary": "Checks whether ppt-deep-search can run its normal human-in-the-loop workflow on a parser-derived model architecture paper package and produce a grounded PPT Content Brief.",
   "source": "TiDAR: Think in Diffusion, Talk in Autoregression",
   "tags": ["human-in-the-loop", "paper-brief", "diffusion-language-model", "autoregression", "source-grounding"]
 }

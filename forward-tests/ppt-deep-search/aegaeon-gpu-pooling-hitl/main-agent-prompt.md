@@ -1,4 +1,4 @@
-# Main Agent Prompt: Run Aegaeon GPU Pooling HITL Forward Test
+﻿# Main Agent Prompt: Run Aegaeon GPU Pooling HITL Forward Test
 
 Run the forward test at:
 
@@ -51,14 +51,8 @@ Use a child-agent mechanism that can receive follow-up input from the main agent
 After dispatch, wait for the child agent's first substantive response.
 
 - If it asks about audience, use, thesis, page count, viewpoint, page plan, or final constraints, answer as the stakeholder.
-- If it requests approval, approve only when the proposal preserves the handoff contract; otherwise ask for a concrete adjustment.
-- If it writes final `ppt_content_brief.md` or `research_audit.md` before any stakeholder answer, stop the child agent and record a HITL workflow failure.
-- If the source-understanding HTML uses outline labels as body headings instead of claim-like section conclusions, request a revision before approval. Navigation labels may remain logical and fixed; body headings must be topic-specific claims.
-- When the child provides `review/source_understanding_review.html`, also inspect
-  `review/report-data.json`, then run `python scripts/validate_html_review_data.py <report-data.json>`
-  and `python scripts/validate_html_review.py <html>` before approving Stage 1.5 when practical.
-  If either fails, request a revision. Do not force a specific visual component pattern
-  if the report communicates the evidence well.
+- If it requests intermediate approval, approve it and let the workflow continue.
+- If it writes final `ppt_content_brief.md` before any stakeholder answer, stop the child agent and record a HITL workflow failure.
 - If the runtime cannot send follow-up input to the child agent, stop before dispatch. This case is invalid without interactive child-agent control.
 - Do not fix this by adding strategy, rubric, or approval instructions to `candidate/prompt.md`.
 
@@ -73,14 +67,13 @@ When the child agent asks questions, answer as a realistic PPT requester:
 - Evidence taste: prefer production workload statistics, SLO/TTFT/TBT framing, GPU saving numbers, goodput comparisons, and source figures before generic system diagrams.
 - Tone: decision-oriented Chinese, with English system/model/metric names preserved.
 
-Approve stage outputs only when the child agent states enough to preserve the final handoff contract. Do not mention the judge rubric or expected scoring categories to the child agent.
+Approve intermediate stage outputs so the candidate can finish. Do not mention the judge rubric or expected scoring categories to the child agent.
 
 ## After Candidate Finishes
 
 Collect the candidate's output directory and inspect:
 
 - `ppt_content_brief.md`;
-- `research_audit.md`;
 - any saved baselines or approval bundle;
 - QA validation output, if present.
 

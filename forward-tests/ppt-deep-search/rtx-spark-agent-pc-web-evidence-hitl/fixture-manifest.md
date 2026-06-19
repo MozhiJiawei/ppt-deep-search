@@ -1,4 +1,4 @@
----
+﻿---
 date: 2026-06-04
 fixture: rtx-spark-agent-pc-web-evidence-hitl
 source_package: NVIDIA/Microsoft official web sources
@@ -10,13 +10,11 @@ This fixture preserves a media-rich official-web-source task for `ppt-deep-searc
 
 ## Goal
 
-Validate whether `ppt-deep-search` can run its normal human-in-the-loop workflow on official web sources and produce two durable handoff files:
+Validate whether `ppt-deep-search` can run its normal human-in-the-loop workflow on official web sources and produce one durable handoff file:
 
-- `ppt_content_brief.md`, suitable as the downstream PPT maker's slide-content source;
-- `research_audit.md`, preserving source grounding, approvals, boundaries, and evidence policy.
+- `ppt_content_brief.md`, suitable as the downstream PPT maker's slide-content source.
 
-The test is not a one-shot web summary. The child agent should ask the human stakeholder for missing audience, thesis, page-count, viewpoint, and constraint decisions according to `SKILL.md`. During source understanding, it must use `web-article-capture` source packages rather than
-raw HTML or search snippets.
+The test is not a one-shot web summary. The child agent should ask the human stakeholder for missing audience, thesis, page-count, viewpoint, and constraint decisions according to `SKILL.md`. It must preserve official-source boundaries and not rely on raw search snippets as evidence.
 
 ## Candidate-Facing Assets
 
@@ -52,11 +50,6 @@ The candidate should write final artifacts under a run-specific workspace such a
 
 Expected artifacts:
 
-- `sources/source-discovery.md` or equivalent source-discovery record listing primary sources, adjacent-route sources, boundary/check sources, candidate visuals, and crawl plan;
-- `review/source_understanding_review.html`;
-- `review/report-data.json`;
-- `sources/web/<source-slug>/` source packages with `source.md` and `images/` for media-rich sources;
 - `ppt_content_brief.md`;
-- `research_audit.md`;
 - saved approval bundle or baselines when produced by the Skill;
-- validation output showing the source package mapping, HTML review, and final brief passed repository QA scripts, or a clear blocker note explaining why source capture could not be completed.
+- validation output showing the final brief passed the repository QA script, or a clear blocker note explaining why it could not.

@@ -1,6 +1,6 @@
-# PPT Deep Search Forward Tests
+﻿# PPT Deep Search Forward Tests
 
-Forward tests are human-orchestrated child-agent runs for checking whether the runtime Skill can conduct human-in-the-loop research and produce a PPT-ready Content Brief plus Research Audit from realistic source material.
+Forward tests are human-orchestrated child-agent runs for checking whether the runtime Skill can conduct human-in-the-loop research and produce a PPT-ready Content Brief from realistic source material.
 
 ## Cases
 
@@ -48,10 +48,21 @@ Use `main-agent-prompt.md` for the exact orchestration wording.
 Unlike one-shot downstream PPT generation tests, this suite tests a human-in-the-loop Skill. The main agent must act as the human stakeholder when the child agent asks questions. It should answer with product intent, audience preference, judgment calls, and corrections, while
 avoiding strategy coaching or judge-rubric leakage.
 
+The stakeholder role is intentionally narrow. During a forward run, the main agent should answer the child agent's explicit question, not evaluate or improve intermediate semantics.
+
+- When the child offers numbered choices, choose a number and add only minimal real stakeholder context if needed.
+- When the child asks for intermediate approval, approve it so the run can continue.
+- Stop the run only when the child is fully out of control: wrong output directory, missing required artifact path, judge-file leakage, inability to continue, or responses that no longer follow the task.
+- Do not rewrite titles, provide expression patterns, name expected rubric dimensions, or prescribe how to repair the output.
+- Semantic quality is judged from the final deliverables after the interaction, not corrected or blocked into shape during the run.
+- Final judgment must especially inspect title/summary expression, whether `ppt_content_brief.md` contains author-facing rather than audience-facing content, and whether the interaction deviated from HITL.
+
 The main agent is not allowed to treat the child agent as a fire-and-forget worker. The first useful child-agent response should be a question, an approval gate, or an explicit statement that the research frame is already fully specified. If the child agent silently assumes
 approvals, that behavior is the test result, not something to repair by adding more candidate prompt text.
 
 When judging the child agent's interaction quality, use the full message content returned by the subagent tool. Do not treat a folded or truncated Codex App preview as the complete child response.
+
+Judge with a strict teacher stance. The goal of a forward test is to expose product and Skill defects, not to help the run pass. Do not lower the bar because the child worked hard, produced many files, or partially followed the workflow.
 
 ## Minimal Prompt Principle
 

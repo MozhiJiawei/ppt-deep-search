@@ -5,7 +5,7 @@ references/
   ppt-brief-hitl.md -- PPT brief human-in-the-loop，尽量保留现有逻辑
 scripts/
   validate_ppt_content_brief.py
-  # validate_source_understanding_review.py 删除；表现层验证交给 html-ppt-skill
+  # 旧 HTML review 表现层验证已移除
 web-article-capture/
   ...existing files unchanged
 html-ppt-skill/
