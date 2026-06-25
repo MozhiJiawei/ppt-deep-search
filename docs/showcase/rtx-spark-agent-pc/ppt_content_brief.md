@@ -59,8 +59,7 @@
   accelerated computing stack”。
 - 建议正文结构：左侧放“官方措辞”三行，分别是 NVIDIA News Summary、Jensen Huang quote 或新闻稿标题说明、Microsoft Build Live unified stack；右侧放“不能替代”的两条判断：媒体标题不能替代产品名，官方规格不能替代类别成熟证明。这样 Page 4 先把语言边界钉住，再让 Page 5 和 Page 6 讨论平台与评估门槛。
 参考图片：
-- ![Figure 3: Rendered NVIDIA Newsroom page preserves the official headline and release context](images/nvidia-news-full-page.png)
-- Figure 3 是 NVIDIA Newsroom 渲染截图，可在需要展示官方标题和发布时间上下文时使用；若版面有限，这张图优先保留在审计侧，正文仍以官方 wording 摘要为主。
+- 本页优先使用官方正文包中的文字证据和产品/文章原始图片；不要用渲染截图替代正文图文包。
 备注：
 - Page 4 的语气要稳：不是否定媒体标题，而是把媒体标题放回传播层，把架构判断放回官方材料和可验证技术栈。
 
