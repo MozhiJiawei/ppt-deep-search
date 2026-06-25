@@ -1,92 +1,98 @@
-# Architecture Design
+# 架构设计
 
-This document is the development-time contract for `ppt-deep-search`.
-`SKILL.md` is runtime guidance for agents; this file explains how the runtime pieces must stay aligned when maintainers change behavior.
+本文是 `ppt-deep-search` 的开发期维护契约。
+`SKILL.md` 面向运行时 agent；本文说明维护者改动运行行为时，哪些文档、引用、脚本和 forward test 必须同步。
 
-## Runtime Contract
+## 运行契约
 
-`ppt-deep-search` owns research alignment before downstream PPT generation.
-It does not render final PPTX decks.
+`ppt-deep-search` 负责下游 PPT 生成前的研究对齐，不负责渲染最终 PPTX。
 
-The runtime has two ordered phases:
+运行流程分两段：
 
-1. Source Understanding review gate.
-   The agent builds `review/source_understanding_review.html`, exports screenshots, records independent visual QA in `review/visual-qa.md`, and saves an approved source-understanding baseline.
-2. PPT Content Brief HITL.
-   The agent confirms final PPT audience, SCQA, page count, table of contents, and page viewpoints, then writes `ppt_content_brief.md`.
+1. Source Understanding 审阅 gate。
+   agent 生成 `review/source_understanding_review.html`，导出截图，在 `review/visual-qa.md` 记录独立视觉 QA，并保存已批准的 source-understanding baseline。
+2. PPT Content Brief HITL。
+   agent 确认最终 PPT 的受众、SCQA、页数口径、目录和页面观点，然后写入 `ppt_content_brief.md`。
 
-The Source Understanding gate is not optional. `SKILL.md` must not route into `references/ppt-brief-hitl.md` until the Source Understanding artifact is approved or the run records a clear blocker.
+Source Understanding gate 不是可选步骤。
+在 Source Understanding 产物获批或记录明确 blocker 之前，`SKILL.md` 不得进入 `references/ppt-brief-hitl.md`。
 
-## Artifact Ownership
+## 产物归属
 
-Workspace artifacts live under one task root, usually `.tmp/ppt-deep-search/<task-name>/` or `.tmp/forward-tests/<case-id>/<run-id>/`.
+一次运行只使用一个 task root，通常是 `.tmp/ppt-deep-search/<task-name>/` 或 `.tmp/forward-tests/<case-id>/<run-id>/`。
 
-Required Source Understanding artifacts:
+Source Understanding 必需产物：
 
 - `review/source_understanding_review.html`
 - `review/source-understanding-images/`
 - `review/visual-qa.md`
 - `baselines/015-source-understanding.md`
 
-Required final handoff:
+最终 handoff：
 
 - `ppt_content_brief.md`
 
-The final handoff is written for downstream PPT makers. It must not contain judge notes, audit traces, approval logs, or author-facing source-locator tables. Those records belong in `review/`, `sources/`, `baselines/`, or QA logs.
+最终 handoff 面向下游 PPT 制作者。
+它不能包含 judge 记录、审计痕迹、approval log 或作者侧 source-locator 表格。
+这些记录应留在 `review/`、`sources/`、`baselines/` 或 QA 日志中。
 
-## Reference Files
+## 引用文件
 
-`SKILL.md` stays short: routing, hard gates, workspace contract, and final deliverables.
+`SKILL.md` 保持短小，只放路由、硬 gate、工作区契约和最终交付物。
 
-Detailed behavior lives in references:
+详细行为放在 references：
 
-- `references/evidence-principle.md` and `references/evidence-examples.md` define expression quality, source evidence priority, image use, and pyramid-style claims.
-- `references/source-understanding-html-ppt.md` defines the Source Understanding HTML deck contract, screenshot export, independent visual QA, and approval gate.
-- `references/ppt-brief-hitl.md` defines final PPT brief HITL, its JSON shape, skeleton generation, visible-copy checks, and final brief QA.
+- `references/evidence-principle.md` 和 `references/evidence-examples.md` 定义表达质量、证据优先级、图片使用和金字塔式主张。
+- `references/source-understanding-html-ppt.md` 定义 Source Understanding HTML deck、截图导出、独立视觉 QA 和审批 gate。
+- `references/ppt-brief-hitl.md` 定义最终 PPT brief HITL、JSON 形态、骨架生成、可见文案检查和最终 brief QA。
 
-When a runtime rule changes, update the relevant reference and add or adjust an executable gate when the rule is machine-checkable.
+运行规则变化时，必须更新对应 reference。
+如果规则能被机器检查，应新增或调整可执行 gate，而不是只写 prose。
 
-## Script Gates
+## 脚本 gate
 
-Repository-level dependency and contract checks start at `verify_dependencies.py`.
+仓库级依赖和契约检查入口是 `verify_dependencies.py`。
 
-Current script responsibilities:
+当前脚本职责：
 
-- `scripts/validate_markdown_size.py` enforces Markdown size budgets.
-- `scripts/validate_source_understanding_html.py` renders Source Understanding HTML to PNG with Playwright, checks slide navigation, and enforces the hard image-scale gate.
-- `scripts/hitl_json_to_brief_skeleton.py` converts approved HITL JSON into `ppt_content_brief.md` skeletons. It supports one-page summary-only briefs with empty TOC and content pages.
-- `scripts/validate_ppt_content_brief.py` validates final brief structure, visible copy, density, and expected page count.
+- `scripts/validate_markdown_size.py` 检查 Markdown size budget。
+- `scripts/validate_source_understanding_html.py` 用 Playwright 把 Source Understanding HTML 渲染成 PNG，检查翻页导航，并执行图片缩放硬 gate。
+- `scripts/hitl_json_to_brief_skeleton.py` 把已批准的 HITL JSON 转成 `ppt_content_brief.md` 骨架；支持一页 summary-only brief，此时 TOC 和内容页可以为空。
+- `scripts/validate_ppt_content_brief.py` 检查最终 brief 的结构、可见文案、密度和预期页数。
 
-Do not rely on prose-only checks for artifact presence, approved baselines, or renderable HTML when a validator can check them.
+产物是否存在、baseline 是否已批准、HTML 是否可渲染，不应只依赖文字说明。
+能写 validator 的规则应写成 validator。
 
 ## Forward Tests
 
-Forward tests are main-agent orchestration flows with isolated candidate child agents.
-The main agent acts as the human stakeholder and writes `judgment.md`.
+Forward test 是 main-agent 编排流程，candidate 必须在隔离 child agent 中运行。
+main agent 扮演 human stakeholder，并写入 `judgment.md`。
 
-Forward-test instructions must stay judge-side:
+Forward-test 指令必须保持 judge-side：
 
-- Candidate dispatch stays minimal and must not include rubrics or expected failure modes.
-- Judge rubrics and fixture manifests must require the Source Understanding review artifacts before accepting final brief work.
-- Web-source cases must also expect `sources/web/<source-slug>/` capture packages and capture validator evidence.
+- candidate dispatch 保持最小化，不得包含 rubric 或预期失败模式。
+- judge rubric 和 fixture manifest 必须要求 Source Understanding 审阅产物，之后才能接受最终 brief。
+- web-source case 还必须要求 `sources/web/<source-slug>/` 抓取包和 capture validator 证据。
 
-Latest local forward-test evidence as of 2026-06-25:
+截至 2026-06-25 的最新本地 forward-test 证据：
 
-- `20260625-forward-test-1` completed full runs for `aegaeon-gpu-pooling-hitl`, `rtx-spark-agent-pc-web-evidence-hitl`, and `stochastic-kv-routing-hitl`. All were judged `Pass with issues`; no blocking findings remained.
-- `20260625-source-html-navcheck-1` completed Source Understanding-only runs for the same three cases. RTX Spark and Stochastic KV Routing were `Pass`; Aegaeon was `Pass with issues` because visual QA needed five repair rounds.
-- The latest source-only runs validated the Source Understanding HTML render path, exported PNGs, independent visual QA records, and keyboard-navigation gate.
+- `20260625-forward-test-1` 完成了 `aegaeon-gpu-pooling-hitl`、`rtx-spark-agent-pc-web-evidence-hitl` 和 `stochastic-kv-routing-hitl` 的完整运行。三者都是 `Pass with issues`，没有剩余 blocking finding。
+- `20260625-source-html-navcheck-1` 完成了同三组 case 的 Source Understanding-only 运行。RTX Spark 和 Stochastic KV Routing 是 `Pass`；Aegaeon 是 `Pass with issues`，原因是视觉 QA 需要五轮修复。
+- 最新 source-only 运行验证了 Source Understanding HTML 渲染路径、PNG 导出、独立视觉 QA 记录和键盘翻页 gate。
 
-When refreshing published showcase docs, use the newest run directory under `.tmp/forward-tests/<case-id>/`, read its `judgment.md`, and copy only publication-safe artifacts into `docs/showcase/` or `docs/assets/forward-tests/`.
+刷新发布展示文档时，先读取 `.tmp/forward-tests/<case-id>/` 下最新 run 的 `judgment.md`。
+只把可发布、安全的产物复制进 `docs/showcase/` 或 `docs/assets/forward-tests/`。
 
-## Change Discipline
+## 变更纪律
 
-Runtime behavior changes must update the affected runtime docs, references, scripts, and forward-test judge expectations together.
+运行行为变化必须同步更新相关运行文档、references、脚本和 forward-test judge expectations。
 
-Before submitting:
+提交前至少运行：
 
 ```powershell
 python scripts/validate_markdown_size.py .
 python verify_dependencies.py --skip-services
 ```
 
-Run targeted script self-tests for changed validators or generators. For Source Understanding or brief-HITL changes, also run or inspect the relevant forward-test result and record what was validated.
+如果改动 validator 或 generator，还要运行对应的 targeted self-test。
+如果改动 Source Understanding 或 brief-HITL 行为，还要运行或检查相关 forward-test 结果，并记录验证了什么。
