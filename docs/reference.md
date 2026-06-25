@@ -1,56 +1,76 @@
-# 能力展示
+# ppt-deep-search 效果展示
 
-`ppt-deep-search` 的作用不是直接画 PPT，而是在做 PPT 之前，把“材料很多、观点不稳、证据容易说过头”的问题先梳理清楚。
-它会和用户一起确认来源理解、读者、判断口径、故事线和证据边界，最后交给下游 PPT 制作环节一份可直接使用的内容简报。
+`ppt-deep-search` 是一个面向“深度检索型 PPT 生成”的 Skill：它先做来源理解和可视证据审查，再进入可交付的演示文稿内容组织。这个页面展示最近一轮 forward-test 的公开样例，重点看三件事：
 
-本页只展示当前仓库本地最新 forward-test 结果。
-旧 showcase 叙述不再作为能力展示入口；历史可发布素材仍保留在 `docs/showcase/` 供追溯。
+- 候选 agent 是否能把来源证据读透，而不是只摘关键词。
+- HIL 审批、来源理解审查、视觉 QA 是否形成闭环。
+- 最终 `ppt_content_brief.md` 是否像给作者用的制作简报，而不是给观众看的演讲稿。
 
-## 最新结果
+## 展示方式
 
-最新完整 forward-test 运行是 2026-06-25 的 `20260625-forward-test-1`。
-最新 Source Understanding 专项运行是 2026-06-25 的 `20260625-source-html-navcheck-1`。
+本页只引用 `docs/showcase/latest/` 下的发布副本。forward-test 的运行目录只作为刷新来源，文档中不直接依赖临时运行产物。
 
-| Case | 最新完整 forward | 最新 Source Understanding 专项 | 结论 |
+| 样例 | 任务主题 | 最新结论 | 发布产物 |
 | --- | --- | --- | --- |
-| Aegaeon GPU Pooling | `Pass with issues` | `Pass with issues` | 完整 brief 无阻塞；Source Understanding 通过，但视觉 QA 修了五轮，说明复杂论文图表仍需要更早识别拥挤/截断问题。 |
-| RTX Spark Agent PC Web Evidence | `Pass with issues` | `Pass` | 官方措辞边界和网页证据链处理较稳；完整 brief 的 QA 报告需要明确 `--allow-absolute-paths`。 |
-| Stochastic KV Routing | `Pass with issues` | `Pass` | R-CLA 技术定位和证据边界清楚；完整 brief 同样需要明确本地图片路径的 QA 口径。 |
+| Aegaeon GPU Pooling | 云 GPU 池化与 broker 架构 | 通过，仍需压缩摘要页信息密度 | [内容简报](showcase/latest/aegaeon-gpu-pooling/ppt_content_brief.md) |
+| RTX Spark Agent PC | NVIDIA DGX Spark 与 Agent PC | 通过，官方来源边界更清楚 | [内容简报](showcase/latest/rtx-spark-agent-pc/ppt_content_brief.md) |
+| Stochastic KV Routing | Moonshot AI 的随机 KV 路由 | 通过，技术链路与图表复建更稳定 | [内容简报](showcase/latest/stochastic-kv-routing/ppt_content_brief.md) |
 
-## 这轮验证了什么
+## Aegaeon GPU Pooling
 
-完整 forward 运行验证：
+![Aegaeon 来源理解审查预览](showcase/latest/aegaeon-gpu-pooling/review/source-understanding-images/source_understanding_review_01.png)
 
-- child agent 能按 HITL 流程完成 Source Understanding、PPT brief 受众/SCQA/页数/目录/页面观点确认。
-- `ppt_content_brief.md` 能通过结构 QA；含本地图片绝对路径时，需要用 `--allow-absolute-paths` 明确声明工作区绑定。
-- 最新 rubrics 已把 `review/source_understanding_review.html`、导出截图、`review/visual-qa.md` 和 source-understanding baseline 列为 judge-side 必查产物。
+这个样例要求 agent 将 Aegaeon 论文与项目材料重构成 PPT 作者可用的简报。最新结果已经能把“broker 协调、GPU worker、客户端应用、基准曲线”放进同一条叙事链，并保留来源图表证据。
 
-Source Understanding 专项运行验证：
+可继续改进的是摘要页的一页承载量：forward judge 认为候选输出能覆盖关键概念，但第 2 页等 summary 页仍偏拥挤，需要把读者结论和图表证据进一步分层。
 
-- `scripts/validate_source_understanding_html.py` 能重新渲染 HTML deck，导出 PNG，并验证 ArrowRight / ArrowLeft 导航。
-- RTX Spark 导出 8 页，Stochastic KV Routing 导出 9 页，Aegaeon 导出 12 页。
-- 三个 case 都产出了 `review/source_understanding_review.html`、`review/source-understanding-images-maincheck/` 和 `review/visual-qa.md`。
-- 独立视觉 QA 的 FAIL -> repair -> PASS 循环在复杂材料上有效，但 Aegaeon 的五轮修复提示后续还应继续降低图表可读性返工成本。
+相关产物：
 
-## 最新运行路径
+- [内容简报](showcase/latest/aegaeon-gpu-pooling/ppt_content_brief.md)
+- [forward 评审](showcase/latest/aegaeon-gpu-pooling/forward-result.md)
+- [来源理解评审](showcase/latest/aegaeon-gpu-pooling/source-understanding-result.md)
+- [来源理解 HTML](showcase/latest/aegaeon-gpu-pooling/review/source_understanding_review.html)
+- [视觉 QA](showcase/latest/aegaeon-gpu-pooling/review/visual-qa.md)
 
-这些路径是本地 forward-test 结果，不是发布资产：
+## RTX Spark Agent PC
 
-| Case | 完整 forward judgment | Source Understanding judgment |
-| --- | --- | --- |
-| Aegaeon GPU Pooling | `.tmp/forward-tests/aegaeon-gpu-pooling-hitl/20260625-forward-test-1/judgment.md` | `.tmp/forward-tests/aegaeon-gpu-pooling-hitl/20260625-source-html-navcheck-1/judgment.md` |
-| RTX Spark Agent PC Web Evidence | `.tmp/forward-tests/rtx-spark-agent-pc-web-evidence-hitl/20260625-forward-test-1/judgment.md` | `.tmp/forward-tests/rtx-spark-agent-pc-web-evidence-hitl/20260625-source-html-navcheck-1/judgment.md` |
-| Stochastic KV Routing | `.tmp/forward-tests/stochastic-kv-routing-hitl/20260625-forward-test-1/judgment.md` | `.tmp/forward-tests/stochastic-kv-routing-hitl/20260625-source-html-navcheck-1/judgment.md` |
+![RTX Spark 来源理解审查预览](showcase/latest/rtx-spark-agent-pc/review/source-understanding-images/source_understanding_review_01.png)
 
-## 仍需改进
+这个样例检查 agent 面对厂商网页、平台介绍和生态材料时，能否区分“官方确定信息”和“行业解读”。最新结果把 DGX Spark、RTX PRO、Blackwell、AI Workbench、NVIDIA Blueprint 等材料归入清晰的证据层级，避免把网页营销语直接写成无来源判断。
 
-- HITL 选项必须在同一条 child response 中自包含；只说“请选择 1/2/3”会削弱 stakeholder 判断。
-- 当 brief 使用本地绝对图片路径时，QA 报告必须显式说明 `--allow-absolute-paths`。
-- Source Understanding 视觉 QA 已能拦住拥挤和不可读证据，但复杂论文图表仍可能需要多轮 repair。
+可继续改进的是互动表达：候选 agent 的选择题需要在同一条消息里完整列出选项文本，减少主 agent 作为 stakeholder 时需要回看上下文的成本。
+
+相关产物：
+
+- [内容简报](showcase/latest/rtx-spark-agent-pc/ppt_content_brief.md)
+- [forward 评审](showcase/latest/rtx-spark-agent-pc/forward-result.md)
+- [来源理解评审](showcase/latest/rtx-spark-agent-pc/source-understanding-result.md)
+- [来源理解 HTML](showcase/latest/rtx-spark-agent-pc/review/source_understanding_review.html)
+- [视觉 QA](showcase/latest/rtx-spark-agent-pc/review/visual-qa.md)
+
+## Stochastic KV Routing
+
+![Stochastic KV Routing 来源理解审查预览](showcase/latest/stochastic-kv-routing/review/source-understanding-images/source_understanding_review_01.png)
+
+这个样例围绕 Moonshot AI 的随机 KV 路由论文，要求 agent 把算法动机、公式、表格和实验图重新组织为技术型 PPT。最新结果已经能把 `distributional equality`、随机路由器、容量受限调度、chunk prefill 与 Decode-Context Parallelism 之间的关系讲清楚。
+
+可继续改进的是密集证据页的阅读节奏：技术表格和公式引用已经保留，但仍需要控制每页的说明字数，让核心结论先于证据细节出现。
+
+相关产物：
+
+- [内容简报](showcase/latest/stochastic-kv-routing/ppt_content_brief.md)
+- [forward 评审](showcase/latest/stochastic-kv-routing/forward-result.md)
+- [来源理解评审](showcase/latest/stochastic-kv-routing/source-understanding-result.md)
+- [来源理解 HTML](showcase/latest/stochastic-kv-routing/review/source_understanding_review.html)
+- [视觉 QA](showcase/latest/stochastic-kv-routing/review/visual-qa.md)
+
+## 最新验证结论
+
+- 来源理解审查已经能稳定暴露“只读摘要、不读图表”的弱点，并通过 HTML 与截图保留可复查证据。
+- 内容简报可以保留一页 summary，但 summary 页必须服务 PPT 作者：先给页面意图和观众要带走的判断，再给图表、引用和重建建议。
+- HIL 交互还需要更严格：候选 agent 问选择题时，应在同一条消息里列出完整选项文本。
+- 文档展示区必须是发布副本。刷新时先定位最新 forward-test 结果，再把需要展示的 Markdown、HTML、截图和图片复制进 `docs/showcase/latest/`，最后更新本页链接。
 
 ## 刷新规则
 
-刷新本页时，先找每个 case 下最新的 `.tmp/forward-tests/<case-id>/<run-id>/judgment.md`。
-只有在 judgment 存在、路径位于正确 run 目录、且相关产物存在时，才把结果写入本页。
-
-不要把 judge-only rubric、hidden fixtures、交互策略或未清理的工作区绝对路径复制进发布素材。
+刷新本页时只替换 `docs/showcase/latest/` 的内容，不恢复旧样例目录，也不让文档链接到运行缓存。若新增样例，需要同时更新本页表格、样例章节、内容简报、评审摘要、来源理解 HTML、视觉 QA 与截图。
