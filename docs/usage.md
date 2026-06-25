@@ -22,7 +22,7 @@
 4. 单独确认页数口径，不提前生成目录。
 5. 确认 Table of Contents，目录最多 3 个章节项，目录项是导航文案，不是证据地图。
 6. 按章节逐步确认页面观点层：页面标题、标题说明、分析总结、正文支撑和参考图片策略。
-7. 确认最终硬约束后，写入 `ppt_content_brief.md`。
+7. 写入 `ppt_content_brief.md`，并运行最终 brief QA。
 
 每个阶段都有两个门：先获得用户 approval，再把该阶段基线保存到 `<workspace-root>/baselines/`。已批准的基线不能被静默重写；如果后续证据要求调整，需要重新请用户确认并记录在 `Approval Log`。
 
@@ -37,6 +37,13 @@
 所有临时笔记、baseline、资产和 QA 输出都放在这个目录下。最终交付物固定为：
 
 - `<workspace-root>/ppt_content_brief.md`
+
+Source Understanding 阶段还必须产生这些中间评审产物：
+
+- `<workspace-root>/review/source_understanding_review.html`
+- `<workspace-root>/review/source-understanding-images/`
+- `<workspace-root>/review/visual-qa.md`
+- `<workspace-root>/baselines/015-source-understanding.md`
 
 ## 交付物
 
@@ -72,6 +79,12 @@ python scripts/validate_ppt_content_brief.py <workspace-root>/ppt_content_brief.
 
 ```powershell
 python scripts/validate_ppt_content_brief.py <workspace-root>/ppt_content_brief.md --expected-pages <total-pages> --allow-absolute-paths
+```
+
+Source Understanding HTML 写完后，运行：
+
+```powershell
+python scripts/validate_source_understanding_html.py <workspace-root>/review/source_understanding_review.html all <workspace-root>/review/source-understanding-images
 ```
 
 仓库级依赖与契约检查：
