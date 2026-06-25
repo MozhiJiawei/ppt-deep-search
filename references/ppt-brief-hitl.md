@@ -36,6 +36,12 @@ python scripts/validate_ppt_content_brief.py --visible-copy-check --summary-page
 {
   "topic": "string",
   "source_set": ["string"],
+  "audience": {
+    "target_reader": "string",
+    "use_case": "string",
+    "current_judgment": "string",
+    "desired_judgment": "string"
+  },
   "scqa": {
     "situation": "string",
     "complication": "string",
@@ -74,9 +80,55 @@ python scripts/validate_ppt_content_brief.py --visible-copy-check --summary-page
 
 ## 工作流程
 
-在 `SKILL.md` 的受众 gate 审批并保存后开始。
+在 source-understanding gate 审批并保存后开始。此时再确认最终 PPT Content Brief 的受众框架。
 
-### 1. 确认 SCQA 和 Summary Page
+### 1. 确认受众
+
+这是 PPT Content Brief 的第一个 human-in-the-loop gate。确认目标读者、读者可能的当前判断、希望改变的判断、最终用途、来源集合和已知缺口。
+
+请求受众审批时，只输出当前 gate 问题和 3 个编号受众/框架选项。使用这个精确模板：
+
+```text
+请先确认受众框架。请选择一个编号，或直接按模板改写。
+
+1. 目标读者：<具体角色>
+使用场景：<这份 brief/deck 会被拿去做什么>
+当前判断：<读者现在可能怎么想>
+希望改变：<看完后希望读者改成什么判断>
+
+2. 目标读者：<具体角色>
+使用场景：<这份 brief/deck 会被拿去做什么>
+当前判断：<读者现在可能怎么想>
+希望改变：<看完后希望读者改成什么判断>
+
+3. 目标读者：<具体角色>
+使用场景：<这份 brief/deck 会被拿去做什么>
+当前判断：<读者现在可能怎么想>
+希望改变：<看完后希望读者改成什么判断>
+```
+
+选项之后不要追加进度说明。
+
+审批通过后保存：
+
+```text
+<workspace-root>/baselines/ppt_brief_hitl.json
+```
+
+更新 HITL JSON 的 `audience` 字段：
+
+```json
+{
+  "audience": {
+    "target_reader": "<具体角色>",
+    "use_case": "<这份 brief/deck 会被拿去做什么>",
+    "current_judgment": "<读者现在可能怎么想>",
+    "desired_judgment": "<看完后希望读者改成什么判断>"
+  }
+}
+```
+
+### 2. 确认 SCQA 和 Summary Page
 
 给出 SCQA 与 3 个具体 summary-page 候选：
 
@@ -115,7 +167,7 @@ SCQA：
 <workspace-root>/baselines/ppt_brief_hitl.json
 ```
 
-### 2. 确认页数
+### 3. 确认页数
 
 给出 3 个页数候选：
 
@@ -144,7 +196,7 @@ SCQA：
 <workspace-root>/baselines/ppt_brief_hitl.json
 ```
 
-### 3. 确认目录
+### 4. 确认目录
 
 只在页数审批后创建目录。目录是章节层，不是逐页清单。
 
@@ -173,7 +225,7 @@ SCQA：
 <workspace-root>/baselines/ppt_brief_hitl.json
 ```
 
-### 4. 确认页面观点
+### 5. 确认页面观点
 
 目录审批后，一次确认一个实际 PPT 页面。除非用户明确要求快捷流程，不要一次审批所有页面或整章页面。
 
@@ -196,18 +248,12 @@ Page N
 <workspace-root>/baselines/ppt_brief_hitl.json
 ```
 
-### 5. 生成骨架并扩写
+### 6. 生成骨架并扩写
 
 写 `ppt_content_brief.md` 前，先从 HITL JSON 生成骨架：
 
 ```powershell
 python scripts/hitl_json_to_brief_skeleton.py <workspace-root>/baselines/ppt_brief_hitl.json <workspace-root>/ppt_content_brief.md
-```
-
-如需将受众信息写入骨架，传入主流程保存的受众 baseline：
-
-```powershell
-python scripts/hitl_json_to_brief_skeleton.py <workspace-root>/baselines/ppt_brief_hitl.json <workspace-root>/ppt_content_brief.md --audience-baseline <workspace-root>/baselines/01-audience.md
 ```
 
 AI 只基于骨架扩写 `正文内容`、`参考图片` 和 `备注`，不要改写已审批的 metadata、Summary Page、目录、页面标题、标题说明和 `分析总结`。

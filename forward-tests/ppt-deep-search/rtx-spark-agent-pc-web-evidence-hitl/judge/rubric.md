@@ -11,6 +11,7 @@ Score each dimension from 0 to 3.
 - Official Wording Boundary: preserves that the official product/platform is NVIDIA RTX Spark / Windows PCs purpose-built for personal agents, and treats “Agent 原生电脑” or “老黄重新发明 PC” as Chinese/media paraphrase rather than a formal product name.
 - Source Understanding: correctly synthesizes NVIDIA Newsroom, RTX Spark product page, GTC Taipei keynote context, NVIDIA Build/local-agents blog, and Microsoft Build Live into an architecture judgment about Windows local personal/frontier agents, RTX Spark, DGX Station,
   OpenShell, security runtime, CUDA/WSL, unified memory, and local large-model constraints.
+- Source Understanding Review Artifact: produces `review/source_understanding_review.html`, exported screenshots, `review/visual-qa.md` with an independent checker verdict, saved source-understanding baseline, and web source capture packages before entering PPT brief HITL.
 - Pyramid Storyline: turns the official web sources into a decision-oriented PPT argument rather than a list of source facts or URLs.
 - Content Brief Contract: `ppt_content_brief.md` follows the required headings, field names, ordering, density, and downstream-facing language contract.
 - Evidence Boundary Discipline: avoids treating theoretical FP4/sparsity peak performance, not-yet-shipped products, keynote rhetoric, or official marketing copy as validated production agent throughput/security evidence.
@@ -21,6 +22,7 @@ Score each dimension from 0 to 3.
 Treat any of the following as a likely fail:
 
 - The candidate skips human-in-the-loop approval and writes final files immediately despite missing audience or page-count decisions.
+- The candidate skips the Source Understanding review artifact gate, or `review/source_understanding_review.html`, exported screenshots, `review/visual-qa.md`, the source-understanding baseline, web source capture packages, or source-understanding render QA evidence is missing.
 - `ppt_content_brief.md` is missing, fails required structural validation, or contains author-facing audit/source-locator tables.
 - The final storyline says or implies that “全球首个 Agent 原生电脑” is an official product name.
 - Claims about 1 PFLOP, 128GB unified memory, 120B-parameter local models, 1M token context, OpenShell, or DGX Station are not traceable to official sources or are not clearly bounded.
@@ -42,6 +44,7 @@ Treat any of the following as a likely fail:
 - Stakeholder Incorporation: [0-3]
 - Official Wording Boundary: [0-3]
 - Source Understanding: [0-3]
+- Source Understanding Review Artifact: [0-3]
 - Pyramid Storyline: [0-3]
 - Content Brief Contract: [0-3]
 - Evidence Boundary Discipline: [0-3]
@@ -62,6 +65,11 @@ Treat any of the following as a likely fail:
 ## Evidence Reviewed
 
 - [Interaction transcript or summary]
+- [Source Understanding HTML path]
+- [Source Understanding screenshots path]
+- [Visual QA record path]
+- [Source Understanding baseline path]
+- [Web source capture package paths]
 - [PPT Content Brief path]
 - [Approval bundle or baseline path]
 - [QA output path]

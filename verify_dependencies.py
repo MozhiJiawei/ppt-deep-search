@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Dependency check for ppt-deep-search.
 
-The skill uses only Python standard library code. This script exists so the
-host AgentWorkspace can verify the skill through a stable entry point.
+This script is the stable host-facing dependency gate for the skill. Most
+validators use only the Python standard library; Source Understanding screenshot
+export also requires local Playwright with Chromium.
 """
 
 from __future__ import annotations
@@ -30,6 +31,7 @@ def main() -> int:
         root / "scripts" / "hitl_json_to_brief_skeleton.py",
         root / "scripts" / "validate_ppt_content_brief.py",
         root / "scripts" / "validate_markdown_size.py",
+        root / "scripts" / "validate_source_understanding_html.py",
         root / "agents" / "openai.yaml",
         root / "references" / "evidence-principle.md",
         root / "references" / "source-understanding-html-ppt.md",
@@ -123,11 +125,56 @@ def main() -> int:
         return 1
     safe_print(hitl_skeleton_self_test.stdout.strip())
 
-    print("[OK] Python standard library dependencies available.")
-    print("[OK] No required external services, packages, browsers, or hardware dependencies.")
-    print("[OK] Presentation rendering is not part of ppt-deep-search runtime.")
+    source_understanding_self_test = subprocess.run(
+        [sys.executable, str(root / "scripts" / "validate_source_understanding_html.py"), "--self-test"],
+        cwd=root,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    if source_understanding_self_test.returncode != 0:
+        print("[ERROR] Source Understanding HTML image exporter self-test failed:")
+        safe_print((source_understanding_self_test.stdout + source_understanding_self_test.stderr).strip())
+        return 1
+    safe_print(source_understanding_self_test.stdout.strip())
+
+    playwright_check = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            (
+                "from playwright.sync_api import sync_playwright\n"
+                "with sync_playwright() as p:\n"
+                "    browser = p.chromium.launch()\n"
+                "    browser.close()\n"
+                "print('[OK] Python Playwright + Chromium available for Source Understanding image export.')\n"
+            ),
+        ],
+        cwd=root,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    if playwright_check.returncode != 0:
+        print("[ERROR] Source Understanding image export requires local Python Playwright + Chromium:")
+        print("  - Problem: Playwright import or Chromium launch failed.")
+        print(
+            "  - React: Install with `python -m pip install playwright` and "
+            "`python -m playwright install chromium`, then rerun `python verify_dependencies.py`."
+        )
+        safe_print((playwright_check.stdout + playwright_check.stderr).strip())
+        return 1
+    safe_print(playwright_check.stdout.strip())
+
+    print("[OK] Python standard library dependencies available for text validators.")
+    print("[OK] No required external services or hardware dependencies.")
+    print("[OK] Source Understanding HTML screenshot export is part of ppt-deep-search runtime.")
     if args.skip_services:
-        print("[OK] --skip-services accepted; no service checks were needed.")
+        print("[OK] --skip-services accepted; local dependency checks still ran.")
     return 0
 
 

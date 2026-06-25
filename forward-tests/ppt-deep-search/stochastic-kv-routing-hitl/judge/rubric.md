@@ -9,6 +9,7 @@ Score each dimension from 0 to 3.
 - HITL Workflow Discipline: asks for missing audience, thesis, page-count convention, summary-page viewpoint, page plan, and final constraints before writing final artifacts.
 - Stakeholder Incorporation: uses the main agent's human answers to shape the final storyline without merely echoing them.
 - Source Understanding: identifies the paper's core mechanism, depth-wise KV-sharing motivation, R-CLA training idea, cache-retention evidence, and deployment tradeoffs with concrete source locators.
+- Source Understanding Review Artifact: produces `review/source_understanding_review.html`, exported screenshots, `review/visual-qa.md` with an independent checker verdict, and a saved source-understanding baseline before entering PPT brief HITL.
 - Pyramid Storyline: turns the paper into a decision-oriented PPT argument rather than a section-by-section summary.
 - Content Brief Contract: `ppt_content_brief.md` follows the required headings, field names, ordering, density, and downstream-facing language contract.
 - Evidence Boundary Discipline: avoids overstating deployment readiness and preserves uncertainty around training/fine-tuning cost, TTFT/throughput impact, model-family transfer, and serving-environment assumptions.
@@ -19,6 +20,7 @@ Score each dimension from 0 to 3.
 Treat any of the following as a likely fail:
 
 - The candidate skips human-in-the-loop approval and writes final files immediately despite missing audience or page-count decisions.
+- The candidate skips the Source Understanding review artifact gate, or `review/source_understanding_review.html`, exported screenshots, `review/visual-qa.md`, the source-understanding baseline, or source-understanding render QA evidence is missing.
 - `ppt_content_brief.md` is missing, fails required structural validation, or contains author-facing audit/source-locator tables.
 - The final storyline is a generic paper summary with no decision-oriented top-level thesis.
 - Claims about memory savings, quality preservation, throughput, TTFT, or deployability are not traceable to paper evidence or explicitly marked as inference.
@@ -39,6 +41,7 @@ Treat any of the following as a likely fail:
 - HITL Workflow Discipline: [0-3]
 - Stakeholder Incorporation: [0-3]
 - Source Understanding: [0-3]
+- Source Understanding Review Artifact: [0-3]
 - Pyramid Storyline: [0-3]
 - Content Brief Contract: [0-3]
 - Evidence Boundary Discipline: [0-3]
@@ -59,6 +62,10 @@ Treat any of the following as a likely fail:
 ## Evidence Reviewed
 
 - [Interaction transcript or summary]
+- [Source Understanding HTML path]
+- [Source Understanding screenshots path]
+- [Visual QA record path]
+- [Source Understanding baseline path]
 - [PPT Content Brief path]
 - [Approval bundle or baseline path]
 - [QA output path]

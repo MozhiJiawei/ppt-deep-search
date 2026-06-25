@@ -54,6 +54,9 @@ After dispatch, wait for the child agent's first substantive response.
 - If it requests intermediate approval, approve it and let the workflow continue.
 - Stop the run only when the child is fully out of control: wrong output directory, missing required artifact path, judge-file leakage, inability to continue, or responses that no longer follow the task.
 - Do not provide rewrite examples, expression patterns, page-title fixes, rubric dimensions, or detailed repair instructions.
+- Before approving Source Understanding, check that the child has produced the required review artifacts under the run directory:
+  `review/source_understanding_review.html`, exported screenshots, `review/visual-qa.md` with an independent checker verdict, and a saved source-understanding baseline.
+  If these artifacts are missing, give only a minimal artifact-path correction or stop and judge the run as a workflow failure.
 - Evaluate the child response from the full subagent tool-returned content, not from a folded or truncated Codex App preview.
 - If it creates final `ppt_content_brief.md` before any stakeholder answer from the main agent, stop that case and judge it as a HITL workflow failure.
 - If the runtime cannot send follow-up input to the child agent, stop before dispatch and report that this forward test requires an interactive child-agent session.
@@ -79,6 +82,7 @@ Act with these tendencies only when the child explicitly asks for stakeholder pr
 In final judging, inspect semantics strictly:
 
 - Whether `页面标题`、`标题说明`、`分析总结` express page judgments clearly and concretely.
+- Whether the Source Understanding gate produced `review/source_understanding_review.html`, exported screenshots, `review/visual-qa.md`, a saved baseline, and evidence that `scripts/validate_source_understanding_html.py ... all ...` passed before PPT brief HITL began.
 - Whether `ppt_content_brief.md` contains only content intended for the final audience, not author notes, production guidance, audit traces, or downstream-processing instructions.
 - Whether the interaction followed the Skill's HITL flow without skipping gates, over-asking, or drifting away from the task.
 
@@ -101,6 +105,8 @@ Use this shape when spawning a child agent:
 `.tmp/forward-tests/<case-id>/<run-id>/`
 
 `<run-id>` 必须是新的、未存在的目录，不能覆盖或复用历史 forward 结果。
+
+你已经是 candidate child；不要再启动新的 forward-test runner。若仓库 `SKILL.md` 明确要求为任务内工作委派子 agent，可以按 `SKILL.md` 执行。
 ```
 
 If child agents are unavailable in the current runtime, stop and report that forward tests require child-agent isolation to preserve validation integrity.

@@ -2,6 +2,9 @@
 
 Forward tests are human-orchestrated child-agent runs for checking whether the runtime Skill can conduct human-in-the-loop research and produce a PPT-ready Content Brief from realistic source material.
 
+Current runtime also requires a Source Understanding review gate before PPT brief HITL begins.
+Judge-side expected artifacts should include `review/source_understanding_review.html`, exported screenshots, `review/visual-qa.md` with an independent checker verdict, a saved source-understanding baseline, and evidence that `scripts/validate_source_understanding_html.py ... all ...` passed.
+
 ## Cases
 
 Each case lives under:
@@ -81,7 +84,9 @@ In Codex, also keep the child context isolated:
 
 - Do not use full-history forking for the candidate child. A fork may leak judge-side context, previous user critiques, or main-agent hypotheses into the candidate run.
 - Spawn the child with a fresh minimal prompt and the required paths.
-- If the child says it cannot find `multi_agent_v1.spawn_agent`, remind it once that it is already the spawned candidate child and should continue without spawning another agent.
+- If the child says it cannot find `multi_agent_v1.spawn_agent`, distinguish execution roles:
+  it is already the spawned candidate child and must not start another forward-test runner.
+  It may follow repository `SKILL.md` when that Skill explicitly requires task-local subagents such as per-page web capture.
 
 ## Included Cases
 

@@ -31,7 +31,7 @@ Start an interactive child-agent session. The child prompt must be this minimal 
 - Candidate Input: forward-tests/ppt-deep-search/rtx-spark-agent-pc-web-evidence-hitl/candidate/input/
 - Output: .tmp/forward-tests/rtx-spark-agent-pc-web-evidence-hitl/<run-id>/
 
-你已经是 candidate child；不要再 spawn 子 agent。
+你已经是 candidate child；不要再启动新的 forward-test runner。若仓库 `SKILL.md` 明确要求为网页抓取委派子 agent，可以按 `SKILL.md` 执行。
 ```
 
 Do not fork the full main-agent conversation into the child. The child prompt must not include judge-side context, previous run critiques, expected evidence-package failures, or the main agent's current theory about how to improve the Skill.

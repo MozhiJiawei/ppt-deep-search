@@ -55,12 +55,15 @@ def analysis_support_todos(items: list[Any]) -> list[str]:
 
 
 def validate(data: dict[str, Any]) -> None:
+    audience = require_mapping(data.get("audience"), "audience")
     scqa = require_mapping(data.get("scqa"), "scqa")
     page_count = require_mapping(data.get("page_count"), "page_count")
     summary = require_mapping(data.get("summary_page"), "summary_page")
     toc = require_list(data.get("table_of_contents"), "table_of_contents")
     pages = require_list(data.get("content_pages"), "content_pages")
 
+    for field in ("target_reader", "use_case", "current_judgment", "desired_judgment"):
+        non_empty(audience.get(field), f"audience.{field}")
     for field in ("situation", "complication", "question", "answer"):
         non_empty(scqa.get(field), f"scqa.{field}")
     non_empty(page_count.get("counting_rule"), "page_count.counting_rule")
@@ -70,8 +73,14 @@ def validate(data: dict[str, Any]) -> None:
     for field in ("page_number", "title", "subtitle"):
         non_empty(summary.get(field), f"summary_page.{field}")
     require_list(summary.get("analysis"), "summary_page.analysis")
-    if not toc:
+    total_pages = page_count.get("total_pages")
+    summary_only = total_pages == 1
+    if not toc and not summary_only:
         raise ValueError("table_of_contents must not be empty")
+    if toc and summary_only:
+        raise ValueError("table_of_contents must be empty for a one-page summary-only brief")
+    if pages and summary_only:
+        raise ValueError("content_pages must be empty for a one-page summary-only brief")
     if len(toc) > 3:
         raise ValueError("table_of_contents must have at most 3 chapter items")
     toc_titles: set[str] = set()
@@ -80,7 +89,6 @@ def validate(data: dict[str, Any]) -> None:
         non_empty(item.get("index"), f"table_of_contents[{index}].index")
         toc_titles.add(non_empty(item.get("title"), f"table_of_contents[{index}].title"))
         non_empty(item.get("description"), f"table_of_contents[{index}].description")
-    total_pages = page_count.get("total_pages")
     expected_content_pages = total_pages - 3 if isinstance(total_pages, int) and total_pages >= 4 else 0
     if len(pages) != expected_content_pages:
         raise ValueError(f"content_pages must contain exactly {expected_content_pages} item(s) for {total_pages} total pages")
@@ -134,24 +142,14 @@ def validate_visible_copy_from_json(data: dict[str, Any]) -> None:
         )
 
 
-def audience_from_baseline(path: Path | None) -> str:
-    if not path:
-        return "待补充"
-    if not path.exists():
-        raise ValueError(f"audience baseline not found: {path}")
-    content = path.read_text(encoding="utf-8")
-    for line in content.splitlines():
-        stripped = line.strip()
-        for label in ("目标读者：", "目标读者:", "target_reader:", "target_reader："):
-            if stripped.startswith(label):
-                return stripped[len(label) :].strip() or "待补充"
-    for line in content.splitlines():
-        if line.strip():
-            return line.strip()
-    return "待补充"
+def audience_text_from_json(data: dict[str, Any], fallback: str = "待补充") -> str:
+    audience = data.get("audience")
+    if not isinstance(audience, dict):
+        return fallback
+    return text(audience.get("target_reader")) or fallback
 
 
-def build_markdown(data: dict[str, Any], audience_text: str = "待补充") -> str:
+def build_markdown(data: dict[str, Any], audience_text: str | None = None) -> str:
     scqa = require_mapping(data["scqa"], "scqa")
     page_count = require_mapping(data["page_count"], "page_count")
     summary = require_mapping(data["summary_page"], "summary_page")
@@ -161,13 +159,14 @@ def build_markdown(data: dict[str, Any], audience_text: str = "待补充") -> st
     topic = text(data.get("topic")) or text(scqa.get("answer")) or "待定主题"
     source_set = require_list(data.get("source_set", []), "source_set")
     source_text = "；".join(text(item) for item in source_set if text(item)) or "待补充"
+    audience_value = audience_text or audience_text_from_json(data)
 
     lines: list[str] = [
         "# PPT Content Brief",
         "",
         "## Deck Metadata",
         f"主题：{topic}",
-        f"目标读者：{audience_text or '待补充'}",
+        f"目标读者：{audience_value or '待补充'}",
         f"页数口径：{page_count['total_pages']} 页；{non_empty(page_count.get('counting_rule'), 'page_count.counting_rule')}",
         f"核心结论：{non_empty(scqa.get('answer'), 'scqa.answer')}",
         f"内容来源：{source_text}",
@@ -233,7 +232,6 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Build ppt_content_brief.md skeleton from approved HITL JSON.")
     parser.add_argument("input_json", nargs="?", type=Path)
     parser.add_argument("output_md", nargs="?", type=Path)
-    parser.add_argument("--audience-baseline", type=Path)
     parser.add_argument("--self-test", action="store_true")
     args = parser.parse_args()
 
@@ -241,6 +239,12 @@ def main() -> int:
         sample = {
             "topic": "示例主题",
             "source_set": ["paper.xml"],
+            "audience": {
+                "target_reader": "技术负责人",
+                "use_case": "内部技术评估",
+                "current_judgment": "不确定是否值得复测",
+                "desired_judgment": "理解可复测但不可直上的边界",
+            },
             "scqa": {
                 "situation": "已有方案成本上升",
                 "complication": "现有证据仍有边界",
@@ -256,7 +260,7 @@ def main() -> int:
                 "page_number": "Page 2",
                 "title": "可复测，不可直上",
                 "subtitle": "证据支持进入受控验证，但不能外推上线收益。",
-                "analysis": ["立项判断：先做小规模复测"],
+                "analysis": ["立项判断：先做小规模复测", "上线边界：不能外推生产收益"],
                 "notes": "保持审慎语气",
             },
             "table_of_contents": [{"index": "01", "title": "复测理由", "description": "说明为什么值得验证"}],
@@ -266,7 +270,7 @@ def main() -> int:
                     "section": "复测理由",
                     "title": "收益先看端到端",
                     "subtitle": "原型必须同时验证质量、延迟、吞吐、显存和边界，不能只看单项指标。",
-                    "analysis": ["验证口径：同测质量、延迟和成本"],
+                    "analysis": ["验证口径：同测质量、延迟和成本", "外推边界：不把单项指标写成上线结论"],
                     "claims_to_support": ["端到端指标优先"],
                     "boundaries": ["不外推线上收益"],
                     "notes": "",
@@ -275,9 +279,29 @@ def main() -> int:
         }
         validate(sample)
         validate_visible_copy_from_json(sample)
-        output = build_markdown(sample, "技术负责人")
+        output = build_markdown(sample)
         if "# PPT Content Brief" not in output or "## Page Content" not in output:
             print("[ERROR] Self-test output missing required headings")
+            return 1
+        summary_only = {
+            **sample,
+            "page_count": {
+                "total_pages": 1,
+                "counting_rule": "仅 Summary Page",
+                "page_structure": ["Page 1 summary"],
+            },
+            "summary_page": {
+                **sample["summary_page"],
+                "page_number": "Page 1",
+            },
+            "table_of_contents": [],
+            "content_pages": [],
+        }
+        validate(summary_only)
+        validate_visible_copy_from_json(summary_only)
+        summary_output = build_markdown(summary_only)
+        if "## Table of Contents" in summary_output or "## Page Content" in summary_output:
+            print("[ERROR] Summary-only self-test output should not include TOC or content pages")
             return 1
         print("[OK] HITL JSON to brief skeleton self-test passed.")
         return 0
@@ -290,7 +314,7 @@ def main() -> int:
     validate(data)
     validate_visible_copy_from_json(data)
     args.output_md.parent.mkdir(parents=True, exist_ok=True)
-    args.output_md.write_text(build_markdown(data, audience_from_baseline(args.audience_baseline)), encoding="utf-8", newline="\n")
+    args.output_md.write_text(build_markdown(data), encoding="utf-8", newline="\n")
     print(f"[OK] Wrote skeleton: {args.output_md}")
     return 0
 

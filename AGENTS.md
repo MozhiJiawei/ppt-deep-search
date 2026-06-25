@@ -69,7 +69,8 @@ The child dispatch prompt is part of the test. Keep it minimal and context-isola
 - Do not include judge rubrics, expected scoring dimensions, previous run failures, target fixes, design critiques, or explanations of what the main agent hopes to validate.
 - Do not tell the child to demonstrate a specific new reference, pattern, or implementation detail unless that instruction is already in the candidate-facing prompt or repository `SKILL.md`.
 - A run-specific reminder is allowed only when it is short and user-facing, for example `本轮重点关注 HIL HTML 是否清楚可读`; it must not become a strategy checklist.
-- The child may be told that it is already the candidate child and must not spawn another subagent. This is execution hygiene, not strategy leakage.
+- The child may be told that it is already the candidate child and must not start another forward-test runner. This is execution hygiene, not strategy leakage.
+  If repository `SKILL.md` explicitly requires task-local subagents, such as per-page web capture, the candidate child may follow that Skill requirement.
 
 Bad dispatch:
 
@@ -84,11 +85,16 @@ Good dispatch:
 - Candidate Prompt: ...
 - Candidate Input: ...
 - Output: .tmp/forward-tests/<case>/<run-id>/
-你已经是 candidate child；不要再 spawn 子 agent。需要审批时等待主 agent。
+你已经是 candidate child；不要再启动新的 forward-test runner。
+若仓库 `SKILL.md` 明确要求为任务内工作委派子 agent，可以按 `SKILL.md` 执行。
+需要审批时等待主 agent。
 ```
 
 If an agent receives a parent dispatch prompt that already names a `Candidate Prompt`, `Candidate Input`, and required `.tmp/forward-tests/<case-id>/<run-id>/` output directory, that agent is the candidate child agent for the forward run. In that role, do not try to start another
-subagent. Read the candidate-facing files and repository `SKILL.md`, run the Skill's HIL workflow normally, ask the parent/human for approvals when required, and write artifacts to the provided output directory.
+forward-test runner. Read the candidate-facing files and repository `SKILL.md`, run the Skill's HIL workflow normally,
+ask the parent/human for approvals when required, and write artifacts to the provided output directory.
+If the repository `SKILL.md` explicitly requires task-local subagents, such as per-page web capture,
+the candidate child may use them without treating them as new forward-test runners.
 
 The child agent must write all artifacts under:
 

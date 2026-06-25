@@ -3,7 +3,7 @@ name: ppt-deep-search
 description: >-
   面向 PPT 生成前置阶段的人机协同深度研究与叙事规划。用于把论文、网页、Markdown、仓库分析、PDF、笔记或原始材料转成 PPT 可用的 Content Brief，供下游 PPT skill 制作幻灯片。
   适用于研究框定、读者认知路径设计、金字塔大纲、页面标题/标题说明/总结审批和源图使用策略。
-  不用于演示文稿渲染、版式模板、字体/风格决策、导出或视觉 QA。
+  不用于演示文稿终稿渲染。
 ---
 
 # PPT Deep Search
@@ -13,6 +13,7 @@ description: >-
 最终交付文件：
 
 - `ppt_content_brief.md`：面向下游 PPT 制作者的文案包。
+- `source_understanding_review.html`：对使用该SKILL的人解释技术原理。
 
 ## HITL 交互
 
@@ -26,44 +27,12 @@ description: >-
 
 同时加载 `references/evidence-principle.md` 和 `references/evidence-examples.md`，作为所有交付件表达的纲领和示例库。证据优先级、源图策略、补充证据时机、金字塔表达，以及所有 handoff artifact 的措辞都遵循这两个文件。
 
-### 2. 确认受众
+### 2. 制作 Source Understanding 审阅 deck
 
-这是第一个 human-in-the-loop gate。确认目标读者、读者可能的当前判断、希望改变的判断、最终用途、来源集合和已知缺口。
+加载 `references/source-understanding-html-ppt.md`，制作 `source_understanding_review.html` 
+未经用户批准，不得进入 `ppt-brief-hitl.md`。
 
-请求受众审批时，只输出当前 gate 问题和 3 个编号受众/框架选项。使用这个精确模板：
-
-```text
-请先确认受众框架。请选择一个编号，或直接按模板改写。
-
-1. 目标读者：<具体角色>
-使用场景：<这份 brief/deck 会被拿去做什么>
-当前判断：<读者现在可能怎么想>
-希望改变：<看完后希望读者改成什么判断>
-
-2. 目标读者：<具体角色>
-使用场景：<这份 brief/deck 会被拿去做什么>
-当前判断：<读者现在可能怎么想>
-希望改变：<看完后希望读者改成什么判断>
-
-3. 目标读者：<具体角色>
-使用场景：<这份 brief/deck 会被拿去做什么>
-当前判断：<读者现在可能怎么想>
-希望改变：<看完后希望读者改成什么判断>
-```
-
-选项之后不要追加进度说明。
-
-审批通过后保存：
-
-```text
-<workspace-root>/baselines/01-audience.md
-```
-
-### 3. 预留 Source Understanding 交付件
-
-为未来 source-understanding 交付件预留。当前 runtime 不实现这一步。
-
-### 4. 制作 PPT Content Brief
+### 3. 制作 PPT Content Brief
 
 加载 `references/ppt-brief-hitl.md`，遵循其中的 human-in-the-loop 流程，产出 `ppt_content_brief.md`。
 

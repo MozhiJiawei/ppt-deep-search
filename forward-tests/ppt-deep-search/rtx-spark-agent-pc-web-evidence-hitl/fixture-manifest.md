@@ -10,8 +10,9 @@ This fixture preserves a media-rich official-web-source task for `ppt-deep-searc
 
 ## Goal
 
-Validate whether `ppt-deep-search` can run its normal human-in-the-loop workflow on official web sources and produce one durable handoff file:
+Validate whether `ppt-deep-search` can run its normal human-in-the-loop workflow on official web sources and produce the required Source Understanding review artifacts plus one durable handoff file:
 
+- `review/source_understanding_review.html`, screenshots, visual QA, and baseline approval for the pre-brief source-understanding gate.
 - `ppt_content_brief.md`, suitable as the downstream PPT maker's slide-content source.
 
 The test is not a one-shot web summary. The child agent should ask the human stakeholder for missing audience, thesis, page-count, viewpoint, and constraint decisions according to `SKILL.md`. It must preserve official-source boundaries and not rely on raw search snippets as evidence.
@@ -50,6 +51,12 @@ The candidate should write final artifacts under a run-specific workspace such a
 
 Expected artifacts:
 
+- `review/source_understanding_review.html`;
+- `review/source-understanding-images/` with exported slide PNGs;
+- `review/visual-qa.md` recording an independent checker verdict;
+- saved source-understanding baseline under `baselines/`;
+- web source capture packages under `sources/web/` for selected pages;
 - `ppt_content_brief.md`;
 - saved approval bundle or baselines when produced by the Skill;
+- validation output showing `scripts/validate_source_understanding_html.py ... all ...` passed for the review HTML, or a clear blocker note explaining why it could not;
 - validation output showing the final brief passed the repository QA script, or a clear blocker note explaining why it could not.
