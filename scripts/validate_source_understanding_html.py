@@ -109,8 +109,6 @@ def visible_image_scale_issues(page, slide_index: int) -> list[dict[str, object]
               const broken = !img.complete || naturalWidth <= 0 || naturalHeight <= 0;
               const invisible = !visible(img);
               const tinySource = naturalWidth < 160 || naturalHeight < 120;
-              const ignored = img.hasAttribute('data-render-scale-ignore') ||
-                img.closest('[data-render-scale-ignore="true"]');
               return {
                 slide: slideIndex,
                 image: index + 1,
@@ -124,8 +122,7 @@ def visible_image_scale_issues(page, slide_index: int) -> list[dict[str, object]
                 broken,
                 invisible,
                 tinySource,
-                ignored,
-                fail: !ignored && !tinySource && !broken && !invisible && scale < minScale
+                fail: !tinySource && !broken && !invisible && scale < minScale
               };
             })
             .filter((item) => item.fail);

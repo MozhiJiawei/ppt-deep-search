@@ -13,7 +13,7 @@ description: >-
 最终交付文件：
 
 - `ppt_content_brief.md`：面向下游 PPT 制作者的文案包。
-- `source_understanding_review.html`：对使用该SKILL的人解释技术原理。
+- `source_understanding_review.html`：对“不了解该技术的技术小白”解释技术原理。
 
 ## HITL 交互
 
