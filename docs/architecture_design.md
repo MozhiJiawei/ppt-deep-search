@@ -5,7 +5,7 @@
 
 ## 运行契约
 
-`ppt-deep-search` 负责下游 PPT 生成前的研究对齐，不负责渲染最终 PPTX。
+`ppt-deep-search` 负责下游 PPT 生成前的研究对齐，不负责渲染最终 HTML 演示文稿。
 
 运行流程分两段：
 
