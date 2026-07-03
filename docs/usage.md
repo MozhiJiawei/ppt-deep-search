@@ -65,7 +65,7 @@ Source Understanding 阶段还必须产生这些中间评审产物：
 - assumptions/open questions
 - approval log
 
-如果任务需要网页来源，优先使用可信来源包或仓库内 `web-article-capture/SKILL.md` 获取网页正文和图片证据。不要用搜索摘要、raw HTML、`curl` 抓取结果或手写网页摘录替代可追溯来源。
+如果任务需要网页来源，优先使用 workspace skill `web-article-capture` 获取网页正文和图片证据。不要用搜索摘要、raw HTML、`curl` 抓取结果或手写网页摘录替代可追溯来源。
 
 ## 校验命令
 

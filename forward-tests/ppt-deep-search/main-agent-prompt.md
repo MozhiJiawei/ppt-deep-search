@@ -39,8 +39,8 @@ Run only that one case.
 - Start one interactive child-agent session per selected case.
 - Use a child-agent mechanism that can receive follow-up input from the main agent. Do not use a fire-and-forget worker mode for this suite.
 - Do not run candidate work in the main agent context.
-- Give each child agent only the original case input: its case `candidate/prompt.md`, `candidate/input/`, repository `SKILL.md`, and normal runtime references/scripts required by the Skill.
-- Keep the child-agent dispatch prompt minimal. Do not restate strategy, judging criteria, evidence policy, or expected answer structure. If the user asks for a focused variation, add at most one short reminder sentence after the original input.
+- Give each child agent only the exact text content of its case `candidate/prompt.md`.
+- Do not wrap, summarize, or annotate the candidate prompt. The candidate prompt itself must contain the required input path, repository `SKILL.md` path, output path, and whether task-local subagents are allowed.
 - Do not reveal judge-only files, prior generated outputs, or other case directories to a child agent.
 - Judge each completed case with its case rubric when present.
 - Write judgments under `.tmp/forward-tests/<case-id>/<run-id>/judgment.md`.
@@ -88,25 +88,14 @@ In final judging, inspect semantics strictly:
 
 Do not use these tendencies to tell the child agent how to pass the judge rubric. Treat them as normal stakeholder preferences.
 
-## Minimal Dispatch Shape
+## Candidate Dispatch
 
-Use this shape when spawning a child agent:
+When spawning a child agent, read the selected case's `candidate/prompt.md` and send that file's content as the full child prompt.
 
 ```text
-请使用仓库 `SKILL.md` 完成以下 ppt-deep-search forward test：
-
-- Candidate Prompt: forward-tests/ppt-deep-search/<case-id>/candidate/prompt.md
-- Candidate Input: forward-tests/ppt-deep-search/<case-id>/candidate/input/
-
-请自行读取并遵循仓库 `SKILL.md` 的完整 human-in-the-loop 流程。
-
-请将产物写入：
-
-`.tmp/forward-tests/<case-id>/<run-id>/`
-
-`<run-id>` 必须是新的、未存在的目录，不能覆盖或复用历史 forward 结果。
-
-你已经是 candidate child；不要再启动新的 forward-test runner。若仓库 `SKILL.md` 明确要求为任务内工作委派子 agent，可以按 `SKILL.md` 执行。
+<exact contents of forward-tests/ppt-deep-search/<case-id>/candidate/prompt.md>
 ```
+
+Do not add wrapper text such as "run this forward test", candidate path summaries, judge-side expectations, or role reminders.
 
 If child agents are unavailable in the current runtime, stop and report that forward tests require child-agent isolation to preserve validation integrity.

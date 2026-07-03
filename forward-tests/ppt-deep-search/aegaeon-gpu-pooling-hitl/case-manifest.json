@@ -1,7 +1,7 @@
 ﻿{
   "id": "aegaeon-gpu-pooling-hitl",
   "title": "Aegaeon GPU Pooling Human-In-The-Loop Brief",
-  "summary": "Checks whether ppt-deep-search can run its normal human-in-the-loop workflow on a parser-derived systems paper package and produce a grounded PPT Content Brief.",
+  "summary": "Checks whether ppt-deep-search can run its normal human-in-the-loop workflow from a live paper source request and produce a grounded PPT Content Brief.",
   "source": "Aegaeon: Effective GPU Pooling for Concurrent LLM Serving on the Market",
   "tags": ["human-in-the-loop", "paper-brief", "llm-serving", "gpu-pooling", "source-grounding"]
 }

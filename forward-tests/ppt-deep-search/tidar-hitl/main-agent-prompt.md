@@ -18,31 +18,17 @@ Read these judge-side files before dispatch:
 Confirm the candidate-facing input exists:
 
 - `forward-tests/ppt-deep-search/tidar-hitl/candidate/prompt.md`
-- `forward-tests/ppt-deep-search/tidar-hitl/candidate/input/pdf_xml/final/tidar.xml`
-- `forward-tests/ppt-deep-search/tidar-hitl/candidate/input/pdf_xml/final/images/`
-- `forward-tests/ppt-deep-search/tidar-hitl/candidate/input/pdf_xml/tidar.intermediate_parse_results.zip`
-- `forward-tests/ppt-deep-search/tidar-hitl/candidate/input/pdf_xml/tidar.pdf`
+- `forward-tests/ppt-deep-search/tidar-hitl/candidate/input/source-request.md`
 
 ## Candidate Dispatch
 
-Start an interactive child-agent session with a prompt equivalent to:
+Start an interactive child-agent session. The child prompt must be exactly the contents of:
 
 ```text
-请使用仓库 `SKILL.md` 完成以下 ppt-deep-search forward test：
-
-- Candidate Prompt: forward-tests/ppt-deep-search/tidar-hitl/candidate/prompt.md
-- Candidate Input: forward-tests/ppt-deep-search/tidar-hitl/candidate/input/
-
-请自行读取并遵循仓库 `SKILL.md` 的完整 human-in-the-loop 流程。
-
-请将产物写入：
-
-`.tmp/forward-tests/tidar-hitl/<run-id>/`
-
-`<run-id>` 必须是新的、未存在的目录，不能覆盖或复用历史 forward 结果。
+forward-tests/ppt-deep-search/tidar-hitl/candidate/prompt.md
 ```
 
-Do not fork the full main-agent conversation into the child. The child prompt must not include judge-side context, previous run critiques, or the main agent's current theory about how to improve the Skill.
+Do not fork the full main-agent conversation into the child. Do not add wrapper text, candidate path summaries, judge-side context, previous run critiques, or the main agent's current theory about how to improve the Skill.
 
 If subagents are unavailable in the current runtime, stop and report that this forward test requires a child-agent run to preserve validation integrity. Do not run the candidate task yourself in the same context.
 Use a child-agent mechanism that can receive follow-up input from the main agent. Do not use a fire-and-forget worker mode for this case.

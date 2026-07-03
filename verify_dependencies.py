@@ -24,9 +24,9 @@ def main() -> int:
     args = parser.parse_args()
 
     root = Path(__file__).resolve().parent
+    workspace_root = root.parent.parent
     required = [
         root / "SKILL.md",
-        root / ".gitmodules",
         root / "docs" / "architecture_design.md",
         root / "scripts" / "hitl_json_to_brief_skeleton.py",
         root / "scripts" / "validate_ppt_content_brief.py",
@@ -36,13 +36,12 @@ def main() -> int:
         root / "references" / "evidence-principle.md",
         root / "references" / "source-understanding-html-ppt.md",
         root / "references" / "ppt-brief-hitl.md",
-        root / "web-article-capture" / "SKILL.md",
-        root / "web-article-capture" / "scripts" / "validate_capture_package.py",
-        root / "web-article-capture" / "references" / "output-contract.md",
-        root / "html-ppt-skill" / "SKILL.md",
-        root / "web-article-capture" / "forward-tests" / "nvidia-pc" / "candidate" / "prompt.md",
-        root / "web-article-capture" / "forward-tests" / "nvidia-pc" / "candidate" / "input" / "urls.txt",
-        root / "web-article-capture" / "forward-tests" / "nvidia-pc" / "judge" / "rubric.md",
+        workspace_root / "skills" / "web-article-capture" / "SKILL.md",
+        workspace_root / "skills" / "web-article-capture" / "scripts" / "validate_capture_package.py",
+        workspace_root / "skills" / "web-article-capture" / "references" / "output-contract.md",
+        workspace_root / "skills" / "hw-ppt-gen-html" / "SKILL.md",
+        workspace_root / "skills" / "hw-ppt-gen-html" / "scripts" / "render_html_ppt.py",
+        workspace_root / "skills" / "grobid_pdf_skill" / "SKILL.md",
         root / "forward-tests" / "ppt-deep-search" / "README.md",
         root / "forward-tests" / "ppt-deep-search" / "main-agent-prompt.md",
     ]
@@ -55,7 +54,13 @@ def main() -> int:
                 case_dir / "case-manifest.json",
             ]
         )
-    missing = [str(path.relative_to(root)) for path in required if not path.exists()]
+    missing = []
+    for path in required:
+        if not path.exists():
+            try:
+                missing.append(str(path.relative_to(root)))
+            except ValueError:
+                missing.append(str(path.relative_to(workspace_root)))
     if missing:
         print("[ERROR] Missing required files:")
         for item in missing:

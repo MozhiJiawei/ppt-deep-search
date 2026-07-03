@@ -1,12 +1,12 @@
 ﻿---
 date: 2026-06-02
 fixture: stochastic-kv-routing-hitl
-source_package: Stochastic KV Routing parser output
+source_package: paper source request
 ---
 
 # Stochastic KV Routing HITL Forward Test
 
-This fixture preserves a parser-derived paper package for `Stochastic KV Routing: Enabling Adaptive Depth-Wise Cache Sharing`.
+This fixture preserves a paper source request for `Stochastic KV Routing: Enabling Adaptive Depth-Wise Cache Sharing`.
 
 ## Goal
 
@@ -22,18 +22,9 @@ The test is not a one-shot paper summary. The child agent should ask the human s
 Pass only this directory to the candidate agent:
 
 - `candidate/prompt.md`
-- `candidate/input/pdf_xml/final/stochastic-kv-routing.xml`
-- `candidate/input/pdf_xml/final/images/*.png`
-- `candidate/input/pdf_xml/source.json`
-- `candidate/input/pdf_xml/stochastic-kv-routing.intermediate_parse_results.zip`
+- `candidate/input/source-request.md`
 
-The candidate may also read the repository Skill and normal references/scripts required by `SKILL.md`, especially:
-
-- `SKILL.md`
-- `references/ppt-content-brief-format.md`
-- `references/research-audit-format.md`
-- `references/pyramid-principle.md`
-- `scripts/validate_ppt_content_brief.py`
+The candidate may also read the repository Skill and normal references/scripts required by `SKILL.md`.
 
 ## Judge-Facing Assets
 

@@ -1,12 +1,12 @@
 ﻿---
 date: 2026-06-03
 fixture: tidar-hitl
-source_package: TiDAR parser output
+source_package: paper source request
 ---
 
 # TiDAR HITL Forward Test
 
-This fixture preserves a parser-derived paper package for `TiDAR: Think in Diffusion, Talk in Autoregression`.
+This fixture preserves a paper source request for `TiDAR: Think in Diffusion, Talk in Autoregression`.
 
 ## Goal
 
@@ -22,10 +22,7 @@ The test is not a one-shot paper summary. The child agent should ask the human s
 Pass only this directory to the candidate agent:
 
 - `candidate/prompt.md`
-- `candidate/input/pdf_xml/final/tidar.xml`
-- `candidate/input/pdf_xml/final/images/*.png`
-- `candidate/input/pdf_xml/tidar.intermediate_parse_results.zip`
-- `candidate/input/pdf_xml/tidar.pdf`
+- `candidate/input/source-request.md`
 
 The candidate may also read the repository Skill and normal references/scripts required by `SKILL.md`.
 

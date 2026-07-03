@@ -1,12 +1,12 @@
 ﻿---
 date: 2026-06-03
 fixture: goal-oriented-reasoning-rag-memory-hitl
-source_package: GOAL-MEM parser output
+source_package: paper source request
 ---
 
 # GOAL-MEM HITL Forward Test
 
-This fixture preserves a parser-derived paper package for `Goal-Oriented Reasoning for RAG-based Memory in Conversational Agentic LLM Systems`.
+This fixture preserves a paper source request for `Goal-Oriented Reasoning for RAG-based Memory in Conversational Agentic LLM Systems`.
 
 ## Goal
 
@@ -22,9 +22,7 @@ The test is not a one-shot paper summary. The child agent should ask the human s
 Pass only this directory to the candidate agent:
 
 - `candidate/prompt.md`
-- `candidate/input/pdf_xml/final/Goal-Oriented Reasoning for RAG-based Memory in Conversational Agentic LLM Systems.xml`
-- `candidate/input/pdf_xml/final/images/*.png`
-- `candidate/input/pdf_xml/Goal-Oriented Reasoning for RAG-based Memory in Conversational Agentic LLM Systems.intermediate_parse_results.zip`
+- `candidate/input/source-request.md`
 
 The candidate may also read the repository Skill and normal references/scripts required by `SKILL.md`.
 

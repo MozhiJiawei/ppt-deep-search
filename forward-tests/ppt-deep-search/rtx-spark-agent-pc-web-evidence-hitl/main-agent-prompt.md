@@ -22,19 +22,13 @@ Confirm the candidate-facing input exists:
 
 ## Candidate Dispatch
 
-Start an interactive child-agent session. The child prompt must be this minimal shape only:
+Start an interactive child-agent session. The child prompt must be exactly the contents of:
 
 ```text
-请使用仓库 `SKILL.md` 完成 ppt-deep-search forward test：
-
-- Candidate Prompt: forward-tests/ppt-deep-search/rtx-spark-agent-pc-web-evidence-hitl/candidate/prompt.md
-- Candidate Input: forward-tests/ppt-deep-search/rtx-spark-agent-pc-web-evidence-hitl/candidate/input/
-- Output: .tmp/forward-tests/rtx-spark-agent-pc-web-evidence-hitl/<run-id>/
-
-你已经是 candidate child；不要再启动新的 forward-test runner。若仓库 `SKILL.md` 明确要求为网页抓取委派子 agent，可以按 `SKILL.md` 执行。
+forward-tests/ppt-deep-search/rtx-spark-agent-pc-web-evidence-hitl/candidate/prompt.md
 ```
 
-Do not fork the full main-agent conversation into the child. The child prompt must not include judge-side context, previous run critiques, expected evidence-package failures, or the main agent's current theory about how to improve the Skill.
+Do not fork the full main-agent conversation into the child. Do not add wrapper text, candidate path summaries, judge-side context, previous run critiques, expected evidence-package failures, or the main agent's current theory about how to improve the Skill.
 
 If subagents are unavailable in the current runtime, stop and report that this forward test requires a child-agent run to preserve validation integrity. Do not run the candidate task yourself in the same context.
 Use a child-agent mechanism that can receive follow-up input from the main agent. Do not use a fire-and-forget worker mode for this case.

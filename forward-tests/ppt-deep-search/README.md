@@ -32,7 +32,7 @@ Forward tests do not need a Node runner. They are main-agent orchestration promp
 - The max child-agent concurrency is 3.
 - For the default run, start the selected child agents in parallel up to that concurrency limit.
 - When the user asks to run a named case, the main agent starts exactly one child agent for that case.
-- Each child agent receives only that case's `candidate/prompt.md`, `candidate/input/`, repository `SKILL.md`, and normal runtime references/scripts required by the Skill.
+- Each child agent receives only the exact text content of that case's `candidate/prompt.md`. The candidate prompt itself must name the required `candidate/input/`, repository `SKILL.md`, and normal runtime paths required by the Skill.
 - Judge-only files stay in the main agent context.
 - The main agent must wait for each child agent's human-facing question or approval request and answer it as the stakeholder.
 - If a child agent writes final artifacts before any main-agent stakeholder answer, stop that case and record it as a HITL failure.
@@ -69,24 +69,18 @@ Judge with a strict teacher stance. The goal of a forward test is to expose prod
 
 ## Minimal Prompt Principle
 
-Forward tests measure whether the runtime Skill can elicit and shape the brief through its normal workflow. The child-agent dispatch prompt should contain only:
+Forward tests measure whether the runtime Skill can elicit and shape the brief through its normal workflow. The child-agent dispatch prompt must be the exact text content of the selected case's `candidate/prompt.md`.
 
-- the candidate prompt path;
-- the candidate input directory;
-- the instruction to follow repository `SKILL.md`;
-- the required output directory under `.tmp/forward-tests/<case-id>/<run-id>/`;
-- at most one short user-requested reminder sentence for that run.
-
-Do not include strategy explanations, judging criteria, expected answer structure, evidence-selection policy, approval scripts, or summaries of previous failures in the child-agent dispatch prompt. Keep those in `fixture-manifest.md`, `judge/rubric.md`, or the main agent's
-judgment context only.
+Do not add wrapper text such as "you are a candidate child", "run this forward test",
+candidate path summaries, strategy explanations, judging criteria, expected answer structure,
+evidence-selection policy, approval scripts, or summaries of previous failures. Keep those in
+`fixture-manifest.md`, `judge/rubric.md`, or the main agent's judgment context only.
 
 In Codex, also keep the child context isolated:
 
 - Do not use full-history forking for the candidate child. A fork may leak judge-side context, previous user critiques, or main-agent hypotheses into the candidate run.
-- Spawn the child with a fresh minimal prompt and the required paths.
-- If the child says it cannot find `multi_agent_v1.spawn_agent`, distinguish execution roles:
-  it is already the spawned candidate child and must not start another forward-test runner.
-  It may follow repository `SKILL.md` when that Skill explicitly requires task-local subagents such as per-page web capture.
+- Spawn the child with a fresh prompt equal to `candidate/prompt.md`.
+- The candidate prompt must explicitly state whether task-local subagents are allowed. Current cases allow subagents when the Skill needs them for web capture, paper parsing, HTML deck generation, or visual QA.
 
 ## Included Cases
 

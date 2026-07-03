@@ -1,12 +1,12 @@
 ﻿---
 date: 2026-06-03
 fixture: aegaeon-gpu-pooling-hitl
-source_package: Aegaeon parser output
+source_package: paper source request
 ---
 
 # Aegaeon GPU Pooling HITL Forward Test
 
-This fixture preserves a parser-derived paper package for `Aegaeon: Effective GPU Pooling for Concurrent LLM Serving on the Market`.
+This fixture preserves a paper source request for `Aegaeon: Effective GPU Pooling for Concurrent LLM Serving on the Market`.
 
 ## Goal
 
@@ -22,9 +22,7 @@ The test is not a one-shot paper summary. The child agent should ask the human s
 Pass only this directory to the candidate agent:
 
 - `candidate/prompt.md`
-- `candidate/input/pdf_xml/final/Aegaeon Effective GPU Pooling for Concurrent LLMServing on the Market.xml`
-- `candidate/input/pdf_xml/final/images/*.png`
-- `candidate/input/pdf_xml/Aegaeon Effective GPU Pooling for Concurrent LLMServing on the Market.intermediate_parse_results.zip`
+- `candidate/input/source-request.md`
 
 The candidate may also read the repository Skill and normal references/scripts required by `SKILL.md`.
 

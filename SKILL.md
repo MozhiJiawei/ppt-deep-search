@@ -21,6 +21,17 @@ description: >-
 - 向用户提问时，输出当前问题，并按gate中的回答模板整理备用答案，并等待用户回复确认。
 - 必须遵循 HITL。
 
+## Workspace Skill 索引
+
+- 这些SKILL都是配套委派子agent使用的，主agent禁止加载查阅细节
+- 网页来源抓取使用 workspace skill：`web-article-capture`。
+- Source Understanding HTML deck 生成使用 workspace skill：`hw-ppt-gen-html`。
+- 论文解析使用 workspace skill：`grobid-docling-pdf`（仓库路径：`skills/grobid_pdf_skill/SKILL.md`）。
+- 优先使用工作区中的现有文件，无法在工作区中找到些SKILL时，通过git将子skill clone到 .tmp目录下来使用
+  - https://github.com/MozhiJiawei/web-article-capture
+  - https://github.com/MozhiJiawei/hw-ppt-gen-html
+  - https://github.com/MozhiJiawei/grobid_pdf_skill
+
 ## 工作流程
 
 ### 1. 加载证据原则
@@ -29,7 +40,7 @@ description: >-
 
 ### 2. 制作 Source Understanding 审阅 deck
 
-加载 `references/source-understanding-html-ppt.md`，制作 `source_understanding_review.html` 
+加载 `references/source-understanding-html-ppt.md`，委派子agent做内容解析，委派子agnet制作 `source_understanding_review.html`
 未经用户批准，不得进入 `ppt-brief-hitl.md`。
 
 ### 3. 制作 PPT Content Brief
