@@ -9,6 +9,7 @@ description: >-
 # PPT Deep Search
 
 构建有来源支撑的 PPT 规划产物，不制作幻灯片。负责 research-to-brief 流程的编排、发现、路由和硬 gate。
+稳定子 agent 角色定义放在本 skill 子仓的 `.codex/agents/*.toml`；本 Skill 只负责在运行时补全动态占位、执行 HITL gate 和回收子任务结果。
 
 最终交付文件：
 
@@ -25,8 +26,8 @@ description: >-
 
 - 这些SKILL都是配套委派子agent使用的，主agent禁止加载查阅细节
 - 网页来源抓取使用 workspace skill：`web-article-capture`。
-- Source Understanding HTML deck 生成使用 workspace skill：`hw-ppt-gen-html`。
 - 论文解析使用 workspace skill：`grobid-docling-pdf`（仓库路径：`skills/grobid_pdf_skill/SKILL.md`）。
+- Source Understanding HTML deck 生成使用 workspace skill：`hw-ppt-gen-html`。
 - 优先使用工作区中的现有文件，无法在工作区中找到些SKILL时，通过git将子skill clone到 .tmp目录下来使用
   - https://github.com/MozhiJiawei/web-article-capture
   - https://github.com/MozhiJiawei/hw-ppt-gen-html
@@ -40,7 +41,7 @@ description: >-
 
 ### 2. 制作 Source Understanding 审阅 deck
 
-加载 `references/source-understanding-html-ppt.md`，委派子agent做内容解析，委派子agnet制作 `source_understanding_review.html`
+加载 `references/source-understanding-html-ppt.md`，按其中的 Codex custom agent 与动态占位约定委派子 agent 做内容解析和 HTML deck 制作。
 未经用户批准，不得进入 `ppt-brief-hitl.md`。
 
 ### 3. 制作 PPT Content Brief

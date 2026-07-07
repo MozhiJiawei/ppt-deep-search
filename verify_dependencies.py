@@ -25,7 +25,11 @@ def main() -> int:
 
     root = Path(__file__).resolve().parent
     workspace_root = root.parent.parent
+    codex_agents_root = root / ".codex" / "agents"
     required = [
+        codex_agents_root / "web_source_capturer.toml",
+        codex_agents_root / "paper_source_parser.toml",
+        codex_agents_root / "source_understanding_deck_maker.toml",
         root / "SKILL.md",
         root / "docs" / "architecture_design.md",
         root / "scripts" / "hitl_json_to_brief_skeleton.py",
@@ -66,6 +70,17 @@ def main() -> int:
         for item in missing:
             print(f"  - {item}")
         return 1
+
+    expected_agents = {
+        "web_source_capturer": codex_agents_root / "web_source_capturer.toml",
+        "paper_source_parser": codex_agents_root / "paper_source_parser.toml",
+        "source_understanding_deck_maker": codex_agents_root / "source_understanding_deck_maker.toml",
+    }
+    for agent_name, agent_path in expected_agents.items():
+        text = agent_path.read_text(encoding="utf-8")
+        if f'name = "{agent_name}"' not in text:
+            print(f"[ERROR] Codex agent file has wrong or missing name: {agent_path.relative_to(workspace_root)}")
+            return 1
 
     if sys.version_info < (3, 9):
         print(f"[ERROR] Python 3.9+ is required; found {sys.version.split()[0]}")

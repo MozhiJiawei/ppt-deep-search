@@ -17,6 +17,21 @@
 Source Understanding gate 不是可选步骤。
 在 Source Understanding 产物获批或记录明确 blocker 之前，`SKILL.md` 不得进入 `references/ppt-brief-hitl.md`。
 
+## 子 Agent 分层
+
+`ppt-deep-search` 使用两层子 agent 编排：
+
+- 本 skill 子仓 `.codex/agents/*.toml` 保存原子 agent 的稳定静态 prompt。
+- `references/source-understanding-html-ppt.md` 保存运行时调度规则，包括何时调用哪个 custom agent，以及每次 spawn 时必须补充的动态占位内容。
+
+不要把本次 URL、PDF、source slug、输出目录或来源列表固化进 agent TOML。主 agent 必须根据当前任务动态补全 reference 中的占位符。
+
+当前 Source Understanding 相关 custom agents：
+
+- `web_source_capturer`
+- `paper_source_parser`
+- `source_understanding_deck_maker`
+
 ## 产物归属
 
 一次运行只使用一个 task root，通常是 `.tmp/ppt-deep-search/<task-name>/` 或 `.tmp/forward-tests/<case-id>/<run-id>/`。
@@ -55,6 +70,7 @@ Source Understanding 必需产物：
 
 当前脚本职责：
 
+- 检查本 skill 子仓 `.codex/agents/*.toml` 的必需 custom agent 文件存在。
 - `scripts/validate_markdown_size.py` 检查 Markdown size budget。
 - `scripts/validate_source_understanding_html.py` 用 Playwright 把 Source Understanding HTML 渲染成 PNG，检查翻页导航，并执行图片缩放硬 gate。
 - `scripts/hitl_json_to_brief_skeleton.py` 把已批准的 HITL JSON 转成 `ppt_content_brief.md` 骨架；支持一页 summary-only brief，此时 TOC 和内容页可以为空。
