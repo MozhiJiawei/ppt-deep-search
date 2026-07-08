@@ -70,9 +70,9 @@ multi-agent原则：必须按照prompt模板，启动子agent，你需要将prom
 
 要根据同类研究的数量启动多个子agnet并行制作
 
-最终交付：主报告 + 最多两份同类报告
+最终交付：主报告 + 最多两份同类研究的报告
 
-给子agnet的动态补充：
+给子agnet的动态补充，信息源仅提供与该子agent相关的：
 ```text
 信息源： <path1>, <path2>, <path3>, ...
 
@@ -91,7 +91,9 @@ HTML 生成后，请用户审阅是否批准作为后续证据基线：
 <workspace-root>/<reference-report>/source_understanding_review.html
 <workspace-root>/<reference-report>/source_understanding_review.html
 
-是否批准这些来源理解作为后续 PPT Content Brief 的证据基线？
+是否批准这些来源理解作为本轮 Source Understanding 结果？
 
 1. 批准
 ```
+
+审批通过后，保存 `<workspace-root>/baselines/015-source-understanding.md`。

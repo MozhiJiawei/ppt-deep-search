@@ -10,12 +10,11 @@ This fixture preserves a media-rich official-web-source task for `ppt-deep-searc
 
 ## Goal
 
-Validate whether `ppt-deep-search` can run its normal human-in-the-loop workflow on official web sources and produce the required Source Understanding review artifacts plus one durable handoff file:
+Validate whether `ppt-deep-search` can run its normal human-in-the-loop workflow on official web sources and produce the required Source Understanding review artifacts:
 
-- `review/source_understanding_review.html`, screenshots, visual QA, and baseline approval for the pre-brief source-understanding gate.
-- `ppt_content_brief.md`, suitable as the downstream PPT maker's slide-content source.
+- `review/source_understanding_review.html`, screenshots, visual QA, and baseline approval for the source-understanding gate.
 
-The test is not a one-shot web summary. The child agent should ask the human stakeholder for missing audience, thesis, page-count, viewpoint, and constraint decisions according to `SKILL.md`. It must preserve official-source boundaries and not rely on raw search snippets as evidence.
+The test is not a one-shot web summary. The child agent should ask the human stakeholder for missing source scope, comparison targets, evidence gaps, and approval according to `SKILL.md`. It must preserve official-source boundaries and not rely on raw search snippets as evidence.
 
 ## Candidate-Facing Assets
 
@@ -38,7 +37,7 @@ Do not pass `judge/` to the candidate agent.
 
 - Do not pass `fixture-manifest.md`, `judge/`, or this case's `main-agent-prompt.md` to the child agent.
 - Do not tell the child agent the desired scores, judge rubric, known failure mode, or expected source-package contents.
-- Do not summarize a complete deck outline to the child agent before it asks for human decisions.
+- Do not summarize a complete source explanation to the child agent before it asks for human decisions.
 - The main agent may answer child-agent questions with stakeholder preferences and approvals.
 
 ## Expected Candidate Output Shape
@@ -56,7 +55,10 @@ Expected artifacts:
 - `review/visual-qa.md` recording an independent checker verdict;
 - saved source-understanding baseline under `baselines/`;
 - web source capture packages under `sources/web/` for selected pages;
-- `ppt_content_brief.md`;
 - saved approval bundle or baselines when produced by the Skill;
 - validation output showing `scripts/validate_source_understanding_html.py ... all ...` passed for the review HTML, or a clear blocker note explaining why it could not;
-- validation output showing the final brief passed the repository QA script, or a clear blocker note explaining why it could not.
+- validation output showing the final Source Understanding review passed the repository QA script, or a clear blocker note explaining why it could not.
+
+
+
+

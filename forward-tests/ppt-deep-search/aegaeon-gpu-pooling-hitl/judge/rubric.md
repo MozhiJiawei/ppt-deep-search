@@ -1,28 +1,28 @@
 ﻿# Judge Rubric: Aegaeon GPU Pooling HITL Forward Test
 
-Use this rubric after the candidate agent finishes. The judge may inspect the candidate's final handoff files, baselines, approval bundle, QA output, and interaction transcript.
+Use this rubric after the candidate agent finishes. The judge may inspect the candidate's final review files, baselines, approval bundle, QA output, and interaction transcript.
 
 ## Scoring
 
 Score each dimension from 0 to 3.
 
-- HITL Workflow Discipline: asks for missing audience, thesis, page-count convention, summary-page viewpoint, page plan, and final constraints before writing final artifacts.
-- Stakeholder Incorporation: uses the main agent's human answers to shape the final storyline without merely echoing them.
+- HITL Workflow Discipline: asks for missing source scope, comparison targets, evidence gaps, and approval before writing final artifacts.
+- Stakeholder Incorporation: uses the main agent's human answers to shape the source explanation and evidence boundaries without merely echoing them.
 - Source Understanding: identifies Aegaeon's model-market workload motivation, token-level auto-scaling idea, prefill/decoding scheduling split, auto-scaling cost optimizations, beta deployment evidence, and transfer limits with concrete source locators.
-- Source Understanding Review Artifact: produces `review/source_understanding_review.html`, exported screenshots, `review/visual-qa.md` with an independent checker verdict, and a saved source-understanding baseline before entering PPT brief HITL.
-- Pyramid Storyline: turns the paper into a decision-oriented PPT argument rather than a section-by-section summary.
-- Content Brief Contract: `ppt_content_brief.md` follows the required headings, field names, ordering, density, and downstream-facing language contract.
+- Source Understanding Review Artifact: produces `review/source_understanding_review.html`, exported screenshots, `review/visual-qa.md` with an independent checker verdict, and a saved source-understanding baseline before approval.
+- Source Explanation Structure: organizes the paper into a clear source explanation rather than a section-by-section summary.
+- Source Understanding Contract: `review/source_understanding_review.html` is present, source-grounded, readable, and contains no downstream PPT planning artifact.
 - Evidence Boundary Discipline: avoids overstating portability of Alibaba Cloud beta-deployment results and preserves uncertainty around workload mix, SLO definitions, infrastructure assumptions, and engineering integration cost.
-- QA Discipline: runs or clearly attempts `scripts/validate_ppt_content_brief.py` with suitable page-count and density settings, and treats failures as blockers.
+- QA Discipline: runs or clearly attempts `scripts/validate_source_understanding_html.py ... all ...`, records visual QA, and treats failures as blockers.
 
 ## Blocking Findings
 
 Treat any of the following as a likely fail:
 
-- The candidate skips human-in-the-loop approval and writes final files immediately despite missing audience or page-count decisions.
+- The candidate skips human-in-the-loop approval and writes final files immediately despite missing source scope, comparison target, evidence gap, or approval decisions.
 - The candidate skips the Source Understanding review artifact gate, or `review/source_understanding_review.html`, exported screenshots, `review/visual-qa.md`, the source-understanding baseline, or source-understanding render QA evidence is missing.
-- `ppt_content_brief.md` is missing, fails required structural validation, or contains author-facing audit/source-locator tables.
-- The final storyline is a generic paper summary with no decision-oriented top-level thesis.
+- `review/source_understanding_review.html` is missing, fails required structural validation, or contains author-facing audit/source-locator tables.
+- The final review is a generic paper summary with no clear source explanation or evidence boundary.
 - Claims about GPU savings, SLO preservation, goodput, arrival-rate capacity, or production readiness are not traceable to paper evidence or explicitly marked as inference.
 - The candidate reads judge-only files or receives rubric-derived coaching.
 - The candidate writes outputs outside the required run directory without reporting the actual final paths.
@@ -42,8 +42,8 @@ Treat any of the following as a likely fail:
 - Stakeholder Incorporation: [0-3]
 - Source Understanding: [0-3]
 - Source Understanding Review Artifact: [0-3]
-- Pyramid Storyline: [0-3]
-- Content Brief Contract: [0-3]
+- Source Explanation Structure: [0-3]
+- Source Understanding Contract: [0-3]
 - Evidence Boundary Discipline: [0-3]
 - QA Discipline: [0-3]
 
@@ -66,7 +66,11 @@ Treat any of the following as a likely fail:
 - [Source Understanding screenshots path]
 - [Visual QA record path]
 - [Source Understanding baseline path]
-- [PPT Content Brief path]
+- [Source Understanding review path]
 - [Approval bundle or baseline path]
 - [QA output path]
 ```
+
+
+
+

@@ -32,14 +32,10 @@ def main() -> int:
         codex_agents_root / "source_understanding_deck_maker.toml",
         root / "SKILL.md",
         root / "docs" / "architecture_design.md",
-        root / "scripts" / "hitl_json_to_brief_skeleton.py",
-        root / "scripts" / "validate_ppt_content_brief.py",
         root / "scripts" / "validate_markdown_size.py",
         root / "scripts" / "validate_source_understanding_html.py",
         root / "agents" / "openai.yaml",
-        root / "references" / "evidence-principle.md",
         root / "references" / "source-understanding-html-ppt.md",
-        root / "references" / "ppt-brief-hitl.md",
         workspace_root / "skills" / "web-article-capture" / "SKILL.md",
         workspace_root / "skills" / "web-article-capture" / "scripts" / "validate_capture_package.py",
         workspace_root / "skills" / "web-article-capture" / "references" / "output-contract.md",
@@ -114,36 +110,6 @@ def main() -> int:
         safe_print((markdown_size_check.stdout + markdown_size_check.stderr).strip())
         return 1
     safe_print(markdown_size_check.stdout.strip())
-
-    ppt_content_brief_self_test = subprocess.run(
-        [sys.executable, str(root / "scripts" / "validate_ppt_content_brief.py"), "--self-test"],
-        cwd=root,
-        text=True,
-        encoding="utf-8",
-        errors="replace",
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-    )
-    if ppt_content_brief_self_test.returncode != 0:
-        print("[ERROR] PPT Content Brief validator self-test failed:")
-        safe_print((ppt_content_brief_self_test.stdout + ppt_content_brief_self_test.stderr).strip())
-        return 1
-    safe_print(ppt_content_brief_self_test.stdout.strip())
-
-    hitl_skeleton_self_test = subprocess.run(
-        [sys.executable, str(root / "scripts" / "hitl_json_to_brief_skeleton.py"), "--self-test"],
-        cwd=root,
-        text=True,
-        encoding="utf-8",
-        errors="replace",
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-    )
-    if hitl_skeleton_self_test.returncode != 0:
-        print("[ERROR] HITL JSON to brief skeleton self-test failed:")
-        safe_print((hitl_skeleton_self_test.stdout + hitl_skeleton_self_test.stderr).strip())
-        return 1
-    safe_print(hitl_skeleton_self_test.stdout.strip())
 
     source_understanding_self_test = subprocess.run(
         [sys.executable, str(root / "scripts" / "validate_source_understanding_html.py"), "--self-test"],

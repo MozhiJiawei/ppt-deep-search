@@ -37,9 +37,9 @@ Use a child-agent mechanism that can receive follow-up input from the main agent
 
 After dispatch, wait for the child agent's first substantive response.
 
-- If it asks about audience, use, thesis, page count, viewpoint, page plan, or final constraints, answer as the stakeholder.
+- If it asks about source scope, comparison targets, evidence gaps, or approval, answer as the stakeholder.
 - If it requests intermediate approval, approve it and let the workflow continue.
-- If it writes final `ppt_content_brief.md` before any stakeholder answer, stop the child agent and record a HITL workflow failure.
+- If it writes final `review/source_understanding_review.html` before any stakeholder answer, stop the child agent and record a HITL workflow failure.
 - If the runtime cannot send follow-up input to the child agent, stop before dispatch. This case is invalid without interactive child-agent control.
 - Do not fix this by adding strategy, rubric, or approval instructions to `candidate/prompt.md`.
 
@@ -47,10 +47,10 @@ After dispatch, wait for the child agent's first substantive response.
 
 When the child agent asks questions, answer as a realistic PPT requester:
 
-- Target reader: technical product / infrastructure leaders evaluating whether token-level GPU pooling is worth adapting for multi-model LLM serving.
-- Desired use: a pre-PPT content brief for an internal serving architecture evaluation deck.
-- Page count: prefer 6-7 total PPT pages; cover and contents count if the child agent asks.
-- Thesis direction: Aegaeon looks production-relevant because it attacks long-tail model-market waste with token-level auto-scaling, but the deck must separate beta-deployment evidence from transfer assumptions about another serving stack.
+- Review focus: technical product / infrastructure leaders need to understand whether token-level GPU pooling evidence is relevant to multi-model LLM serving.
+- Desired use: a pre-PPT Source Understanding review for an internal serving architecture evaluation deck.
+- Source scope: keep the review focused on the paper mechanism, production evidence, transfer assumptions, and source figures.
+- Interpretation direction: Aegaeon looks production-relevant because it attacks long-tail model-market waste with token-level auto-scaling, but the deck must separate beta-deployment evidence from transfer assumptions about another serving stack.
 - Evidence taste: prefer production workload statistics, SLO/TTFT/TBT framing, GPU saving numbers, goodput comparisons, and source figures before generic system diagrams.
 - Tone: decision-oriented Chinese, with English system/model/metric names preserved.
 
@@ -60,7 +60,7 @@ Approve intermediate stage outputs so the candidate can finish. Do not mention t
 
 Collect the candidate's output directory and inspect:
 
-- `ppt_content_brief.md`;
+- `review/source_understanding_review.html`;
 - any saved baselines or approval bundle;
 - QA validation output, if present.
 
@@ -71,3 +71,8 @@ Write judgment to:
 ```text
 .tmp/forward-tests/aegaeon-gpu-pooling-hitl/<run-id>/judgment.md
 ```
+
+
+
+
+

@@ -1,4 +1,4 @@
-# Candidate Prompt: PPT Deep Search Task
+﻿# Candidate Prompt: PPT Deep Search Source Understanding Task
 
 请在 workspace 根目录执行 PPT Deep Search，并使用以下 skill：
 
@@ -21,3 +21,4 @@ skills/ppt-deep-search/forward-tests/ppt-deep-search/tidar-hitl/candidate/input/
 ```
 
 `<run-id>` 必须是清晰、全新且不存在的目录，例如 `candidate-YYYYMMDD-HHMMSS`。不要覆盖或复用历史运行目录。
+

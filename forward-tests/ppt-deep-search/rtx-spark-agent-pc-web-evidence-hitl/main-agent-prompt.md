@@ -37,9 +37,9 @@ Use a child-agent mechanism that can receive follow-up input from the main agent
 
 After dispatch, wait for the child agent's first substantive response.
 
-- If it asks about audience, use, thesis, page count, viewpoint, page plan, or final constraints, answer as the stakeholder.
+- If it asks about source scope, comparison targets, evidence gaps, or approval, answer as the stakeholder.
 - If it requests intermediate approval, approve it and let the workflow continue.
-- If it writes final `ppt_content_brief.md` before any stakeholder answer, stop the child agent and record a HITL workflow failure.
+- If it writes final `review/source_understanding_review.html` before any stakeholder answer, stop the child agent and record a HITL workflow failure.
   Do not accept raw HTML, web search snippets, or hand-written excerpts as substitutes for `source.md` plus article/main-region original image assets.
 - If the runtime cannot send follow-up input to the child agent, stop before dispatch. This case is invalid without interactive child-agent control.
 - Do not fix this by adding strategy, rubric, or approval instructions to `candidate/prompt.md`.
@@ -49,9 +49,9 @@ After dispatch, wait for the child agent's first substantive response.
 When the child agent asks questions, answer as a realistic PPT requester:
 
 - Target reader: technical architecture / AI engineering leaders evaluating whether RTX Spark represents a new local-agent PC platform category or mainly a marketing/spec update.
-- Desired use: a pre-PPT content brief for an internal architecture evaluation deck.
+- Desired use: a pre-PPT Source Understanding review for an internal architecture evaluation deck.
 - Page count: prefer 6 total PPT pages; cover and contents count if the child agent asks.
-- Thesis direction: RTX Spark is best explained as a Windows local personal-agent stack anchor, not just a high-TOPS AI PC; however, the deck must keep official wording separate from Chinese media paraphrase.
+- Interpretation direction: RTX Spark is best explained as a Windows local personal-agent stack anchor, not just a high-TOPS AI PC; however, the deck must keep official wording separate from Chinese media paraphrase.
 - Evidence taste: prefer official NVIDIA/Microsoft source pages, original product/source images, exact spec numbers, runtime/security-stack descriptions, and explicit boundary notes before generic agentic-AI hype.
 - Tone: decision-oriented Chinese, with English product/model/runtime/metric names preserved.
 
@@ -61,7 +61,7 @@ Approve intermediate stage outputs so the candidate can finish. Do not mention t
 
 Collect the candidate's output directory and inspect:
 
-- `ppt_content_brief.md`;
+- `review/source_understanding_review.html`;
 - any saved baselines or approval bundle;
 - QA validation output, if present.
 
@@ -72,3 +72,8 @@ Write judgment to:
 ```text
 .tmp/forward-tests/rtx-spark-agent-pc-web-evidence-hitl/<run-id>/judgment.md
 ```
+
+
+
+
+

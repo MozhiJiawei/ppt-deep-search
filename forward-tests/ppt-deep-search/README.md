@@ -1,8 +1,8 @@
 ﻿# PPT Deep Search Forward Tests
 
-Forward tests are human-orchestrated child-agent runs for checking whether the runtime Skill can conduct human-in-the-loop research and produce a PPT-ready Content Brief from realistic source material.
+Forward tests are human-orchestrated child-agent runs for checking whether the runtime Skill can conduct human-in-the-loop research and produce a Source Understanding review from realistic source material.
 
-Current runtime also requires a Source Understanding review gate before PPT brief HITL begins.
+Current runtime also requires a Source Understanding review gate before approval.
 Judge-side expected artifacts should include `review/source_understanding_review.html`, exported screenshots, `review/visual-qa.md` with an independent checker verdict, a saved source-understanding baseline, and evidence that `scripts/validate_source_understanding_html.py ... all ...` passed.
 
 ## Cases
@@ -58,7 +58,7 @@ The stakeholder role is intentionally narrow. During a forward run, the main age
 - Stop the run only when the child is fully out of control: wrong output directory, missing required artifact path, judge-file leakage, inability to continue, or responses that no longer follow the task.
 - Do not rewrite titles, provide expression patterns, name expected rubric dimensions, or prescribe how to repair the output.
 - Semantic quality is judged from the final deliverables after the interaction, not corrected or blocked into shape during the run.
-- Final judgment must especially inspect title/summary expression, whether `ppt_content_brief.md` contains author-facing rather than audience-facing content, and whether the interaction deviated from HITL.
+- Final judgment must especially inspect source understanding quality, evidence boundaries, required review artifacts, and whether the interaction deviated from HITL.
 
 The main agent is not allowed to treat the child agent as a fire-and-forget worker. The first useful child-agent response should be a question, an approval gate, or an explicit statement that the research frame is already fully specified. If the child agent silently assumes
 approvals, that behavior is the test result, not something to repair by adding more candidate prompt text.
@@ -69,7 +69,7 @@ Judge with a strict teacher stance. The goal of a forward test is to expose prod
 
 ## Minimal Prompt Principle
 
-Forward tests measure whether the runtime Skill can elicit and shape the brief through its normal workflow. The child-agent dispatch prompt must be the exact text content of the selected case's `candidate/prompt.md`.
+Forward tests measure whether the runtime Skill can produce and approve Source Understanding review artifacts through its normal workflow. The child-agent dispatch prompt must be the exact text content of the selected case's `candidate/prompt.md`.
 
 Do not add wrapper text such as "you are a candidate child", "run this forward test",
 candidate path summaries, strategy explanations, judging criteria, expected answer structure,
@@ -89,3 +89,5 @@ In Codex, also keep the child context isolated:
 - `rtx-spark-agent-pc-web-evidence-hitl`
 - `stochastic-kv-routing-hitl`
 - `tidar-hitl`
+
+

@@ -23,10 +23,10 @@ python skills/ppt-deep-search/verify_dependencies.py
 | 类型 | 说明 |
 | --- | --- |
 | Python 版本 | Python 3.9+ |
-| 仓库文件 | 深度研究、HTML review、web evidence 相关脚本和参考文档是否存在 |
-| 自检 | `ppt_content_brief`、HTML review、web source package mapping 等校验器是否能通过 self-test |
+| 仓库文件 | 来源理解、HTML review、web evidence 相关脚本和参考文档是否存在 |
+| 自检 | Markdown size、HTML review、web source package mapping 等校验器是否能通过 self-test |
 | 外部服务 | 默认不需要外部服务；只有任务本身要求补充网页资料时才需要联网 |
 
 ## 判断标准
 
-看到所有 `[OK]` 后再进入 PPT 深度研究。若某个 self-test 失败，请先让 Agent 修复校验器或缺失文件，再继续研究任务。
+看到所有 `[OK]` 后再进入 PPT 来源理解审阅。若某个 self-test 失败，请先让 Agent 修复校验器或缺失文件，再继续研究任务。

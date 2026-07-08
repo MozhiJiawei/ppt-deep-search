@@ -37,9 +37,9 @@ Use a child-agent mechanism that can receive follow-up input from the main agent
 
 After dispatch, wait for the child agent's first substantive response.
 
-- If it asks about audience, use, thesis, page count, viewpoint, page plan, or final constraints, answer as the stakeholder.
+- If it asks about source scope, comparison targets, evidence gaps, or approval, answer as the stakeholder.
 - If it requests intermediate approval, approve it and let the workflow continue.
-- If it writes final `ppt_content_brief.md` before any stakeholder answer, stop the child agent and record a HITL workflow failure.
+- If it writes final `review/source_understanding_review.html` before any stakeholder answer, stop the child agent and record a HITL workflow failure.
 - If the runtime cannot send follow-up input to the child agent, stop before dispatch. This case is invalid without interactive child-agent control.
 - Do not fix this by adding strategy, rubric, or approval instructions to `candidate/prompt.md`.
 
@@ -48,9 +48,9 @@ After dispatch, wait for the child agent's first substantive response.
 When the child agent asks questions, answer as a realistic PPT requester:
 
 - Target reader: model architecture / inference platform leaders evaluating whether a hybrid diffusion-autoregressive decoding architecture is worth tracking or reproducing.
-- Desired use: a pre-PPT content brief for an internal model efficiency and serving strategy deck.
-- Page count: prefer 6-7 total PPT pages; cover and contents count if the child agent asks.
-- Thesis direction: TiDAR is interesting if it can credibly combine AR-level quality with diffusion-style parallel drafting, but the deck must make the architecture, benchmark scope, and serving assumptions legible.
+- Desired use: a pre-PPT Source Understanding review for an internal model efficiency and serving strategy deck.
+- Source scope: keep the review focused on the paper mechanism, production evidence, transfer assumptions, and source figures.
+- Interpretation direction: TiDAR is interesting if it can credibly combine AR-level quality with diffusion-style parallel drafting, but the deck must make the architecture, benchmark scope, and serving assumptions legible.
 - Evidence taste: prefer throughput/quality tables, free-token-slot profiling, architecture masks, comparisons with AR/speculative decoding/diffusion baselines, and source figures before generic LLM-decoding background.
 - Tone: decision-oriented Chinese, with English method/model/metric names preserved.
 
@@ -60,7 +60,7 @@ Approve intermediate stage outputs so the candidate can finish. Do not mention t
 
 Collect the candidate's output directory and inspect:
 
-- `ppt_content_brief.md`;
+- `review/source_understanding_review.html`;
 - any saved baselines or approval bundle;
 - QA validation output, if present.
 
@@ -71,3 +71,8 @@ Write judgment to:
 ```text
 .tmp/forward-tests/tidar-hitl/<run-id>/judgment.md
 ```
+
+
+
+
+

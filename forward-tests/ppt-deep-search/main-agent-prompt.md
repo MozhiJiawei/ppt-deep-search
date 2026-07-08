@@ -58,7 +58,7 @@ After dispatch, wait for the child agent's first substantive response.
   `review/source_understanding_review.html`, exported screenshots, `review/visual-qa.md` with an independent checker verdict, and a saved source-understanding baseline.
   If these artifacts are missing, give only a minimal artifact-path correction or stop and judge the run as a workflow failure.
 - Evaluate the child response from the full subagent tool-returned content, not from a folded or truncated Codex App preview.
-- If it creates final `ppt_content_brief.md` before any stakeholder answer from the main agent, stop that case and judge it as a HITL workflow failure.
+- If it creates final `review/source_understanding_review.html` before any stakeholder answer from the main agent, stop that case and judge it as a HITL workflow failure.
 - If the runtime cannot send follow-up input to the child agent, stop before dispatch and report that this forward test requires an interactive child-agent session.
 - Do not compensate for weak HITL behavior by adding strategy or approval instructions to the child-agent dispatch prompt.
 - Do not coach, reject, or block weak intermediate semantics into a better artifact. Let the child proceed; judge quality from the final deliverables.
@@ -69,21 +69,20 @@ This repository is human-in-the-loop. When the child agent asks for approval, cl
 
 Act with these tendencies only when the child explicitly asks for stakeholder preference. Do not volunteer them as coaching:
 
-- Prefer a decision-oriented PPT brief for technical product and infrastructure leaders, not a generic paper summary.
-- Prefer a 6-7 page total PPT unless the child agent gives a strong reason to change page count.
-- Push the storyline toward "what deployment or architecture decision should the reader make after understanding the paper?"
+- Prefer a decision-oriented Source Understanding review for technical product and infrastructure leaders, not a generic paper summary.
+- Prefer explanation that clarifies what deployment or architecture decision the source evidence can and cannot support.
 - Accept source-grounded caution. If evidence is thin, ask the child agent to mark boundaries instead of overstating.
 - Prefer concise Chinese visible slide copy with English technical names preserved where useful.
 - Approve intermediate stage outputs so the candidate can finish.
-- If wording, page logic, or visible-copy semantics are weak, let them stand for final judgment; do not reject them or supply better wording.
+- If wording, explanation structure, or source-boundary semantics are weak, let them stand for final judgment; do not reject them or supply better wording.
 
 ## Final Judgment Focus
 
 In final judging, inspect semantics strictly:
 
-- Whether `页面标题`、`标题说明`、`分析总结` express page judgments clearly and concretely.
-- Whether the Source Understanding gate produced `review/source_understanding_review.html`, exported screenshots, `review/visual-qa.md`, a saved baseline, and evidence that `scripts/validate_source_understanding_html.py ... all ...` passed before PPT brief HITL began.
-- Whether `ppt_content_brief.md` contains only content intended for the final audience, not author notes, production guidance, audit traces, or downstream-processing instructions.
+- Whether the Source Understanding HTML explains the topic, mechanism, evidence, comparisons, and boundaries clearly and concretely.
+- Whether the Source Understanding gate produced `review/source_understanding_review.html`, exported screenshots, `review/visual-qa.md`, a saved baseline, and evidence that `scripts/validate_source_understanding_html.py ... all ...` passed before approval.
+- Whether `review/source_understanding_review.html` is an approved source-understanding artifact, not a downstream PPT planning artifact.
 - Whether the interaction followed the Skill's HITL flow without skipping gates, over-asking, or drifting away from the task.
 
 Do not use these tendencies to tell the child agent how to pass the judge rubric. Treat them as normal stakeholder preferences.
@@ -99,3 +98,7 @@ When spawning a child agent, read the selected case's `candidate/prompt.md` and 
 Do not add wrapper text such as "run this forward test", candidate path summaries, judge-side expectations, or role reminders.
 
 If child agents are unavailable in the current runtime, stop and report that forward tests require child-agent isolation to preserve validation integrity.
+
+
+
+

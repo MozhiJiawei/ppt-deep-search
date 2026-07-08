@@ -134,7 +134,7 @@ The main agent's stakeholder answers should be realistic and minimal.
 - Record weak Skill behavior as a finding in the final judgment instead of repairing or blocking it interactively.
 - Evaluate child-agent interaction quality from the full tool-returned message content, not from a folded or truncated Codex App preview.
 - If the child output exposes a defect introduced by the current Skill, record it as a forward-test finding instead of silently compensating with detailed coaching.
-- Final judgment must especially inspect title/summary expression, whether `ppt_content_brief.md` contains author-facing rather than audience-facing content, and whether the interaction deviated from HITL.
+- Final judgment must especially inspect source understanding quality, evidence boundaries, required review artifacts, and whether the interaction deviated from HITL.
 - After the child finishes, always write `.tmp/forward-tests/<case-id>/<run-id>/judgment.md` using the case rubric before reporting the run complete to the user.
 
 ## Case Selection
