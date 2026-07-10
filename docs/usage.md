@@ -12,6 +12,22 @@
 
 不要用它做演示文稿视觉渲染、版式模板、字体配色、导出 PPT、页数规划、目录规划、SCQA 或逐页观点生成。这些属于下游 PPT-GEN。
 
+## 可直接复制的启动 prompt
+
+```text
+请对以下材料进行“PPT深度研究”，先完成来源理解审阅，不要直接生成正式 PPT：
+
+- 主题：<填写主题>
+- 原始材料：<粘贴 URL、PDF 路径、Markdown 路径或仓库路径>
+- 任务名：<task-name>
+
+请使用 workspace 根目录下的 `.tmp/ppt-deep-search/<task-name>/` 作为本轮唯一运行目录。
+我允许你按 skill 契约启动必要的子 agent，包括网页来源抓取 agent、论文解析 agent、Source Understanding deck maker，以及独立视觉 QA checker；每个 agent 只处理分配给它的来源或交付物。
+请先向我确认原始来源和对照方案，待我批准后再继续。完成后交付 `review/source_understanding_review.html`、导出截图、`review/visual-qa.md`、`sources/**`，并等待我审批后再写入 `baselines/015-source-understanding.md`。
+```
+
+若任务不包含网页或论文，对应的来源处理 agent 不需启动；deck maker 和独立视觉 QA checker 仍是 HTML 审阅交付链的组成部分。
+
 ## 标准流程
 
 默认走 human-in-the-loop：
@@ -45,14 +61,24 @@
 
 ## 校验命令
 
-Source Understanding HTML 写完后，运行：
+下列命令均从 workspace 根目录运行。在本仓库默认位置下，可完整复制：
 
 ```powershell
-python scripts/validate_source_understanding_html.py <workspace-root>/review/source_understanding_review.html all <workspace-root>/review/source-understanding-images
+Set-Location "D:\Agent Repo\Mozhi-s-AgentWorkspace"
+python skills/ppt-deep-search/verify_dependencies.py
 ```
 
-仓库级依赖与契约检查：
+Source Understanding HTML 写完后，把示例中的 `demo` 替换为实际任务名，再运行：
 
 ```powershell
-python verify_dependencies.py
+Set-Location "D:\Agent Repo\Mozhi-s-AgentWorkspace"
+python skills/ppt-deep-search/scripts/validate_source_understanding_html.py ".tmp/ppt-deep-search/demo/review/source_understanding_review.html" all ".tmp/ppt-deep-search/demo/review/source-understanding-images"
 ```
+
+## 完成标准
+
+- 所有来源产物和审阅产物都位于同一个 `workspace-root`，且来源与结论可追溯。
+- HTML 审阅页已导出 PNG，且目标校验命令通过。
+- 独立 checker 已写入 `review/visual-qa.md`，其发现的阻断问题已处理。
+- 用户已审阅 HTML；只有审批通过后才保存 baseline。
+- 未在本流程中提前生成 PPT 页数、目录、SCQA、逐页观点或正式演示文稿。

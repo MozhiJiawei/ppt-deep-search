@@ -14,9 +14,9 @@
 
 | 样例 | 任务主题 | 最新结论 | 最终交付件 |
 | --- | --- | --- | --- |
-| Aegaeon GPU Pooling | 云 GPU 池化与 broker 架构 | Source Understanding 通过，视觉 QA 曾需多轮修复 | [HTML](showcase/latest/aegaeon-gpu-pooling/source_understanding.html) |
-| RTX Spark Agent PC | NVIDIA DGX Spark 与 Agent PC | Source Understanding 通过，官方来源边界更清楚 | [HTML](showcase/latest/rtx-spark-agent-pc/source_understanding.html) |
-| Stochastic KV Routing | Moonshot AI 的随机 KV 路由 | Source Understanding 通过，技术链路与图表复建更稳定 | [HTML](showcase/latest/stochastic-kv-routing/source_understanding.html) |
+| Aegaeon GPU Pooling | 云 GPU 池化与 broker 架构 | Source Understanding 通过，视觉 QA 曾需多轮修复 | <a href="/skill-static/ppt-deep-search/showcase/latest/aegaeon-gpu-pooling/source_understanding.html" target="_blank" rel="noopener noreferrer">HTML</a> |
+| RTX Spark Agent PC | NVIDIA DGX Spark 与 Agent PC | Source Understanding 通过，官方来源边界更清楚 | <a href="/skill-static/ppt-deep-search/showcase/latest/rtx-spark-agent-pc/source_understanding.html" target="_blank" rel="noopener noreferrer">HTML</a> |
+| Stochastic KV Routing | Moonshot AI 的随机 KV 路由 | Source Understanding 通过，技术链路与图表复建更稳定 | <a href="/skill-static/ppt-deep-search/showcase/latest/stochastic-kv-routing/source_understanding.html" target="_blank" rel="noopener noreferrer">HTML</a> |
 
 ## Aegaeon GPU Pooling
 
@@ -24,7 +24,7 @@
 
 最终交付件：
 
-- [来源理解 HTML](showcase/latest/aegaeon-gpu-pooling/source_understanding.html)
+- <a href="/skill-static/ppt-deep-search/showcase/latest/aegaeon-gpu-pooling/source_understanding.html" target="_blank" rel="noopener noreferrer">来源理解 HTML</a>
 
 ## RTX Spark Agent PC
 
@@ -32,7 +32,7 @@
 
 最终交付件：
 
-- [来源理解 HTML](showcase/latest/rtx-spark-agent-pc/source_understanding.html)
+- <a href="/skill-static/ppt-deep-search/showcase/latest/rtx-spark-agent-pc/source_understanding.html" target="_blank" rel="noopener noreferrer">来源理解 HTML</a>
 
 ## Stochastic KV Routing
 
@@ -40,7 +40,7 @@
 
 最终交付件：
 
-- [来源理解 HTML](showcase/latest/stochastic-kv-routing/source_understanding.html)
+- <a href="/skill-static/ppt-deep-search/showcase/latest/stochastic-kv-routing/source_understanding.html" target="_blank" rel="noopener noreferrer">来源理解 HTML</a>
 
 ## 最新验证结论
 
