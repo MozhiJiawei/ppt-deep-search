@@ -84,22 +84,24 @@ Good dispatch:
 请使用仓库 `SKILL.md` 完成 forward test:
 - Candidate Prompt: ...
 - Candidate Input: ...
-- Output: .tmp/forward-tests/<case>/<run-id>/
+- Workspace Root: <absolute-workspace-root>
+- Run Root: <absolute-workspace-root>/.tmp/runs/<run-id>/
+- Output: .tmp/runs/<run-id>/ppt-deep-search/
 你已经是 candidate child；不要再启动新的 forward-test runner。
 若仓库 `SKILL.md` 明确要求为任务内工作委派子 agent，可以按 `SKILL.md` 执行。
 需要审批时等待主 agent。
 ```
 
-If an agent receives a parent dispatch prompt that already names a `Candidate Prompt`, `Candidate Input`, and required `.tmp/forward-tests/<case-id>/<run-id>/` output directory, that agent is the candidate child agent for the forward run. In that role, do not try to start another
+If an agent receives a parent dispatch prompt that already names a `Candidate Prompt`, `Candidate Input`, and required `.tmp/runs/<run-id>/ppt-deep-search/` output directory, that agent is the candidate child agent for the forward run. In that role, do not try to start another
 forward-test runner. Read the candidate-facing files and repository `SKILL.md`, run the Skill's HIL workflow normally,
 ask the parent/human for approvals when required, and write artifacts to the provided output directory.
 If the repository `SKILL.md` explicitly requires task-local subagents, such as per-page web capture,
 the candidate child may use them without treating them as new forward-test runners.
 
-The child agent must write all artifacts under:
+The dispatch must provide the absolute workspace root, the absolute task run root, and an exclusive absolute output directory. The child must reuse that run root for any Skill-required descendants and allocate non-overlapping child output directories. The child agent must write all artifacts under:
 
 ```text
-.tmp/forward-tests/<case-id>/<run-id>/
+.tmp/runs/<run-id>/ppt-deep-search/
 ```
 
 If the child writes to another temporary location, correct the child immediately and require the artifacts to be copied or regenerated under the required output directory.
@@ -135,7 +137,7 @@ The main agent's stakeholder answers should be realistic and minimal.
 - Evaluate child-agent interaction quality from the full tool-returned message content, not from a folded or truncated Codex App preview.
 - If the child output exposes a defect introduced by the current Skill, record it as a forward-test finding instead of silently compensating with detailed coaching.
 - Final judgment must especially inspect source understanding quality, evidence boundaries, required review artifacts, and whether the interaction deviated from HITL.
-- After the child finishes, always write `.tmp/forward-tests/<case-id>/<run-id>/judgment.md` using the case rubric before reporting the run complete to the user.
+- After the child finishes, always write `.tmp/runs/<run-id>/ppt-deep-search/judgment.md` using the case rubric before reporting the run complete to the user.
 
 ## Case Selection
 

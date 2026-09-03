@@ -69,7 +69,7 @@ Use `forward-tests/ppt-deep-search/tidar-hitl/judge/rubric.md` to judge the outp
 Write judgment to:
 
 ```text
-.tmp/forward-tests/tidar-hitl/<run-id>/judgment.md
+.tmp/runs/<run-id>/ppt-deep-search/judgment.md
 ```
 
 

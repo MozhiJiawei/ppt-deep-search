@@ -21,7 +21,7 @@
 - 原始材料：<粘贴 URL、PDF 路径、Markdown 路径或仓库路径>
 - 任务名：<task-name>
 
-请使用 workspace 根目录下的 `.tmp/ppt-deep-search/<task-name>/` 作为本轮唯一运行目录。
+请使用 workspace 根目录下的 `.tmp/runs/<run-id>/ppt-deep-search/` 作为本轮唯一运行目录。
 我允许你按 skill 契约启动必要的子 agent，包括网页来源抓取 agent、论文解析 agent、Source Understanding deck maker，以及独立视觉 QA checker；每个 agent 只处理分配给它的来源或交付物。
 请先向我确认原始来源，待我批准后再继续。完成后交付 `review/source_understanding_review.html`、导出截图、`review/visual-qa.md`、`sources/**`，并等待我审批后再写入 `baselines/015-source-understanding.md`。
 ```
@@ -45,8 +45,8 @@
 
 一次运行只使用一个 `workspace-root`：
 
-- 默认路径：`.tmp/ppt-deep-search/<task-name>/`
-- forward-test 路径：`.tmp/forward-tests/<case-id>/<run-id>/`
+- 默认路径：`.tmp/runs/<run-id>/ppt-deep-search/`
+- forward-test 路径：`.tmp/runs/<run-id>/ppt-deep-search/`
 - 用户指定输出目录时，以用户指定目录为准
 
 所有临时笔记、baseline、资产和 QA 输出都放在这个目录下。
@@ -72,7 +72,7 @@ Source Understanding HTML 写完后，把示例中的 `demo` 替换为实际任�
 
 ```powershell
 Set-Location "D:\Agent Repo\Mozhi-s-AgentWorkspace"
-python skills/ppt-deep-search/scripts/validate_source_understanding_html.py ".tmp/ppt-deep-search/demo/review/source_understanding_review.html" all ".tmp/ppt-deep-search/demo/review/source-understanding-images"
+python skills/ppt-deep-search/scripts/validate_source_understanding_html.py ".tmp/runs/<run-id>/ppt-deep-search/review/source_understanding_review.html" all ".tmp/runs/<run-id>/ppt-deep-search/review/source-understanding-images"
 ```
 
 ## 完成标准

@@ -69,7 +69,7 @@ Use `forward-tests/ppt-deep-search/goal-oriented-reasoning-rag-memory-hitl/judge
 Write judgment to:
 
 ```text
-.tmp/forward-tests/goal-oriented-reasoning-rag-memory-hitl/<run-id>/judgment.md
+.tmp/runs/<run-id>/ppt-deep-search/judgment.md
 ```
 
 

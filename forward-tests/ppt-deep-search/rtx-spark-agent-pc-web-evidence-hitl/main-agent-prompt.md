@@ -70,7 +70,7 @@ Use `forward-tests/ppt-deep-search/rtx-spark-agent-pc-web-evidence-hitl/judge/ru
 Write judgment to:
 
 ```text
-.tmp/forward-tests/rtx-spark-agent-pc-web-evidence-hitl/<run-id>/judgment.md
+.tmp/runs/<run-id>/ppt-deep-search/judgment.md
 ```
 
 

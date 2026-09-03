@@ -45,7 +45,7 @@ Do not pass `judge/` to the candidate agent.
 The candidate should write final artifacts under a run-specific workspace such as:
 
 ```text
-.tmp/forward-tests/goal-oriented-reasoning-rag-memory-hitl/<run-id>/
+.tmp/runs/<run-id>/ppt-deep-search/
 ```
 
 Expected artifacts:

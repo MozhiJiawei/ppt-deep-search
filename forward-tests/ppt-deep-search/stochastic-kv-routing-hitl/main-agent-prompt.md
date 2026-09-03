@@ -70,7 +70,7 @@ Use `forward-tests/ppt-deep-search/stochastic-kv-routing-hitl/judge/rubric.md` t
 Write judgment to:
 
 ```text
-.tmp/forward-tests/stochastic-kv-routing-hitl/<run-id>/judgment.md
+.tmp/runs/<run-id>/ppt-deep-search/judgment.md
 ```
 
 

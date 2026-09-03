@@ -5,6 +5,8 @@ multi-agent原则：必须按照prompt模板，启动子agent，你需要将prom
 
 稳定子 agent 角色定义放在本 skill 子仓的 `.codex/agents/*.toml`。TOML 保存原 prompt 中已调好的静态要求；本文件继续保存每次任务的动态占位内容。
 
+每次委派都必须补全三个绝对路径：主工作区根目录 `<absolute-workspace-root>`、本次用户工作的 `<absolute-work-root>`、该子 agent 独占的输出路径。所有后代委派必须原样传递 `<absolute-work-root>`，不得另建工作目录。`<workspace-root>` 专指 `<absolute-work-root>/ppt-deep-search/`。
+
 ## 来源准备 HITL（主Agent完成）
 
 先根据用户输入的信源、主题和已知缺口判断输入类型。所有场景都写入 `<workspace-root>/sources/source-selection.md`。
@@ -33,6 +35,9 @@ multi-agent原则：必须按照prompt模板，启动子agent，你需要将prom
 
 给子agnet的动态补充：
 ```text
+主工作区根目录：<absolute-workspace-root>
+当前工作根目录：<absolute-work-root>
+
 网页：
 - 标题：<title>
 - URL：<url>
@@ -48,6 +53,9 @@ multi-agent原则：必须按照prompt模板，启动子agent，你需要将prom
 
 给子agnet的动态补充：
 ```text
+主工作区根目录：<absolute-workspace-root>
+当前工作根目录：<absolute-work-root>
+
 论文：
 - 标题：<title>
 - URL：<url>
@@ -63,6 +71,9 @@ multi-agent原则：必须按照prompt模板，启动子agent，你需要将prom
 
 给子agnet的动态补充，信息源仅提供与该子agent相关的：
 ```text
+主工作区根目录：<absolute-workspace-root>
+当前工作根目录：<absolute-work-root>
+
 信息源： <path1>, <path2>, <path3>, ...
 
 输出目录：

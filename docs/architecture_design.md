@@ -69,7 +69,7 @@ Source Understanding 建模层
 
 ## 产物与维护契约
 
-一次运行只使用一个 task root，通常是 `.tmp/ppt-deep-search/<task-name>/` 或 `.tmp/forward-tests/<case-id>/<run-id>/`。必需产物为：
+一次运行只使用一个 task root：`.tmp/runs/<run-id>/ppt-deep-search/`。必需产物为：
 
 - `review/source_understanding_review.html`
 - `review/source-understanding-images/`

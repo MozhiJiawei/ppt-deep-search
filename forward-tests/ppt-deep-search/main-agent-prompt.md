@@ -43,7 +43,7 @@ Run only that one case.
 - Do not wrap, summarize, or annotate the candidate prompt. The candidate prompt itself must contain the required input path, repository `SKILL.md` path, output path, and whether task-local subagents are allowed.
 - Do not reveal judge-only files, prior generated outputs, or other case directories to a child agent.
 - Judge each completed case with its case rubric when present.
-- Write judgments under `.tmp/forward-tests/<case-id>/<run-id>/judgment.md`.
+- Write judgments under `.tmp/runs/<run-id>/ppt-deep-search/judgment.md`.
 - Judge strictly. Your goal is to find issues in the Skill and delivered artifacts, not to help the child pass the test.
 
 ## Interactive Run Protocol

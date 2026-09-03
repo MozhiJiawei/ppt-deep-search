@@ -17,8 +17,8 @@ skills/ppt-deep-search/forward-tests/ppt-deep-search/stochastic-kv-routing-hitl/
 请将产物写入：
 
 ```text
-.tmp/forward-tests/stochastic-kv-routing-hitl/<run-id>/
+.tmp/runs/<run-id>/ppt-deep-search/
 ```
 
-`<run-id>` 必须是清晰、全新且不存在的目录，例如 `candidate-YYYYMMDD-HHMMSS`。不要覆盖或复用历史运行目录。
+`<run-id>` 必须是清晰、全新且不存在的目录，例如 `YYYYMMDD-HHMMSS-forward-<case-id>`。不要覆盖或复用历史运行目录。
 

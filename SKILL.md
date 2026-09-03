@@ -31,7 +31,7 @@ description: >-
 - 网页来源抓取使用 workspace skill：`web-article-capture`。
 - 论文解析使用 workspace skill：`grobid-docling-pdf`（仓库路径：`skills/grobid_pdf_skill/SKILL.md`）。
 - Source Understanding HTML deck 生成使用 workspace skill：`hw-ppt-gen-html`。
-- 优先使用工作区中的现有文件，无法在工作区中找到些SKILL时，通过git将子skill clone到 .tmp目录下来使用
+- 优先使用工作区中的现有文件；无法找到所需 Skill 时，可将子 Skill clone 到当前工作根目录内使用，不得写入 `.tmp/` 根目录或另建工作目录
   - https://github.com/MozhiJiawei/web-article-capture
   - https://github.com/MozhiJiawei/hw-ppt-gen-html
   - https://github.com/MozhiJiawei/grobid_pdf_skill
@@ -45,6 +45,6 @@ description: >-
 
 ## 工作区
 
-- 运行开始时确定一个 `workspace-root`。如果用户或父级 dispatch 提供输出目录，使用该目录；否则使用 `.tmp/ppt-deep-search/<task-name>/`。
+- 运行开始时确定仓库根目录、父级分配的当前工作根目录和本 Skill 的 `workspace-root`。本 Skill 的 `workspace-root` 为 `<work-root>/ppt-deep-search/`；默认 `<work-root>` 是 `.tmp/runs/<run-id>/`，用户明确指定长期工作时则是其 retained work root。不得同时使用两种模式。
 - 将草稿笔记、source map、baselines、QA 文件和临时资产放在 `<workspace-root>/` 下。
 - 最终 Source Understanding HTML 必须位于 `<workspace-root>/review/source_understanding_review.html`。

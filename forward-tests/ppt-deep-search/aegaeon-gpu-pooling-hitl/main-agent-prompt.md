@@ -69,7 +69,7 @@ Use `forward-tests/ppt-deep-search/aegaeon-gpu-pooling-hitl/judge/rubric.md` to 
 Write judgment to:
 
 ```text
-.tmp/forward-tests/aegaeon-gpu-pooling-hitl/<run-id>/judgment.md
+.tmp/runs/<run-id>/ppt-deep-search/judgment.md
 ```
 
 
