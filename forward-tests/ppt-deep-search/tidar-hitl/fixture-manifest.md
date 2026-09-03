@@ -14,7 +14,7 @@ Validate whether `ppt-deep-search` can run its normal human-in-the-loop workflow
 
 - `review/source_understanding_review.html`, screenshots, visual QA, and baseline approval for the source-understanding gate.
 
-The test is not a one-shot paper summary. The child agent should ask the human stakeholder for missing source scope, comparison targets, evidence gaps, and approval according to `SKILL.md`. The main agent answers those questions as the human.
+The test is not a one-shot paper summary. The child agent should ask the human stakeholder for missing source scope, evidence gaps, and approval according to `SKILL.md`. The main agent answers those questions as the human.
 
 ## Candidate-Facing Assets
 

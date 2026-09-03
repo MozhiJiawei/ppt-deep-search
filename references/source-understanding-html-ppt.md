@@ -10,7 +10,6 @@ multi-agent原则：必须按照prompt模板，启动子agent，你需要将prom
 先根据用户输入的信源、主题和已知缺口判断输入类型。所有场景都写入 `<workspace-root>/sources/source-selection.md`。
   - 输入类型：`web` 或 `paper`。
   - 原始来源清单。
-  - 对照研究/同类方案清单。
 
 ```text
 请先确认 Source Understanding 的信息来源。。
@@ -22,12 +21,6 @@ multi-agent原则：必须按照prompt模板，启动子agent，你需要将prom
    选择理由：<为什么它是原始/高相关来源>
 3. <标题> — <URL>
    选择理由：<为什么它是原始/高相关来源>
-
-同类方案（2 个）：
-1. <方案/研究名> — <URL 或路径>
-   对照角色：<它和主题相比用于说明什么>
-2. <方案/研究名> — <URL 或路径>
-   对照角色：<它和主题相比用于说明什么>
 
 1. 批准
 ```
@@ -68,16 +61,12 @@ multi-agent原则：必须按照prompt模板，启动子agent，你需要将prom
 
 委派 Codex custom agent `source_understanding_deck_maker` 制作 Source Understanding HTML deck。
 
-要根据同类研究的数量启动多个子agnet并行制作
-
-最终交付：主报告 + 最多两份同类研究的报告
-
 给子agnet的动态补充，信息源仅提供与该子agent相关的：
 ```text
 信息源： <path1>, <path2>, <path3>, ...
 
 输出目录：
-<workspace-root>/<report-name>/source_understanding_review.html
+<workspace-root>/review/source_understanding_review.html
 
 ```
 
@@ -87,11 +76,9 @@ HTML 生成后，请用户审阅是否批准作为后续证据基线：
 
 ```text
 请审阅 source-understanding HTML：
-<workspace-root>/<main-report>/source_understanding_review.html
-<workspace-root>/<reference-report>/source_understanding_review.html
-<workspace-root>/<reference-report>/source_understanding_review.html
+<workspace-root>/review/source_understanding_review.html
 
-是否批准这些来源理解作为本轮 Source Understanding 结果？
+是否批准该来源理解作为本轮 Source Understanding 结果？
 
 1. 批准
 ```

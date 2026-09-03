@@ -29,16 +29,16 @@ Source Understanding 建模层
 已审批 baseline + sources + review
 ```
 
-核心输入是用户给定的论文、网页、PDF、Markdown、仓库或笔记，以及在第一个 HITL gate 中确认的原始来源和对照方案。核心输出是 `review/source_understanding_review.html`、导出截图、独立 QA 记录、`sources/**` 和审批后的 baseline。
+核心输入是用户给定的论文、网页、PDF、Markdown、仓库或笔记，以及在第一个 HITL gate 中确认的原始来源。核心输出是 `review/source_understanding_review.html`、导出截图、独立 QA 记录、`sources/**` 和审批后的 baseline。
 
 边界有两条：来源处理 helper skill 对单个来源包的真实性和结构负责；`ppt-deep-search` 对来源选择、跨来源理解、审阅产物和人类 gate 负责。任何 agent 都不能用无来源的补写代替缺失证据。
 
 ## 运行视图
 
-1. 主 agent 读取用户 prompt，确定唯一 `workspace-root`，并将原始来源和对照方案写入 `sources/source-selection.md`。
+1. 主 agent 读取用户 prompt，确定唯一 `workspace-root`，并将原始来源写入 `sources/source-selection.md`。
 2. 主 agent 向用户发起来源确认 gate；未批准前不进入大规模抓取或制作。
 3. 对每个网页，主 agent 分别委派 `web_source_capturer`，产物落在 `sources/web/<source-slug>/`；对每篇论文，分别委派 `paper_source_parser`，产物落在 `sources/papers/<source-slug>/`。
-4. 来源就绪后，主 agent 把与当前报告相关的 source paths 交给 `source_understanding_deck_maker`。主题报告与最多两份对照报告可由不同子 agent 并行制作，但不得混入无关来源。
+4. 来源就绪后，主 agent 把与当前报告相关的 source paths 交给 `source_understanding_deck_maker`。
 5. deck maker 产出 HTML，导出截图，再由独立视觉 QA checker 检查并将结果写入 `review/visual-qa.md`。制作者根据 QA 结果修复，不得自行宣告通过独立审查。
 6. 主 agent 向用户提交 HTML 审阅。只有用户批准后才写入 `baselines/015-source-understanding.md`；至此本 skill 结束。
 
@@ -64,7 +64,7 @@ Source Understanding 建模层
 | 主 agent | 管理 `workspace-root`、来源选择、HITL gates、子任务拆分、产物回收和最终审批 | `source-selection.md`、带动态占位的 dispatch、已审批 baseline | 不越过用户批准；不要求子 agent 制作正式 PPT 规划 |
 | `web_source_capturer` | 每次抓取和校验一个网页 source package | `sources/web/<source-slug>/` | 不合并多页任务；不写跨来源结论 |
 | `paper_source_parser` | 每次下载、解析一篇论文并整理 XML/图表资产 | `sources/papers/<source-slug>/` | 不代替主 agent 选择证据；不处理多论文综述 |
-| `source_understanding_deck_maker` | 仅根据分配的 sources 制作面向技术小白的 HTML review，并导出截图 | 主报告或单个对照报告的 HTML 与图片 | 不引入未交接来源；不规划下游 PPT |
+| `source_understanding_deck_maker` | 仅根据分配的 sources 制作面向技术小白的 HTML review，并导出截图 | Source Understanding HTML 与图片 | 不引入未交接来源；不规划下游 PPT |
 | 独立视觉 QA checker | 检查渲染、可读性、溢出、缺图、导航和主要视觉问题 | `review/visual-qa.md` | 不参与 HTML 制作；不因内容主张取代来源/人类审批 |
 
 ## 产物与维护契约
