@@ -23,7 +23,7 @@
 
 请使用 workspace 根目录下的 `.tmp/ppt-deep-search/<task-name>/` 作为本轮唯一运行目录。
 我允许你按 skill 契约启动必要的子 agent，包括网页来源抓取 agent、论文解析 agent、Source Understanding deck maker，以及独立视觉 QA checker；每个 agent 只处理分配给它的来源或交付物。
-请先向我确认原始来源和对照方案，待我批准后再继续。完成后交付 `review/source_understanding_review.html`、导出截图、`review/visual-qa.md`、`sources/**`，并等待我审批后再写入 `baselines/015-source-understanding.md`。
+请先向我确认原始来源，待我批准后再继续。完成后交付 `review/source_understanding_review.html`、导出截图、`review/visual-qa.md`、`sources/**`，并等待我审批后再写入 `baselines/015-source-understanding.md`。
 ```
 
 若任务不包含网页或论文，对应的来源处理 agent 不需启动；deck maker 和独立视觉 QA checker 仍是 HTML 审阅交付链的组成部分。
@@ -32,7 +32,7 @@
 
 默认走 human-in-the-loop：
 
-1. 确认 Source Understanding 的信息来源，包括原始来源和必要的同类方案。
+1. 确认 Source Understanding 的原始来源。
 2. 对网页来源调用 `web-article-capture`，对论文来源调用 `grobid-docling-pdf`，把结构化来源产物写入 `<workspace-root>/sources/`。
 3. 基于来源产物制作 `review/source_understanding_review.html`。
 4. 导出 Source Understanding PNG 到 `review/source-understanding-images/`。

@@ -6,7 +6,7 @@ Use this rubric after the candidate agent finishes. The judge may inspect the ca
 
 Score each dimension from 0 to 3.
 
-- HITL Workflow Discipline: asks for missing source scope, comparison targets, evidence gaps, and approval before writing final artifacts.
+- HITL Workflow Discipline: asks for missing source scope, evidence gaps, and approval before writing final artifacts.
 - Stakeholder Incorporation: uses the main agent's human answers to shape the technical architecture explanation and evidence boundaries without merely echoing the source request.
 - Official Wording Boundary: preserves that the official product/platform is NVIDIA RTX Spark / Windows PCs purpose-built for personal agents, and treats “Agent 原生电脑” or “老黄重新发明 PC” as Chinese/media paraphrase rather than a formal product name.
 - Source Understanding: correctly synthesizes NVIDIA Newsroom, RTX Spark product page, GTC Taipei keynote context, NVIDIA Build/local-agents blog, and Microsoft Build Live into an architecture judgment about Windows local personal/frontier agents, RTX Spark, DGX Station,
@@ -21,7 +21,7 @@ Score each dimension from 0 to 3.
 
 Treat any of the following as a likely fail:
 
-- The candidate skips human-in-the-loop approval and writes final files immediately despite missing source scope, comparison target, evidence gap, or approval decisions.
+- The candidate skips human-in-the-loop approval and writes final files immediately despite missing source scope, evidence gap, or approval decisions.
 - The candidate skips the Source Understanding review artifact gate, or `review/source_understanding_review.html`, exported screenshots, `review/visual-qa.md`, the source-understanding baseline, web source capture packages, or source-understanding render QA evidence is missing.
 - `review/source_understanding_review.html` is missing, fails required structural validation, or contains author-facing audit/source-locator tables.
 - The final review says or implies that “全球首个 Agent 原生电脑” is an official product name.

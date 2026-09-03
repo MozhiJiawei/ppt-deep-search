@@ -6,7 +6,7 @@ Use this rubric after the candidate agent finishes. The judge may inspect the ca
 
 Score each dimension from 0 to 3.
 
-- HITL Workflow Discipline: asks for missing source scope, comparison targets, evidence gaps, and approval before writing final artifacts.
+- HITL Workflow Discipline: asks for missing source scope, evidence gaps, and approval before writing final artifacts.
 - Stakeholder Incorporation: uses the main agent's human answers to shape the source explanation and evidence boundaries without merely echoing them.
 - Source Understanding: identifies GOAL-MEM's failure diagnosis for utterance-based retrieval, backward-chaining subgoal decomposition, NL-Logic/verifiable unification mechanism, compatibility with memory backbones, benchmark results, and depth/breadth tradeoffs with concrete
   source locators.
@@ -20,7 +20,7 @@ Score each dimension from 0 to 3.
 
 Treat any of the following as a likely fail:
 
-- The candidate skips human-in-the-loop approval and writes final files immediately despite missing source scope, comparison target, evidence gap, or approval decisions.
+- The candidate skips human-in-the-loop approval and writes final files immediately despite missing source scope, evidence gap, or approval decisions.
 - The candidate skips the Source Understanding review artifact gate, or `review/source_understanding_review.html`, exported screenshots, `review/visual-qa.md`, the source-understanding baseline, or source-understanding render QA evidence is missing.
 - `review/source_understanding_review.html` is missing, fails required structural validation, or contains author-facing audit/source-locator tables.
 - The final review is a generic paper summary with no clear source explanation or evidence boundary.

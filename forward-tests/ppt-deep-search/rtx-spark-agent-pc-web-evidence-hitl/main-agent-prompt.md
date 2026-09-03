@@ -37,7 +37,7 @@ Use a child-agent mechanism that can receive follow-up input from the main agent
 
 After dispatch, wait for the child agent's first substantive response.
 
-- If it asks about source scope, comparison targets, evidence gaps, or approval, answer as the stakeholder.
+- If it asks about source scope, evidence gaps, or approval, answer as the stakeholder.
 - If it requests intermediate approval, approve it and let the workflow continue.
 - If it writes final `review/source_understanding_review.html` before any stakeholder answer, stop the child agent and record a HITL workflow failure.
   Do not accept raw HTML, web search snippets, or hand-written excerpts as substitutes for `source.md` plus article/main-region original image assets.
